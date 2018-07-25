@@ -1,0 +1,60 @@
+# Build directories
+build*/
+
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+
+# Backup and Temporary Files
+*.bak
+*~
+*.swp
+
+# C Files
+*.o
+*.a
+*.d
+
+# Library
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Ctags Index
+tags
+
+# Eclipse IDE
+.cproject
+.project
+.settings
+.externalToolBuilders
+*.pydevproject
+
+# Git
+*.orig
+
+# Jetbrains IDEs
+.idea/
+
+# Python
+*.pyc
+env/
+
+# Sublime Text Editor
+*.sublime-project
+*.sublime-workspace
+
+# Visual Studio Code IDE
+.vscode/
