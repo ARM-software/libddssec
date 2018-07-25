@@ -36,6 +36,8 @@ message(STATUS "Backend selected: ${BACKEND}")
 set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME})
 set(PROJECT_SOURCE "")
 
+add_subdirectory(doc)
+
 #
 # Backend specific settings
 #

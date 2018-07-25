@@ -36,6 +36,11 @@ To build __libddssec__, the following tools are required:
 - Gnu Make (4.1 or later)
 - GCC (5.6 or later)
 
+In addition, the following tools are recommended:
+
+- Doxygen (1.8.11 or later): Required to build supporting documentation
+- Dot (Graphviz 2.38 or later): Required to add diagrams in the documentation
+
 The following libraries are required:
 - OpenSSL (1.0.2g or later): Used by the OpenSSL backend
 
@@ -54,6 +59,21 @@ Enter the build directory and run ```cmake```:
 To build the library, use ```make```:
 
     $> make
+
+Documentation
+-------------
+
+If Doxygen is available on the system containing the __libddssec__ then
+comprehensive documentation can be generated. The complete set of documentation
+is compiled into a bundle in HTML format and placed in the *_build_/doc*
+directory.
+
+After you create a build directory and run cmake, from within your _build_
+directory Doxygen can be invoked using the __doc__ target:
+
+    $> make doc
+
+The documentation can then be found in _build_/doc/html/.
 
 License
 -------
