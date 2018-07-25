@@ -31,9 +31,19 @@ endif()
 message(STATUS "Backend selected: ${BACKEND}")
 
 #
+# Generate version header
+#
+set(version_header ${CMAKE_CURRENT_BINARY_DIR}/include/dsec_version.h)
+message(STATUS "Generating version header in ${version_header}")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/dsec_version.h.in ${version_header})
+
+#
 # Common settings for all backends
 #
-set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME})
+set(INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}
+        ${CMAKE_CURRENT_BINARY_DIR}/include
+)
 set(PROJECT_SOURCE "")
 
 #

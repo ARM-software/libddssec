@@ -1,0 +1,52 @@
+/*
+ * DDS Security library
+ * Copyright (c) 2018, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/*!
+ * \file
+ * \brief \copybrief GroupVersion
+ */
+
+#ifndef DSEC_VERSION_H
+#define DSEC_VERSION_H
+
+/*!
+ * \defgroup GroupVersion Version
+ *
+ * \brief Library version definitions and API.
+ * \{
+ */
+
+/*!
+ * \brief Major version number.
+ */
+#define DSEC_VERSION_MAJOR ${PROJECT_VERSION_MAJOR}
+
+/*!
+ * \brief Minor version number.
+ */
+#define DSEC_VERSION_MINOR ${PROJECT_VERSION_MINOR}
+
+/*!
+ * \brief Patch version number.
+ */
+#define DSEC_VERSION_PATCH ${PROJECT_VERSION_PATCH}
+
+/*!
+ * \brief Retrieve version string.
+ *
+ * \return String with the library's version.
+ */
+static inline const char * dsec_version(void)
+{
+    return "${PROJECT_VERSION}";
+}
+
+/*!
+ * \}
+ */
+
+#endif /* DSEC_VERSION_H */
