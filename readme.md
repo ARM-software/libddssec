@@ -40,6 +40,8 @@ In addition, the following tools are recommended:
 
 - Doxygen (1.8.11 or later): Required to build supporting documentation
 - Dot (Graphviz 2.38 or later): Required to add diagrams in the documentation
+- Python (3.5 or later): Required to run the Python based utilities under the
+  tools/ directory
 
 The following libraries are required:
 - OpenSSL (1.0.2g or later): Used by the OpenSSL backend
