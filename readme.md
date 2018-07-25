@@ -27,6 +27,34 @@ current implementation targets two backends:
 * OpenSSL – Provides backwards compatibility on systems without a trusted
   environment support.
 
+Prerequisites
+-------------
+
+To build __libddssec__, the following tools are required:
+
+- CMake (3.5 or later)
+- Gnu Make (4.1 or later)
+- GCC (5.6 or later)
+
+The following libraries are required:
+- OpenSSL (1.0.2g or later): Used by the OpenSSL backend
+
+Building the library
+--------------------
+
+Create a directory for the build output:
+
+    $> mkdir build
+
+Enter the build directory and run ```cmake```:
+
+    $> cd build
+    $> cmake ..
+
+To build the library, use ```make```:
+
+    $> make
+
 License
 -------
 
