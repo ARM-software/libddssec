@@ -18,7 +18,7 @@ if(BUILD_DOCUMENTATION)
     set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
 
     # Space separated list of include directories
-    string(REPLACE ";" " " INCLUDES_INPUT "${INCLUDES}")
+    string(REPLACE ";" " " INCLUDES_INPUT "${TEST_INCLUDES}")
 
     # Generate Doxygen configuration file using template
     configure_file(${doxyfile_in} ${doxyfile})

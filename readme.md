@@ -62,6 +62,13 @@ To build the library, use ```make```:
 
     $> make
 
+Verification
+------------
+
+To build and run the unit tests:
+
+    $> make build_and_test
+
 Documentation
 -------------
 
