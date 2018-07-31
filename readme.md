@@ -69,6 +69,12 @@ To build and run the unit tests:
 
     $> make build_and_test
 
+The ```validation.py``` tool can be used during development to verify the code.
+This tool will build and run the units as well check code style and
+documentation. Execute the tool from the top level directory:
+
+    ./tools/validation.py
+
 Documentation
 -------------
 
