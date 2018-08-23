@@ -131,10 +131,10 @@ struct dsec_test_suite_desc {
  * \return None.
  */
 #define DSEC_TEST_ASSERT(EXPRESSION) \
-    ({ \
+    __extension__({ \
         if (!(EXPRESSION)) \
             __dsec_test_assert_fail(#EXPRESSION, __FILE__, __LINE__, \
-                __FUNCTION__); \
+                __func__); \
     })
 
 /*!
