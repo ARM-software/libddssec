@@ -12,9 +12,9 @@ set(${PROJECT_NAME}_DESCRIPTION_SUMMARY "DDS Security library")
 message(STATUS "${${PROJECT_NAME}_DESCRIPTION_SUMMARY} version ${PROJECT_VERSION}")
 
 # Toolchain options
-set (CMAKE_C_STANDARD_REQUIRED ON)
-set (CMAKE_C_STANDARD 11)
-set (COMPILE_OPTIONS
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
+set(COMPILE_OPTIONS
         -Wall
         -Wextra
         -Werror
