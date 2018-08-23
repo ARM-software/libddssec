@@ -14,7 +14,15 @@ message(STATUS "${${PROJECT_NAME}_DESCRIPTION_SUMMARY} version ${PROJECT_VERSION
 # Toolchain options
 set (CMAKE_C_STANDARD_REQUIRED ON)
 set (CMAKE_C_STANDARD 11)
-set (COMPILE_OPTIONS -Wall -Wextra -Werror -Wno-missing-field-initializers -Wno-unused-parameter)
+set (COMPILE_OPTIONS
+        -Wall
+        -Wextra
+        -Werror
+        -Wno-missing-field-initializers
+        -Wno-unused-parameter
+        -pedantic
+        -pedantic-errors
+)
 
 #
 # Backend selection
