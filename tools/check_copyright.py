@@ -12,13 +12,12 @@ This checker supports the following comment styles:
     * Used by .c, .h and .s/.S files
     # Used by Makefile (including .mk), .py (Python) and dxy (Doxygen) files
 """
-import collections
+
 import datetime
-import fnmatch
-import os
 import re
 import sys
 from itertools import islice
+from walk import Walk
 
 #
 # Directories to exclude
@@ -80,29 +79,6 @@ class ErrorYearNotCurrent(Exception):
     pass
 
 
-Pattern = collections.namedtuple('patterns', ['dirs_only', 'general'])
-
-
-def is_ignored(filename, patterns):
-    # Check if file is not in the ignore list
-    for pattern in patterns:
-        if fnmatch.fnmatch(filename, pattern):
-            return True
-    return False
-
-
-def is_valid_file(filename, patterns):
-    for file_type in FILE_TYPES:
-        # Check if file is meant to be processed
-        if fnmatch.fnmatch(filename, file_type):
-            if is_ignored(filename, patterns):
-                return False
-
-            return True
-
-    return False
-
-
 def check_copyright(pattern, filename):
     with open(filename, encoding="utf-8") as file:
         # Read just the first HEAD_LINE_COUNT lines of a file
@@ -126,51 +102,6 @@ def check_copyright(pattern, filename):
             raise ErrorYearNotCurrent
 
 
-def prepare_ignore_patterns():
-    patterns = []
-    # Load ignore patterns from .gitignore
-    not_supported = set('!\\')
-    with open('.gitignore', 'r') as f:
-        for l in f:
-            line = l.strip()
-            # Ignore empty lines
-            if not line:
-                continue
-            # Ignore comments
-            if line.startswith('#'):
-                continue
-
-            if any((c in not_supported) for c in line):
-                print("Error: Pattern {} not supported by this tool."
-                      .format(line))
-                sys.exit(1)
-
-            patterns.append(line)
-
-    # Add patterns from the IGNORE list
-    patterns.extend(IGNORE)
-
-    directory_patterns = []
-    general_patterns = []
-
-    # Split out patterns that affect directory only
-    for pattern in patterns:
-        pattern = pattern.strip()
-
-        if not pattern.endswith('/'):
-            general_patterns.append(pattern)
-
-        else:
-            # Remove trailing slash
-            pattern = pattern[:-1]
-
-        # Note: patterns used to filter directory are not restricted to the
-        # ones ending with '/'
-        directory_patterns.append(pattern)
-
-    return Pattern(dirs_only=directory_patterns, general=general_patterns)
-
-
 def main():
     pattern = re.compile(LICENSE_PATTERN, re.MULTILINE)
     error_year_count = 0
@@ -179,33 +110,22 @@ def main():
 
     print("Checking the copyrights in the code...")
 
-    cwd = os.getcwd()
-    print("Executing from {}".format(cwd))
+    walk = Walk(IGNORE, FILE_TYPES)
+    for filename in walk.files():
+        try:
+            check_copyright(pattern, filename)
+        except ErrorYear:
+            print("{}: Invalid year format.".format(filename))
+            error_year_count += 1
 
-    # Load exclude patterns
-    patterns = prepare_ignore_patterns()
+        except ErrorCopyright:
+            print("{}: Invalid copyright header.".format(filename))
+            error_copyright_count += 1
 
-    for root, dirs, files in os.walk(cwd, topdown=True):
-        # Check if directory is ignored
-        dirs[:] = [d for d in dirs if not is_ignored(d, patterns.dirs_only)]
-
-        for file in files:
-            filename = os.path.relpath(os.path.join(root, file), cwd)
-            if is_valid_file(filename, patterns.general):
-                try:
-                    check_copyright(pattern, filename)
-                except ErrorYear:
-                    print("{}: Invalid year format.".format(filename))
-                    error_year_count += 1
-
-                except ErrorCopyright:
-                    print("{}: Invalid copyright header.".format(filename))
-                    error_copyright_count += 1
-
-                except ErrorYearNotCurrent:
-                    print("{}: Outdated copyright year range.".
-                          format(filename))
-                    error_incorrect_year_count += 1
+        except ErrorYearNotCurrent:
+            print("{}: Outdated copyright year range.".
+                  format(filename))
+            error_incorrect_year_count += 1
 
     if error_year_count != 0 or error_copyright_count != 0 or \
        error_incorrect_year_count != 0:
