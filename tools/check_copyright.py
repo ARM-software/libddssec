@@ -7,10 +7,7 @@
 #
 
 """
-Check if a given file includes the correct license header.
-This checker supports the following comment styles:
-    * Used by .c, .h and .s/.S files
-    # Used by Makefile (including .mk), .py (Python) and dxy (Doxygen) files
+Check if the project files include the correct license information.
 """
 
 import datetime
