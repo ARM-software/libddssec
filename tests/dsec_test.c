@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 /* Test information provided by the test suite */
-extern struct dsec_test_suite_desc test_suite;
+extern const struct dsec_test_suite_desc test_suite;
 
 static jmp_buf test_buf_context;
 
