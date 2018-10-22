@@ -42,6 +42,7 @@ In addition, the following tools are recommended:
 - Dot (Graphviz 2.38 or later): Required to add diagrams in the documentation
 - Python (3.5 or later): Required to run the Python based utilities under the
   tools/ directory
+- checkpatch.pl (4.9 or later): Required by check_style.py.
 
 The following libraries are required:
 - OpenSSL (1.0.2g or later): Used by the OpenSSL backend
