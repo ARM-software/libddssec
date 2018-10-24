@@ -60,6 +60,7 @@ def process_results(results):
 
 def main():
     results = []
+    threads = len(os.sched_getaffinity(0))
 
     banner('Style validation')
 
@@ -79,6 +80,13 @@ def main():
         subprocess.call('cmake ..', shell=True)
         result = subprocess.call('make doc', shell=True)
         results.append(('Check doc', result))
+
+    banner('Builds')
+
+    with build_directory():
+        subprocess.call('cmake ..', shell=True)
+        result = subprocess.call('make -j{}'.format(threads), shell=True)
+        results.append(('Build libddssec', result))
 
     banner('Unit tests')
 

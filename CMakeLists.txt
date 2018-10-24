@@ -52,7 +52,10 @@ set(INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${CMAKE_CURRENT_BINARY_DIR}/include
 )
-set(PROJECT_SOURCE "")
+
+set(PROJECT_SOURCE
+        src/dsec_rand.c
+)
 
 #
 # Test support
