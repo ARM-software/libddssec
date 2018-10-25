@@ -58,3 +58,6 @@ env/
 
 # Visual Studio Code IDE
 .vscode/
+
+# Allow Makefile in the trusted application
+!trusted_application/src/Makefile

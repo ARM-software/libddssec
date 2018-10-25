@@ -88,6 +88,11 @@ def main():
         result = subprocess.call('make -j{}'.format(threads), shell=True)
         results.append(('Build libddssec', result))
 
+    with build_directory():
+        subprocess.call('cmake ..', shell=True)
+        result = subprocess.call('make ta', shell=True)
+        results.append(('Build trusted application', result))
+
     banner('Unit tests')
 
     with build_directory():

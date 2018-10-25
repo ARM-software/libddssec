@@ -51,6 +51,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/dsec_version.
 set(INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${CMAKE_CURRENT_BINARY_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/trusted_application/include
 )
 
 set(PROJECT_SOURCE
@@ -117,6 +118,11 @@ add_subdirectory(tests)
 # Documentation
 #
 add_subdirectory(doc)
+
+#
+# Trusted Application
+#
+add_subdirectory(trusted_application)
 
 #
 # Backend specific settings

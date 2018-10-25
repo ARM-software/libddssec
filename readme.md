@@ -47,8 +47,11 @@ In addition, the following tools are recommended:
 The following libraries are required:
 - OpenSSL (1.0.2g or later): Used by the OpenSSL backend
 
-Building the library
---------------------
+For the dependencies to build the trusted application, please consult the
+[OPTEE-OS](https://github.com/OP-TEE/optee_os) documentation.
+
+Building the library and trusted application
+--------------------------------------------
 
 Create a directory for the build output:
 
@@ -62,6 +65,23 @@ Enter the build directory and run ```cmake```:
 To build the library, use ```make```:
 
     $> make
+
+To build the trusted application, use the target ```ta```. Ensure the
+TA_DEV_KIT_DIR environment variable points to the OPTEE-OS build targeting your
+platform. You may also set CROSS_COMPILE according to your development
+environment. Example:
+
+    $> export TA_DEV_KIT_DIR=<path to optee_os build>/<platform>/export-ta_xxx
+    $> export CROSS_COMPILE=<cross-compiler path and prefix>
+    $> make ta
+
+To clean the trusted application build, use the target ```ta-clean```:
+
+    $> make ta-clean
+
+For more details on the OPTEE-OS environment variables, consult the
+[OPTEE Examples](https://github.com/linaro-swg/optee_examples/blob/master/docs/TA_basics.md)
+documentation.
 
 Verification
 ------------

@@ -33,6 +33,7 @@ FILE_TYPES = [
     '*.py',
     '.clang-format',
     '**CMakeLists.txt',
+    '**Makefile'
 ]
 
 #
