@@ -32,9 +32,15 @@ class Walk:
             do_something(filename)
     """
 
-    __Pattern = collections.namedtuple('patterns', ['dirs_only', 'general'])
+    __Pattern = collections.namedtuple('patterns',
+                                       ['dirs_only', 'general', 'negated'])
 
     def __is_ignored(self, filename, patterns):
+        # Check if filename matches a negated pattern
+        for pattern in self.ignore_patterns.negated:
+            if fnmatch.fnmatch(filename, pattern):
+                return False
+
         # Check if file is not in the ignore list
         for pattern in patterns:
             if fnmatch.fnmatch(filename, pattern):
@@ -54,8 +60,8 @@ class Walk:
 
     def __prepare_ignore_patterns(self, ignore):
         patterns = []
+        negated = []
         # Load ignore patterns from .gitignore
-        not_supported = set('!\\')
         with open('.gitignore', 'r') as f:
             for l in f:
                 line = l.strip()
@@ -66,10 +72,22 @@ class Walk:
                 if line.startswith('#'):
                     continue
 
-                if any((c in not_supported) for c in line):
+                # Backslash based patterns are not supported
+                if line.startswith('\\'):
                     raise NotImplementedError(
                         "Pattern {} not supported by this tool."
                         .format(line))
+
+                # Patterns that negate a pattern
+                if line.startswith('!'):
+                    # Do not support negating directories
+                    if line.endswith('/'):
+                        raise NotImplementedError(
+                            "Pattern {} not supported by this tool."
+                            .format(line))
+                    # Remove "!" character when adding to the 'negated' list
+                    negated.append(line[1:])
+                    continue
 
                 patterns.append(line)
 
@@ -95,7 +113,8 @@ class Walk:
             directory_patterns.append(pattern)
 
         return self.__Pattern(dirs_only=directory_patterns,
-                              general=general_patterns)
+                              general=general_patterns,
+                              negated=negated)
 
     def __init__(self, ignore, file_types):
         self.ignore_patterns = self.__prepare_ignore_patterns(ignore)
