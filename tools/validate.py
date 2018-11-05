@@ -7,6 +7,7 @@
 #
 
 import check_copyright
+import check_EOF
 import check_tabs
 import contextlib
 import os
@@ -67,6 +68,9 @@ def main():
 
     result = check_tabs.main()
     results.append(('Check tabs', result))
+
+    result = check_EOF.main()
+    results.append(('Check EOF', result))
 
     result = subprocess.call('pycodestyle tools/', shell=True)
     results.append(('Pycodestyle', result))
