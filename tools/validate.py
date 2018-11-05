@@ -7,6 +7,7 @@
 #
 
 import check_copyright
+import check_tabs
 import contextlib
 import os
 import subprocess
@@ -63,6 +64,9 @@ def main():
 
     result = check_copyright.main()
     results.append(('Check copyright', result))
+
+    result = check_tabs.main()
+    results.append(('Check tabs', result))
 
     result = subprocess.call('pycodestyle tools/', shell=True)
     results.append(('Pycodestyle', result))
