@@ -58,7 +58,7 @@ static unsigned int run_tests(void)
 {
     unsigned int i;
     bool success;
-    unsigned int successful_tests = 0;
+    volatile unsigned int successful_tests = 0;
     const struct dsec_test_case_desc *test_case;
 
     if (test_suite.test_suite_setup != NULL) {
