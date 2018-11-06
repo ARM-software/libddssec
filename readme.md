@@ -60,7 +60,14 @@ Create a directory for the build output:
 Enter the build directory and run ```cmake```:
 
     $> cd build
+
+    $> # Native compilation
     $> cmake ..
+
+    $> # Cross compilation
+    $> export TARGET_ARCH=<aarch64 | arm>
+    $> export CROSS_COMPILE=<cross-compiler path and prefix>
+    $> cmake -DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake ..
 
 To build the library, use ```make```:
 

@@ -34,6 +34,7 @@ FILE_TYPES = [
     '.clang-format',
     '**CMakeLists.txt',
     '**Makefile'
+    '*.cmake',
 ]
 
 #

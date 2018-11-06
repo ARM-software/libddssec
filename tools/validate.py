@@ -93,6 +93,13 @@ def main():
         result = subprocess.call('make ta', shell=True)
         results.append(('Build trusted application', result))
 
+    with build_directory():
+        subprocess.call('cmake \
+                        -DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake ..',
+                        shell=True)
+        result = subprocess.call('make -j{}'.format(threads), shell=True)
+        results.append(('Build cross-compile libddssec', result))
+
     banner('Unit tests')
 
     with build_directory():
