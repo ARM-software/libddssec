@@ -73,7 +73,7 @@ def main():
     result = check_EOF.main()
     results.append(('Check EOF', result))
 
-    result = subprocess.call('pycodestyle tools/', shell=True)
+    result = subprocess.call('pycodestyle --show-source tools/', shell=True)
     results.append(('Pycodestyle', result))
 
     with build_directory():
