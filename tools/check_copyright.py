@@ -28,6 +28,7 @@ IGNORE = [
 #
 FILE_TYPES = [
     '*.c',
+    '*.config',
     '*.h',
     '*.in',
     '*.py',
@@ -40,7 +41,7 @@ FILE_TYPES = [
 #
 # Supported comment styles (Python regex)
 #
-COMMENT_PATTERN = '^(( [*])|(;)|([#]))'
+COMMENT_PATTERN = '^(( [*])|(;)|([#])|(//))'
 
 #
 # License pattern to match
