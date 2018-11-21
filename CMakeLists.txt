@@ -25,20 +25,6 @@ set(COMPILE_OPTIONS
 )
 
 #
-# Backend selection
-#
-set(BACKEND_OPTIONS "openssl" "optee")
-set(BACKEND_DEFAULT "openssl")
-set(BACKEND ${BACKEND_DEFAULT} CACHE STRING "Select backend (${BACKEND_OPTIONS}, default:${BACKEND_DEFAULT})")
-set_property(CACHE BACKEND PROPERTY STRINGS ${BACKEND_OPTIONS})
-
-if(NOT ${BACKEND} IN_LIST BACKEND_OPTIONS)
-    message(FATAL_ERROR "Invalid BACKEND. Valid options are: ${BACKEND_OPTIONS}")
-endif()
-
-message(STATUS "Backend selected: ${BACKEND}")
-
-#
 # Generate version header
 #
 set(version_header ${CMAKE_CURRENT_BINARY_DIR}/include/dsec_version.h)
@@ -46,7 +32,7 @@ message(STATUS "Generating version header in ${version_header}")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/dsec_version.h.in ${version_header})
 
 #
-# Common settings for all backends
+# Source files
 #
 set(INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}
@@ -123,17 +109,6 @@ add_subdirectory(doc)
 # Trusted Application
 #
 add_subdirectory(trusted_application)
-
-#
-# Backend specific settings
-#
-if(${BACKEND} STREQUAL "openssl")
-    find_package(OpenSSL REQUIRED)
-    list(APPEND INCLUDES ${OPENSSL_INCLUDE_DIR})
-    add_definitions(-DHAVE_OPENSSL=1)
-else()
-    message(FATAL_ERROR "${BACKEND} is currently not supported")
-endif()
 
 #
 # Library settings
