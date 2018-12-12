@@ -9,7 +9,7 @@
 """
     Check for tabs in the source code.
 """
-from walk import Walk
+from utils import Walk
 import argparse
 import os
 import shutil

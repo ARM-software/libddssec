@@ -18,7 +18,7 @@ import argparse
 import os
 import sys
 import subprocess
-from walk import Walk
+from utils import Walk
 
 #
 # Directories to ignore relative to where the tool is being invoked.

@@ -7,8 +7,10 @@
 #
 
 import collections
+import contextlib
 import fnmatch
 import os
+import tempfile
 
 
 class Walk:
@@ -134,3 +136,22 @@ class Walk:
                                         self.ignore_patterns.general,
                                         self.file_types):
                     yield filename
+
+
+@contextlib.contextmanager
+def build_directory():
+    """
+    Create a temporary build directory under the current working directory
+    using an unique name. The directory is automatically removed when the
+    context is destroyed. Example of usage:
+
+    with build_directory():
+        do_something_that_generate_files()
+    """
+    temp_dir = tempfile.TemporaryDirectory(prefix='build-', dir=os.getcwd())
+    previous_path = os.getcwd()
+    os.chdir(temp_dir.name)
+    try:
+        yield
+    finally:
+        os.chdir(previous_path)

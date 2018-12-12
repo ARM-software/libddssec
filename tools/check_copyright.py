@@ -14,7 +14,7 @@ import datetime
 import re
 import sys
 from itertools import islice
-from walk import Walk
+from utils import Walk
 
 #
 # Directories to exclude

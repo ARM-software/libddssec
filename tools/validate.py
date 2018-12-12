@@ -9,28 +9,16 @@
 import check_copyright
 import check_EOF
 import check_tabs
-import contextlib
 import os
 import subprocess
 import sys
-import tempfile
+from utils import build_directory
 
 
 def banner(text):
     columns = 80
     title = ' {} '.format(text)
     print('\n\n{}'.format(title.center(columns, '*')))
-
-
-@contextlib.contextmanager
-def build_directory():
-    temp_dir = tempfile.TemporaryDirectory(prefix='build-', dir=os.getcwd())
-    previous_path = os.getcwd()
-    os.chdir(temp_dir.name)
-    try:
-        yield
-    finally:
-        os.chdir(previous_path)
 
 
 def process_results(results):
