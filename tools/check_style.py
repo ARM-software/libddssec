@@ -16,6 +16,7 @@ Exit codes:
 
 import argparse
 import os
+import shutil
 import sys
 import subprocess
 from utils import Walk
@@ -99,9 +100,10 @@ def main(argv=[], prog_name=''):
                         required=False, default=input_mode_list[0])
 
     parser.add_argument('-p', '--path', action='store', dest='path',
-                        help='Path to directory where checkpatch.pl file is '
-                             'located. When not set, checkpatch.pl must be in'
-                             'the PATH.',
+                        help='Path to checkpatch.pl or the directory where '
+                             'checkpatch.pl is located. When not set, '
+                             'checkpatch.pl\'s directory must be in the PATH '
+                             'environment variable.',
                         required=False)
 
     args = parser.parse_args(argv)
@@ -124,8 +126,16 @@ def main(argv=[], prog_name=''):
                   .format(checkpatch))
             sys.exit(1)
 
+    else:
+        checkpatch = shutil.which(checkpatch)
+        if checkpatch is None:
+            print("Error: checkpatch.pl not found. Ensure checkpatch.pl's "
+                  "path was added to the environment variable $PATH or use "
+                  "the argument --path.")
+            sys.exit(1)
+
     # Print the path to checkpatch.pl as confirmation
-    print('checkpatch.pl path:', checkpatch, '\n')
+    print('checkpatch.pl path:{}\n'.format(checkpatch))
 
     # Enable optional tests
     if not args.spacing:
