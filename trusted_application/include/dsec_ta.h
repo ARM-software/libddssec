@@ -13,11 +13,9 @@
  * \{
  */
 
-/*!
- * UUID assigned to libddssec's trusted application
- */
-#define DSEC_TA_UUID {0x8ee919be, 0x3954, 0x4170, \
-    {0xb4, 0xc2, 0xda, 0x16, 0x9f, 0x39, 0x53, 0x6e} }
+#ifndef DSEC_TA_UUID
+    #error "DSEC_TA_UUID not defined"
+#endif
 
 /*!
  * \}

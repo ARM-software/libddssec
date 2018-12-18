@@ -50,6 +50,20 @@ set(PROJECT_SOURCE
 )
 
 #
+# Trusted Application
+#
+set(DSEC_TA_UUID
+    "{0x8ee919be,0x3954,0x4170,{0xb4,0xc2,0xda,0x16,0x9f,0x39,0x53,0x6e}}")
+set(DSEC_TA_UUID_STRING "8ee919be-3954-4170-b4c2-da169f39536e")
+
+list(APPEND COMPILE_DEFINITIONS
+    -DDSEC_TA_UUID=${DSEC_TA_UUID}
+    -DDSEC_TA_UUID_STRING="${DSEC_TA_UUID_STRING}"
+)
+
+add_subdirectory(trusted_application)
+
+#
 # Test support
 #
 
@@ -113,11 +127,6 @@ add_subdirectory(tests)
 # Documentation
 #
 add_subdirectory(doc)
-
-#
-# Trusted Application
-#
-add_subdirectory(trusted_application)
 
 #
 # Library settings
