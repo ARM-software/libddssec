@@ -12,6 +12,7 @@ may use non-ASCII characters when required (e.g. Greek letters used for units).
 
 Naming
 ------
+
 Function, variable, file name and type names must:
 - Be written in lower-case
 - Have compound words separated by underline characters
@@ -30,6 +31,7 @@ It is fine and encouraged to use a variable named "i" (index) for loops.
 
 Header Files
 ------------
+
 The contents of a header file should be wrapped in an 'include guard' to prevent
 accidental multiple inclusion of a single header. The definition name should be
 the upper-case file name followed by "_H". An example for dsec_auth.h follows:
@@ -55,6 +57,7 @@ includes.
 
 Inclusions
 ----------
+
 Header file inclusions should follow a consistent sequence, defined as:
 
 - Headers from the DDS Security library
@@ -65,6 +68,7 @@ For each group, order the individual headers alphabetically.
 
 Indentation and Scope
 ---------------------
+
 Indentation is made of spaces, 4 characters long with each line being at most 80
 characters long.
 Following K&R style, the open-brace goes on the same line as the statement:
@@ -209,6 +213,7 @@ possible.
 
 Types
 -----
+
 Import "stdint.h" (part of the C Standard Library) for exact-width integer types
 (uint8_t, uint16_t, etc). These types can be used wherever the width of an
 integer needs to be specified explicitly.
@@ -237,6 +242,7 @@ size = sizeof(counter);
 
 Operator Precedence
 -------------------
+
 Do not rely on the implicit precedence and associativity of C operators. Use
 parenthesis to make precedence and associativity explicit:
 
@@ -254,6 +260,7 @@ if (!a || &a)
 
 Comments
 --------
+
 To ensure a consistent look, the preferred style for single-line comments is to
 use the C89 style of paired forward-slashes and asterisks:
 
@@ -273,6 +280,7 @@ For multi-line comments the same applies, adding an asterisk on each new line:
 
 Macros and Constants
 --------------------
+
 All names of macros and constants must be written in upper-case to differentiate
 them from functions and variables.
 
@@ -299,6 +307,7 @@ Prefer inline functions instead of macros.
 
 Initialization
 --------------
+
 When local variables require being initialized to 0, please use their respective
 type related initializer value:
 - 0 (zero) for integers
@@ -331,6 +340,7 @@ struct node node = {
 
 Doxygen Comments
 ----------------
+
 The project APIs are documented using Doxygen comments.
 
 It is mandatory to document every API exposed by the library.
