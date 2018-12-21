@@ -240,6 +240,44 @@ unsigned int counter;
 size = sizeof(counter);
 ```
 
+When local variables require being initialized to 0, please use their respective
+type related initializer value:
+- 0 (zero) for integers
+- 0.0 for float/double
+- '\0' for chars
+- NULL for pointers
+- false for booleans (stdbool.h)
+
+Array and structure initialization should use designated initializers. These
+allow elements to be initialized using array indexes or structure field names
+and without a fixed ordering.
+
+Array initialization example:
+
+```C
+uint32_t key[3] = {
+    [0] = 123,
+    [1] = 456,
+};
+```
+
+When evaluating the boolean result of a pointer content, use explicit comparison
+against NULL:
+
+```C
+    if (ptr != NULL)
+        do_something();
+```
+
+Structure initialization example:
+
+```C
+struct node node = {
+    .name = "Node",
+    .value = 42,
+};
+```
+
 Operator Precedence
 -------------------
 
@@ -254,7 +292,7 @@ if ((a == 'a') || (x == 'x'))
 Parenthesis around a unary operator and its operand may be omitted:
 
 ```C
-if (!a || &a)
+if (!a || !b)
     do_something();
 ```
 
@@ -304,39 +342,6 @@ void process_cmd(enum command_id id)
 ```
 
 Prefer inline functions instead of macros.
-
-Initialization
---------------
-
-When local variables require being initialized to 0, please use their respective
-type related initializer value:
-- 0 (zero) for integers
-- 0.0 for float/double
-- \0 for chars
-- NULL for pointers
-- false for booleans (stdbool.h)
-
-Array and structure initialization should use designated initializers. These
-allow elements to be initialized using array indexes or structure field names
-and without a fixed ordering.
-
-Array initialization example:
-
-```C
-uint32_t key[3] = {
-    [0] = 123,
-    [1] = 456,
-};
-```
-
-Structure initialization example:
-
-```C
-struct node node = {
-    .name = "Node",
-    .value = 42,
-};
-```
 
 Doxygen Comments
 ----------------
