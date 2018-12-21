@@ -343,22 +343,83 @@ Doxygen Comments
 
 The project APIs are documented using Doxygen comments.
 
-It is mandatory to document every API exposed by the library.
+It is mandatory to document every API exposed by the library and each interface
+exposed by the trusted application.
 By default, the provided Doxygen configuration omits undocumented elements from
 the compiled documentation.
 
+Every header file containing public API must include:
+- A "\file" tag which will instruct Doxygen to show the header file name
+  allowing the user to know which header file needs to be included.
+- APIs must be enclosed by a Group definition used organize them in sections.
+
+
+File documentation example (dsec_foo.h):
+
+```C
+/*
+ * DDS Security library
+ * Copyright (c) 2018, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/*!
+ * \file
+ * \brief \copybrief GroupFoo
+ */
+
+#ifndef DSEC_FOO_H
+#define DSEC_FOO_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*!
+ * \defgroup GroupFoo Foo
+ *
+ * \brief Foo group description.
+ * \{
+ */
+
+[... API ...]
+
+/*!
+ * \}
+ */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* DSEC_FOO_H */
+```
+
 At a minimum:
-- All functions and structures must have at least a "\brief" tag.
+- All functions, structures and defines must have a "\brief" entry.
 - All functions must document their parameters (if any) with the "\param" tag.
-- All functions should use the "\return" or "\retval" tags to document their
-return value. When the return is void, simply give "None" as the return value.
+- Pointers to storage used to return data from a function should be decorated
+  with the "[out]" tag. \param [out] ptr Pointer to buffer
+- All functions should document their return value:
+  - Use "\retval" tag to specify individual values
+  - Use the "\return" tag to describe the possible values
+  - When the return is void, simply use "\return None."
 
 Alignment and indentation:
 - Documentation must also obey the 80 columns limit.
 - Multiple lines of documentation on an entry (e.g. details) must be indented
-using the equivalent of two 4-space based tabs (see example below).
+  using the equivalent of two 4-space based tabs (see example below).
 
-Function documentation example:
+References:
+- When making references to other symbols (e.g. structs or functions), you must
+  use \ref. Apart from creating a link on the generated documentation, this will
+  also ensure broken links (e.g. when updating API names) are caught during the
+  document generation.
+- \return and \retval, do not allow using \ref. In this case, you must prepend
+  :: (double colon) to the symbol being referred to.
+
+Function documentation examples:
 
 ```C
 /*!
@@ -369,7 +430,20 @@ Function documentation example:
  *
  * \return None.
  */
-void dsec_feature_enable(void);
+void dsec_foo_feature_enable(void);
+
+/*!
+ * \brief Do something.
+ *
+ * \details This function does something and returns it on buffer.
+ *
+ * \param [out] buffer Pointer to storage where random data will be written.
+ * \param size Buffer size in bytes.
+ *
+ * \retval ::DSEC_SUCCESS Success.
+ * \retval ::DSEC_E_PARAM buffer pointer is invalid (NULL).
+ */
+int dsec_foo_do(void *buffer, size_t size);
 ```
 
 Structure documentation example:
