@@ -34,10 +34,15 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/dsec_version.
 #
 # Source files
 #
-set(INCLUDES
+set(PROJECT_INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${CMAKE_CURRENT_BINARY_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/trusted_application/include
+)
+
+# Files from external libraries which need to be included in the source but
+# which don't need to be checked for documentation.
+set(EXTERNAL_INCLUDES
 )
 
 set(PROJECT_SOURCE
@@ -89,7 +94,11 @@ function(dsec_add_test)
 
     add_executable(${ARG_TEST_NAME} ${TEST_SOURCES} ${ARG_TEST_SOURCE})
     target_compile_options(${ARG_TEST_NAME} PRIVATE ${COMPILE_OPTIONS})
-    target_include_directories(${ARG_TEST_NAME} PUBLIC ${TEST_INCLUDES})
+    target_include_directories(${ARG_TEST_NAME} PUBLIC
+        ${EXTERNAL_INCLUDES}
+        ${PROJECT_INCLUDES}
+        ${TEST_INCLUDES}
+    )
     add_test(${ARG_TEST_NAME} ${ARG_TEST_NAME})
     add_dependencies(build_and_test ${ARG_TEST_NAME})
 endfunction()
@@ -116,4 +125,8 @@ add_subdirectory(trusted_application)
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
+target_include_directories(
+    ${PROJECT_NAME} PUBLIC
+    ${EXTERNAL_INCLUDES}
+    ${PROJECT_INCLUDES}
+)
