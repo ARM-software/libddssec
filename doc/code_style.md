@@ -483,3 +483,54 @@ When contributing to libddssec, Git commit messages must follow these rules:
 - Summarize 'what' is the commit adding/changing and describe 'why' it is
   required
 - Commits must have a 'Signed-off-by:' entry
+
+CMake Style
+-----------
+
+CMake files (CMakeLists.txt and .cmake) must follow the following rules.
+Some of the above rules are enforced by the use of ``cmakelint`` tool.
+
+- CMake version should be set to 3.5: ``cmake_minimum_required(VERSION 3.5)``
+- No use of tabs
+- Indentation size is 4 spaces
+- Maximum 80 columns per line
+  - To avoid unwanted indentation for strings, use a temporary variable as
+follows:
+```CMake
+string(CONCAT WARNING_MSG
+    "The variable FOUND_LIBRARIES does not seem to be properly defined. "
+    "Its value is set to: "
+    "${FOUND_LIBRARIES} and seems invalid..."
+)
+message(WARNING ${WARNING_MSG})
+```
+- Long lines must be broken as follows:
+  - The closing parenthesis should be indented with the function name
+  - Arguments must starts with 1 indentation:
+```CMake
+function_name(
+    ${ARGUMENT_NAME}
+    COMMAND
+        ${EXECUTABLE}
+    DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+)
+```
+- Long control statements should be splited as follows:
+```CMake
+if(LONG_VARIABLE_CONDITION1 OR
+    LONG_VARIABLE_CONDITION2 AND
+    LONG_VARIABLE_CONDITION3)
+
+    statement1
+```
+- CMake and custom functions (e.g. ``set()``, ``find_package()``), control
+statements (e.g. ``if()``, ``else()``) must be written in lower-case
+- Custom functions and variables must have compound words separated by underline
+characters
+- All variables declared must be uppercase
+- Mixing upper and lower cases is forbidden
+- Use empty commands for ``end*()`` and ``else()``
+- Do not add spaces before and after parenthesis: ``if ( FOUND )`` is
+forbidden and must be written ``if(FOUND)``
+- When assigning paths to variables, do not include a slash at the end

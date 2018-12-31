@@ -38,6 +38,7 @@ In addition, the following tools are recommended:
 - Python (3.5 or later): Required to run the Python based utilities under the
   tools/ directory
 - checkpatch.pl (4.9 or later): Required by check_style.py.
+- cmakelint (1.4 or later): Required by check_style_cmake.py.
 
 The following libraries are required:
 - Pexpect: Used by validate.py to interact with remote devices
