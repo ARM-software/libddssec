@@ -19,14 +19,9 @@ can be discounted as untrusted.
 The DDS Security library (__libddssec__) is an open source software library that
 provides security services for implementations of the Data Distribution Service
 (DDS) specification [1]. The main goal of the _libddssec_ is to offer a common
-implementation of the security operations using different technologies. The
-current implementation targets two backends:
-
-* OP-TEE – Security operations are offloaded to run under a trusted environment
-  (e.g. protected using Arm's TrustZone™).
-* OpenSSL – Provides backwards compatibility on systems without a trusted
-  environment support.
-
+implementation of the security operations using Arm's TrustZone IP [2]. This
+implementation uses OP-TEE [3] to isolate secure operations and assets under a
+Trusted Execution Environment.
 Prerequisites
 -------------
 
@@ -45,7 +40,6 @@ In addition, the following tools are recommended:
 - checkpatch.pl (4.9 or later): Required by check_style.py.
 
 The following libraries are required:
-- OpenSSL (1.0.2g or later): Used by the OpenSSL backend
 - Pexpect: Used by validate.py to interact with remote devices
 
 For the dependencies to build the trusted application, please consult the
@@ -169,6 +163,8 @@ References
 ----------
 
 [1] https://www.omg.org/spec/DDS/About-DDS/
+[2] https://developer.arm.com/technologies/trustzone
+[3] https://www.op-tee.org/
 
 
 Feedback and Support
