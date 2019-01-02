@@ -1,7 +1,7 @@
 Readme
 ======
 
-Copyright (c) 2018, Arm Limited. All rights reserved.
+Copyright (c) 2018-2019, Arm Limited. All rights reserved.
 
 Introduction
 ------------
