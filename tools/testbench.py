@@ -11,6 +11,7 @@ import pexpect
 import re
 import subprocess
 import sys
+import shutil
 
 
 class TestBenchBase:
@@ -36,6 +37,9 @@ class TestBenchBase:
     # Directories required by OPTEE during run-time (not used by this tool)
     required_dirs = ['/dev/shm/lib/optee_armtz',  # Used to deploy TAs
                      '/dev/shm/data']  # Used for secure storage
+
+    # Directory containing assets to be sent back to the host
+    output_assets_directory = '/dev/shm/output_assets'
 
     # Size of the buffer that is kept in memory to find the expected output
     maxread_buffer_size = 100000000
@@ -105,6 +109,7 @@ class TestBenchBase:
             print('Logged in')
 
             do('mkdir -p {}'.format(self.assets_directory))
+            do('mkdir -p {}'.format(self.output_assets_directory))
             do('mkdir -p {}/build'.format(self.test_directory))
 
             for directory in self.required_dirs:
@@ -149,10 +154,21 @@ class TestBenchBase:
         self.terminal.logfile = None
         return self.exit_code
 
+    def _copy_output_assets(self):
+        # Archive output assets into a single tar file
+        output_assets_tar = '/dev/shm/output_assets.tar'
+        self._do('tar cf {} -C {} {}'.format(
+                 output_assets_tar,
+                 os.path.dirname(self.output_assets_directory),
+                 os.path.basename(self.output_assets_directory)))
+
+        self._host_copy(output_assets_tar)
+
     def _cleanup(self):
         self.terminal.logfile = None
         self._do('cd /')
         self._do('rm -rf {}'.format(self.test_directory))
+        self._do('rm -rf {}'.format(self.output_assets_directory))
 
     class Error(Exception):
         def __init__(self, code=1, command=None, output=None):
@@ -245,13 +261,32 @@ class TestBenchFVP(TestBenchBase):
     def _setup_assets(self):
         self._do('mount -rw {} {}'.format(self.device, self.assets_directory))
 
+    # Uses the SD card as a method of getting files out of the model. Files are
+    # copied to the SD card inside the model, then the image of the SD card is
+    # copied to the destination in the host. After this, the source file(s) are
+    # dumped outside of the SD card image using debugfs to read from the SD
+    # card image without needing superuser.
+    def _host_copy(self, tar_filename):
+        # Move the file to the mount location of the SD card image
+        self._do('mv {} {}'.format(tar_filename, self.assets_directory))
+        self._do('sync')
+        self._do('umount {}'.format(self.assets_directory))
+
+        try:
+            subprocess.check_call('debugfs -R \"rdump {} .\" {}'.format(
+                os.path.basename(tar_filename), self.assets_img.name),
+                shell=True)
+            subprocess.check_call('tar xf {}'.format(
+                os.path.basename(tar_filename)), shell=True)
+        except subprocess.CalledProcessError as e:
+            raise self.Error(code=e.returncode, command=e.cmd)
+
     def __exit__(self, *args):
         # If the remote cannot be accessed, the following commands cannot be
         # executed.
         if self.terminal.isalive():
+            self._copy_output_assets()
             self._cleanup()
-            self._do('sync')
-            self._do('umount {}'.format(self.assets_directory))
             self.terminal.sendline('shutdown -P now')
 
         self.child.terminate(force=True)
@@ -286,6 +321,28 @@ class TestBenchSSH(TestBenchBase):
             terminal.sendline(self.password)
             terminal.expect(pexpect.EOF)
 
+    # Copy to the destination on the host by placing the source in a tarball
+    # and using a secure copy (scp) pull from the host using the known IP
+    # address of the remote machine.
+    def _host_copy(self, tar_filename):
+        scp_command = \
+            'scp {} {}@{}:{} .'.format(self.ssh_port_string,
+                                       self.username,
+                                       self.ssh_ip,
+                                       tar_filename)
+
+        terminal = pexpect.spawn(scp_command, timeout=60)
+        with terminal:
+            terminal.expect(' password:')
+            terminal.sendline(self.password)
+            terminal.expect(pexpect.EOF)
+
+        try:
+            subprocess.check_call('tar xf {}'.format(
+                os.path.basename(tar_filename)), shell=True)
+        except subprocess.CalledProcessError as e:
+            raise self.Error(code=e.returncode, command=e.cmd)
+
     def __enter__(self):
         ssh_command = 'ssh {}@{}'.format(self.username, self.ssh_ip)
         if self.ssh_port:
@@ -306,6 +363,7 @@ class TestBenchSSH(TestBenchBase):
         # If the remote cannot be accessed, the following commands cannot be
         # executed.
         if self.terminal.isalive():
+            self._copy_output_assets()
             self._cleanup()
             self._do('rm -rf {}'.format(self.assets_directory))
             self.terminal.sendline('exit')
