@@ -72,6 +72,7 @@ add_subdirectory(trusted_application)
 #
 # Test support
 #
+set(TEST_COMPILE_OPTIONS ${COMPILE_OPTIONS})
 
 #
 # Function to declare a test suite:
@@ -114,7 +115,7 @@ function(dsec_add_test)
 
     add_executable(${ARG_TEST_NAME} ${TEST_SOURCES} ${ARG_TEST_SOURCE})
     target_link_libraries(${ARG_TEST_NAME} OPTEECLIENT::OPTEECLIENT)
-    target_compile_options(${ARG_TEST_NAME} PRIVATE ${COMPILE_OPTIONS})
+    target_compile_options(${ARG_TEST_NAME} PRIVATE ${TEST_COMPILE_OPTIONS})
     target_compile_definitions(${ARG_TEST_NAME} PRIVATE
         ${TEST_COMPILE_DEFINITIONS}
     )
