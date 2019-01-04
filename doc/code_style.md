@@ -471,3 +471,15 @@ Python based tools
 
 Python based tools must follow the
 [PEP8](https://www.python.org/dev/peps/pep-0008/) specification.
+
+Git Commit message
+------------------
+
+When contributing to libddssec, Git commit messages must follow these rules:
+
+- Try to keep the subject line under 50 characters
+- Try to keep the message body under 72 characters
+- Capitalize the subject line and do not end it with a period
+- Summarize 'what' is the commit adding/changing and describe 'why' it is
+  required
+- Commits must have a 'Signed-off-by:' entry
