@@ -17,7 +17,7 @@ Function, variable, file name and type names must:
 - Be written in lower-case
 - Have compound words separated by underline characters
 - Have descriptive names, avoiding contractions where possible
-(e.g.count instead of cnt)
+  (e.g.count instead of cnt)
 
 Do not use:
 - Camel case syntax (e.g. moduleSecurityType)
