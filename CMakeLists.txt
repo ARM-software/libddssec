@@ -23,8 +23,28 @@ set(COMPILE_OPTIONS
     -Werror
     -Wno-missing-field-initializers
     -Wno-unused-parameter
+    -Wfloat-equal
+    -Wformat-security
+    -Wformat-nonliteral
+    -Wformat-y2k
+    -Wmissing-declarations
+    -Wmissing-include-dirs
+    -Wmissing-noreturn
+    -Wnested-externs
+    -Wshadow
+    -Wstrict-prototypes
+    -Wswitch-default
     -pedantic
     -pedantic-errors
+    -shared
+    -fpic
+    -pipe
+    -fstack-protector-all
+    -fpie
+    -Wl,-pie
+    -Wl,-z,defs
+    -Wl,-z,now
+    -Wl,-z,relro
 )
 
 #
