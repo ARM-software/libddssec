@@ -149,7 +149,11 @@ function(dsec_add_test)
 endfunction()
 
 enable_testing()
-add_custom_target(build_and_test ${CMAKE_CTEST_COMMAND} -V)
+add_custom_target(build_and_test
+    ${CMAKE_CTEST_COMMAND}
+        --verbose
+        --timeout 200
+)
 set(TEST_SOURCES dsec_test.c dsec_test_ta.c)
 set(TEST_INCLUDES ${INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 set(DSEC_TA_LOCATION_DIR "${CMAKE_CURRENT_BINARY_DIR}/trusted_application")
