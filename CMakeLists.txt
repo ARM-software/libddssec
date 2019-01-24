@@ -115,6 +115,9 @@ function(dsec_add_test)
     add_executable(${ARG_TEST_NAME} ${TEST_SOURCES} ${ARG_TEST_SOURCE})
     target_link_libraries(${ARG_TEST_NAME} OPTEECLIENT::OPTEECLIENT)
     target_compile_options(${ARG_TEST_NAME} PRIVATE ${COMPILE_OPTIONS})
+    target_compile_definitions(${ARG_TEST_NAME} PRIVATE
+        ${TEST_COMPILE_DEFINITIONS}
+    )
     target_include_directories(${ARG_TEST_NAME} PUBLIC
         ${EXTERNAL_INCLUDES}
         ${PROJECT_INCLUDES}
@@ -126,8 +129,18 @@ endfunction()
 
 enable_testing()
 add_custom_target(build_and_test ${CMAKE_CTEST_COMMAND} -V)
-set(TEST_SOURCES dsec_test.c)
+set(TEST_SOURCES dsec_test.c dsec_test_ta.c)
 set(TEST_INCLUDES ${INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+set(DSEC_TA_LOCATION_DIR "${CMAKE_CURRENT_BINARY_DIR}/trusted_application")
+set(DSEC_TA_LOCATION "${DSEC_TA_LOCATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
+set(DSEC_TA_DESTINATION_DIR "/lib/optee_armtz")
+set(DSEC_TA_DESTINATION "${DSEC_TA_DESTINATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
+list(APPEND TEST_COMPILE_DEFINITIONS
+    -DDSEC_TA_LOCATION_DIR="${DSEC_TA_LOCATION_DIR}"
+    -DDSEC_TA_LOCATION="${DSEC_TA_LOCATION}"
+    -DDSEC_TA_DESTINATION_DIR="${DSEC_TA_DESTINATION_DIR}"
+    -DDSEC_TA_DESTINATION="${DSEC_TA_DESTINATION}"
+)
 add_subdirectory(tests)
 
 #
