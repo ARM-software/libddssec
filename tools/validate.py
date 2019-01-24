@@ -105,7 +105,7 @@ def main():
     parser = argparse.ArgumentParser()
     target = parser.add_argument_group(
         'Unit tests',
-        'Note: At least one unit test target must be selected')
+        'Note: At least one unit test target or --skip-tests must be selected')
 
     target.add_argument('--test-ssh',
                         help='Run unit tests on a target system via SSH. This \
@@ -124,6 +124,11 @@ def main():
                         metavar="<path>",
                         nargs=1)
 
+    target.add_argument('--skip-tests',
+                        help='Only do the style validation and building of \
+                              the tests. Tests are not excecuted.',
+                        action='store_true')
+
     target.add_argument('--prebuild-path', '-p',
                         help='Location of an existing build folder to use for \
                               the remote unit tests instead of building \
@@ -140,8 +145,9 @@ def main():
         args.prebuild_path =\
             os.path.abspath(os.path.expanduser(args.prebuild_path[0]))
 
-    if not args.test_ssh and not args.test_fvp:
-        print("No unit test target supplied\n", file=sys.stderr)
+    if not args.test_ssh and not args.test_fvp and not args.skip_tests:
+        print("No unit test target or --skip-tests supplied\n",
+              file=sys.stderr)
         parser.print_help()
         return 1
 
@@ -185,9 +191,9 @@ def main():
         results.append(('Build trusted application', result))
         ta_build_result = result
 
-    # Skip the unit tests if either build fails
-    if library_build_result != 0 or ta_build_result != 0:
-        print('Skipping unit tests - build failed')
+    # Skip the unit tests if either build fails or if args.skip_tests is set
+    if library_build_result != 0 or ta_build_result != 0 or args.skip_tests:
+        print('Skipping unit tests')
         results.append(('Unit tests on remote machine', None))
         results.append(('Unit tests on FVP', None))
     else:
