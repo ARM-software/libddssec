@@ -10,6 +10,7 @@ import check_copyright
 import check_EOF
 import check_tabs
 import os
+import platform
 import subprocess
 import sys
 from utils import build_directory
@@ -47,6 +48,7 @@ def process_results(results):
 
 
 def main():
+    machine = platform.machine()
     results = []
     threads = len(os.sched_getaffinity(0))
 
@@ -71,29 +73,22 @@ def main():
 
     banner('Builds')
 
+    cmake_params = ''
+    build_info = ''
+    if machine == 'x86_64':
+        print('Using cross-compilation')
+        cmake_params += '-DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake'
+        build_info += ' (cross-compiled)'
+
     with build_directory():
-        subprocess.call('cmake ..', shell=True)
+        subprocess.call('cmake {} ..'.format(cmake_params), shell=True)
         result = subprocess.call('make -j{}'.format(threads), shell=True)
-        results.append(('Build libddssec', result))
+        results.append(('Build libddssec{}'.format(build_info), result))
 
     with build_directory():
         subprocess.call('cmake ..', shell=True)
         result = subprocess.call('make ta', shell=True)
         results.append(('Build trusted application', result))
-
-    with build_directory():
-        subprocess.call('cmake \
-                        -DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake ..',
-                        shell=True)
-        result = subprocess.call('make -j{}'.format(threads), shell=True)
-        results.append(('Build cross-compile libddssec', result))
-
-    banner('Unit tests')
-
-    with build_directory():
-        subprocess.call('cmake ..', shell=True)
-        result = subprocess.call('make build_and_test', shell=True)
-        results.append(('Unit tests', result))
 
     return process_results(results)
 

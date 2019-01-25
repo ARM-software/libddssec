@@ -8,6 +8,7 @@
 cmake_minimum_required(VERSION 3.5)
 project("libddssec" VERSION 0.1.0 LANGUAGES C)
 set(${PROJECT_NAME}_DESCRIPTION_SUMMARY "DDS Security library")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 message(STATUS "${${PROJECT_NAME}_DESCRIPTION_SUMMARY} version ${PROJECT_VERSION}")
 
@@ -30,6 +31,11 @@ set(COMPILE_OPTIONS
 set(version_header ${CMAKE_CURRENT_BINARY_DIR}/include/dsec_version.h)
 message(STATUS "Generating version header in ${version_header}")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/dsec_version.h.in ${version_header})
+
+#
+# Settings for OP-TEE
+#
+find_package(OPTEECLIENT REQUIRED)
 
 #
 # Source files
@@ -107,6 +113,7 @@ function(dsec_add_test)
     endif()
 
     add_executable(${ARG_TEST_NAME} ${TEST_SOURCES} ${ARG_TEST_SOURCE})
+    target_link_libraries(${ARG_TEST_NAME} OPTEECLIENT::OPTEECLIENT)
     target_compile_options(${ARG_TEST_NAME} PRIVATE ${COMPILE_OPTIONS})
     target_include_directories(${ARG_TEST_NAME} PUBLIC
         ${EXTERNAL_INCLUDES}
@@ -132,6 +139,7 @@ add_subdirectory(doc)
 # Library settings
 #
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE})
+target_link_libraries(${PROJECT_NAME} OPTEECLIENT::OPTEECLIENT)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_include_directories(

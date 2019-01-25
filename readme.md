@@ -93,7 +93,7 @@ documentation.
 Verification
 ------------
 
-To build and run the unit tests:
+To build and run the unit tests on an Arm device:
 
     $> make build_and_test
 
