@@ -55,13 +55,13 @@ def convert(path):
 
 
 def check_EOF(filename):
-        print("processing {}".format(filename))
-        with open(filename, 'rb') as file:
-            file.seek(-1, os.SEEK_END)
-            byte = file.read()
-            if byte != b'\n':
-                print('{} is missing a newline at EOF'.format(filename))
-                raise ErrorNoNewline
+    print("processing {}".format(filename))
+    with open(filename, 'rb') as file:
+        file.seek(-1, os.SEEK_END)
+        byte = file.read()
+        if byte != b'\n':
+            print('{} is missing a newline at EOF'.format(filename))
+            raise ErrorNoNewline
 
 
 def main(argv=[], prog_name=''):
