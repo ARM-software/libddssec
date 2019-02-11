@@ -1,5 +1,4 @@
-License
-=======
+# License
 
 Copyright (c) 2018-2019, Arm Limited. All rights reserved.
 

@@ -1,17 +1,16 @@
-Coding Style
-============
+# Coding Style
+---
 
 To maintain consistency within the DDS Security library source code a series of
 rules and guidelines have been created; these form the project's coding style.
 
-Encoding
---------
+## Encoding
 
 The source code must use the UTF-8 encoding. Comments, documentation and strings
 may use non-ASCII characters when required (e.g. Greek letters used for units).
 
-Naming
-------
+## C Coding Style
+### Naming
 
 Function, variable, file name and type names must:
 - Be written in lower-case
@@ -29,8 +28,7 @@ name colision with other projects.
 
 It is fine and encouraged to use a variable named "i" (index) for loops.
 
-Header Files
-------------
+### Header Files
 
 The contents of a header file should be wrapped in an 'include guard' to prevent
 accidental multiple inclusion of a single header. The definition name should be
@@ -55,8 +53,7 @@ If a unit (header or C file) requires a header, it must include that header
 instead of relying on an indirect inclusion from one of the headers it already
 includes.
 
-Inclusions
-----------
+### Inclusions
 
 Header file inclusions should follow a consistent sequence, defined as:
 
@@ -66,8 +63,7 @@ Header file inclusions should follow a consistent sequence, defined as:
 
 For each group, order the individual headers alphabetically.
 
-Indentation and Scope
----------------------
+### Indentation and Scope
 
 Indentation is made of spaces, 4 characters long with each line being at most 80
 characters long.
@@ -278,8 +274,7 @@ struct node node = {
 };
 ```
 
-Operator Precedence
--------------------
+### Operator Precedence
 
 Do not rely on the implicit precedence and associativity of C operators. Use
 parenthesis to make precedence and associativity explicit:
@@ -296,8 +291,7 @@ if (!a || !b)
     do_something();
 ```
 
-Comments
---------
+### Comments
 
 To ensure a consistent look, the preferred style for single-line comments is to
 use the C89 style of paired forward-slashes and asterisks:
@@ -316,8 +310,7 @@ For multi-line comments the same applies, adding an asterisk on each new line:
  */
 ```
 
-Macros and Constants
---------------------
+### Macros and Constants
 
 All names of macros and constants must be written in upper-case to differentiate
 them from functions and variables.
@@ -343,8 +336,7 @@ void process_cmd(enum command_id id)
 
 Prefer inline functions instead of macros.
 
-Doxygen Comments
-----------------
+### Doxygen Comments
 
 The project APIs are documented using Doxygen comments.
 
@@ -466,14 +458,12 @@ struct node {
 };
 ```
 
-Python based tools
-------------------
+## Python based tools
 
 Python based tools must follow the
 [PEP8](https://www.python.org/dev/peps/pep-0008/) specification.
 
-Git Commit message
-------------------
+## Git Commit message
 
 When contributing to libddssec, Git commit messages must follow these rules:
 
@@ -484,8 +474,7 @@ When contributing to libddssec, Git commit messages must follow these rules:
   required
 - Commits must have a 'Signed-off-by:' entry
 
-CMake Style
------------
+## CMake Style
 
 CMake files (CMakeLists.txt and .cmake) must follow the following rules.
 Some of the above rules are enforced by the use of ``cmakelint`` tool.

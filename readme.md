@@ -1,10 +1,8 @@
-Readme
-======
+# Readme
 
 Copyright (c) 2018-2019, Arm Limited. All rights reserved.
 
-Introduction
-------------
+## Introduction
 
 In an autonomous future where machines are continually interacting with humans,
 ensuring the operational correctness of these machines is going to be of
@@ -22,8 +20,8 @@ provides security services for implementations of the Data Distribution Service
 implementation of the security operations using Arm's TrustZone IP [2]. This
 implementation uses OP-TEE [3] to isolate secure operations and assets under a
 Trusted Execution Environment.
-Prerequisites
--------------
+
+## Prerequisites
 
 To build __libddssec__, the following tools are required:
 
@@ -46,8 +44,7 @@ The following libraries are required:
 For the dependencies to build the trusted application, please consult the
 [OPTEE-OS](https://github.com/OP-TEE/optee_os) documentation.
 
-Building the library and trusted application
---------------------------------------------
+## Building the library and trusted application
 
 Create a directory for the build output:
 
@@ -86,8 +83,7 @@ For more details on the OPTEE-OS environment variables, consult the
 [OPTEE Examples](https://github.com/linaro-swg/optee_examples/blob/master/docs/TA_basics.md)
 documentation.
 
-Verification
-------------
+## Verification
 
 To build and run the unit tests on an Arm device:
 
@@ -140,8 +136,7 @@ The tool also allows users to supply libddssec already pre-built speeding-up the
 tests as the build will be skipped on the remote (see the options
 ``--prebuild-path``).
 
-Documentation
--------------
+## Documentation
 
 If Doxygen is available on the system containing the __libddssec__ then
 comprehensive documentation can be generated. The complete set of documentation
@@ -155,21 +150,17 @@ directory Doxygen can be invoked using the __doc__ target:
 
 The documentation can then be found in _build_/doc/html/.
 
-License
--------
+## License
 
 The software is provided under the [BSD-3-Clause license](https://spdx.org/licenses/BSD-3-Clause.html).
 
-References
-----------
+## References
 
-[1] https://www.omg.org/spec/DDS/About-DDS/
-[2] https://developer.arm.com/technologies/trustzone
-[3] https://www.op-tee.org/
+* [1] https://www.omg.org/spec/DDS/About-DDS/
+* [2] https://developer.arm.com/technologies/trustzone
+* [3] https://www.op-tee.org/
 
-
-Feedback and Support
---------------------
+## Feedback and Support
 
 Arm welcomes any feedback on the DDS Security library.
 
