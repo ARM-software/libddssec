@@ -60,12 +60,12 @@ def convert(path):
 
 
 def check_tabs(filename):
-        print("processing {}".format(filename))
-        with open(filename, encoding="utf-8") as file:
-            for line, string in enumerate(file):
-                if '\t' in string:
-                    print('{}:{} has tab'.format(line, filename))
-                    raise ErrorTab
+    print("processing {}".format(filename))
+    with open(filename, encoding="utf-8") as file:
+        for line, string in enumerate(file):
+            if '\t' in string:
+                print('{}:{} has tab'.format(line, filename))
+                raise ErrorTab
 
 
 def main(argv=[], prog_name=''):
