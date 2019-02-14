@@ -46,6 +46,7 @@ In addition, the following tools are recommended:
 
 The following libraries are required:
 - OpenSSL (1.0.2g or later): Used by the OpenSSL backend
+- Pexpect: Used by validate.py to interact with remote devices
 
 For the dependencies to build the trusted application, please consult the
 [OPTEE-OS](https://github.com/OP-TEE/optee_os) documentation.
@@ -99,9 +100,50 @@ To build and run the unit tests on an Arm device:
 
 The ```validation.py``` tool can be used during development to verify the code.
 This tool will build and run the units as well check code style and
-documentation. Execute the tool from the top level directory:
+documentation.
 
-    ./tools/validation.py
+To list available options:
+
+    ./tools/validation.py --help
+
+As most of the features require an Arm architecture, using this tool requires
+an Arm target when building on another architecture. Additionally, the
+invasiveness of the tests mean it is undesirable to run them natively. The
+tools offers two possibilities to solve this:
+
+ - Using ssh by specifying the IP address of the remote device
+ - Using an FVP:
+   - validate.py uses the publicly available [Armv8-A Base Platform FVP](https://developer.arm.com/products/system-design/fixed-virtual-platforms/)
+   - The software stack used is the [Arm Development Platforms stack](https://community.arm.com/dev-platforms/) with OP-TEE enabled
+
+Whichever is chosen, the tool will tear-down any created files. For use in
+systematic testing, however, a filesystem that is read-only or that is reset
+between tests is advisable to avoid interference from unforseen side-effects.
+
+Using the fast-model option requires supplying a path to the binaries (the
+filesystem, RAMdisks, et al.) and that the fast-model 'FVP_Base_RevC-2xAEMv8A'
+is located in the PATH.
+
+Using the tool to connect to a remote device:
+
+    ./tools/validation.py --test-ssh <ip|hostname>[:port]
+
+Using the tool to launch a model:
+
+    ./tools/validation.py --test-fvp <path>
+
+This path must include:
+
+- bl1: 'bl1.bin'
+- dtb: 'fvp-base-aemv8a-aemv8a.dtb'
+- fip: 'fip.bin'
+- Kernel: 'Image'
+- Ramdisk: 'ramdisk.img'
+- Filesystem: 'ubuntu.img'
+
+The tool also allows users to supply libddssec already pre-built speeding-up the
+tests as the build will be skipped on the remote (see the options
+``--prebuild-path``).
 
 Documentation
 -------------
