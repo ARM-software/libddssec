@@ -457,6 +457,20 @@ struct node {
 };
 ```
 
+### clang-format
+
+This project has a .clang-format script at the root of the project that can be
+used to resolve some of the given rules automatically by running the following
+command:
+
+```bash
+clang-format -style=file -i <file>
+```
+
+Note: This script is given to solve most of the coding style mistakes, but it is
+not mandatory to use it as the result of running may break some rules like:
+- Removes line breaks after multi-line if statements
+
 ## Python based tools
 
 Python based tools must follow the
