@@ -38,6 +38,9 @@ class TestBenchBase:
     required_dirs = ['/run/lib/optee_armtz',  # Used to deploy TAs
                      '/run/data']  # Used for secure storage
 
+    # Size of the buffer that is kept in memory to find the expected output
+    maxread_buffer_size = 8192
+
     def __init__(self, prebuild_path=None):
         self.prebuild_path = prebuild_path
         self.assets_tar = AssetsTar(self.prebuild_path)
@@ -52,12 +55,16 @@ class TestBenchBase:
         # completed. Use this to specify extra strings to expect before the
         # prompt.
         for x in expect:
-            index = self.terminal.expect(list(x) + unexpect)
+            while True:
+                # Wait for an expected output or exit using the timeout if the
+                # expected values are not found.
+                index = self.terminal.expect(list(x) + unexpect, timeout=60)
+                if index >= 0 and index < len(unexpect) + 1:
+                    # The return index value is one of the given index of the
+                    # specified list while calling the expect function
+                    break
 
-            if index != 0:
-                break
-
-        self.terminal.expect(self.prompt)
+        self.terminal.expect_exact(self.prompt)
         self._get_exit_code(command)
 
     def _get_exit_code(self, command, return_values=[0]):
@@ -81,14 +88,13 @@ class TestBenchBase:
         do = self._do
 
         print('Connecting to remote...')
-
-        index = self.terminal.expect([' login:', 'password'])
+        index = self.terminal.expect(['login:', '[pP]assword:'])
 
         # Over keyless ssh, the username is supplied with the command so it
         # only asks for the password.
         if index == 0:
             self.terminal.sendline(self.username)
-            self.terminal.expect(['Password:', 'password:'])
+            self.terminal.expect(['[pP]assword:'])
 
         self.terminal.sendline(self.password)
         print('Logged in')
@@ -118,9 +124,11 @@ class TestBenchBase:
 
             print("Building...")
             do('export TA_DEV_KIT_DIR={}'.format(self.ta_dev_kit_dir))
-            do('make ta', expect=['Building trusted application'])
-            do('make build_and_test', expect=['build_and_test'])
+            do('make ta', expect=['Building trusted application',
+                                  'Built target ta'])
+            do('make build_and_test', expect=['Built target build_and_test'])
 
+        # Stop printing into logfile
         self.terminal.logfile = None
         return self.exit_code
 
@@ -213,7 +221,7 @@ class TestBenchFVP(TestBenchBase):
             'telnet localhost {}'.format(self.telnet_port),
             timeout=600,
             logfile=sys.stdout.buffer,
-            maxread=8192,
+            maxread=self.maxread_buffer_size,
             echo=False)
         return self
 
@@ -254,7 +262,7 @@ class TestBenchSSH(TestBenchBase):
         print('Copying assets to remote...')
         terminal = pexpect.spawn(scp_command, timeout=60)
         with terminal:
-            terminal.expect(' password:')
+            terminal.expect(['[pP]assword:'])
             terminal.sendline(self.password)
             terminal.expect(pexpect.EOF)
 
@@ -264,7 +272,14 @@ class TestBenchSSH(TestBenchBase):
             ssh_command += ' -p {}'.format(self.ssh_port)
 
         # Timeout set to 10 minutes, this would be an unusually long test suite
-        self.terminal = pexpect.spawn(ssh_command, timeout=600)
+        self.terminal = pexpect.spawn(
+            ssh_command,
+            timeout=600,
+            logfile=sys.stdout.buffer,
+            maxread=self.maxread_buffer_size,
+            ignore_sighup=True,
+            echo=True)
+
         return self
 
     def __exit__(self, *args):
