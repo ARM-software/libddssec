@@ -177,6 +177,8 @@ add_custom_target(build_and_test
         --verbose
         --timeout 200
 )
+add_dependencies(build_and_test test-ta)
+
 set(TEST_SOURCES dsec_test.c dsec_test_ta.c dsec_test_canary.c)
 set(TEST_INCLUDES ${INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 set(DSEC_TA_LOCATION_DIR "${CMAKE_CURRENT_BINARY_DIR}/trusted_application")
@@ -188,6 +190,7 @@ list(APPEND TEST_COMPILE_DEFINITIONS
     -DDSEC_TA_LOCATION="${DSEC_TA_LOCATION}"
     -DDSEC_TA_DESTINATION_DIR="${DSEC_TA_DESTINATION_DIR}"
     -DDSEC_TA_DESTINATION="${DSEC_TA_DESTINATION}"
+    -DDSEC_TEST=1
 )
 add_subdirectory(tests)
 

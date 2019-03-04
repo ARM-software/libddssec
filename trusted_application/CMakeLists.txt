@@ -20,6 +20,17 @@ add_custom_target(ta
         COMMENT "Building trusted application"
         VERBATIM)
 
+add_custom_target(test-ta
+        COMMAND make O=${CMAKE_CURRENT_BINARY_DIR}
+        PROJECT_VERSION=${PROJECT_VERSION}
+        PROJECT_DESCRIPTION_SUMMARY=${${PROJECT_NAME}_DESCRIPTION_SUMMARY}
+        DSEC_TEST=1
+        DSEC_TA_UUID=${DSEC_TA_UUID}
+        DSEC_TA_UUID_STRING=${DSEC_TA_UUID_STRING}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+        COMMENT "Building trusted application for testing"
+        VERBATIM)
+
 add_custom_target(ta-clean
         COMMAND make O=${CMAKE_CURRENT_BINARY_DIR} clean
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src

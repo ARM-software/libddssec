@@ -41,10 +41,20 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
                                       uint32_t parameters_type,
                                       TEE_Param parameters[TEE_NUM_PARAMS])
 {
+    TEE_Result result = 0;
     DSEC_UNUSED(session_id);
-    DSEC_UNUSED(command_id);
     DSEC_UNUSED(parameters_type);
     DSEC_UNUSED(parameters);
 
-    return TEE_SUCCESS;
+    switch (command_id) {
+
+#if DSEC_TEST
+#endif /* DSEC_TEST */
+    default:
+        DMSG("Invalid command identifier");
+        result = TEE_ERROR_BAD_PARAMETERS;
+        break;
+    }
+
+    return result;
 }
