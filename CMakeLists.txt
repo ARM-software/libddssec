@@ -79,6 +79,7 @@ add_subdirectory(trusted_application)
 # Test support
 #
 set(TEST_COMPILE_OPTIONS ${COMPILE_OPTIONS})
+set(TEST_COMPILE_DEFINITIONS ${COMPILE_DEFINITIONS})
 
 #
 # Function to declare a test suite:
@@ -180,6 +181,7 @@ add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE})
 target_link_libraries(${PROJECT_NAME} OPTEECLIENT::OPTEECLIENT)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
+target_compile_definitions(${PROJECT_NAME} PRIVATE ${COMPILE_DEFINITIONS})
 target_include_directories(
     ${PROJECT_NAME}
     PUBLIC
