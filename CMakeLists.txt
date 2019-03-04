@@ -74,9 +74,11 @@ set(PROJECT_INCLUDES
 # Files from external libraries which need to be included in the source but
 # which don't need to be checked for documentation.
 set(EXTERNAL_INCLUDES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 set(PROJECT_SOURCE
+    src/dsec_ca.c
     src/dsec_rand.c
 )
 
