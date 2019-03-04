@@ -7,8 +7,10 @@
 
 #include <dsec_ca.h>
 #include <dsec_errno.h>
+#include <dsec_ta.h>
 #include <dsec_test.h>
 #include <dsec_test_ta.h>
+#include <tee_client_api.h>
 
 static void test_case_open(void)
 {
@@ -125,6 +127,68 @@ static void test_case_multiple_contexts(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst2) == DSEC_SUCCESS);
 }
 
+static void test_case_memref_null_parent(void)
+{
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+
+    uint32_t origin;
+    TEEC_Operation operation = {0};
+    TEEC_Result result = 0;
+
+    operation.params[0].memref.parent = NULL;
+    operation.params[0].memref.size = 1;
+
+    operation.paramTypes = TEEC_PARAM_TYPES(
+        TEEC_MEMREF_PARTIAL_INPUT,
+        TEEC_VALUE_OUTPUT,
+        TEEC_NONE,
+        TEEC_NONE);
+
+    result = dsec_ca_invoke(&instance,
+                            DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,
+                            &operation,
+                            &origin);
+
+    DSEC_TEST_ASSERT(result == TEEC_ERROR_BAD_PARAMETERS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
+static void test_case_tmpref_null_buffer(void)
+{
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+
+    uint32_t origin;
+    TEEC_Operation operation = {0};
+    TEEC_Result result = 0;
+
+    operation.params[0].tmpref.buffer = NULL;
+    operation.params[0].tmpref.size = 1;
+
+    operation.paramTypes = TEEC_PARAM_TYPES(
+        TEEC_MEMREF_TEMP_INPUT,
+        TEEC_VALUE_OUTPUT,
+        TEEC_NONE,
+        TEEC_NONE);
+
+    result = dsec_ca_invoke(&instance,
+                            DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,
+                            &operation,
+                            &origin);
+
+    DSEC_TEST_ASSERT(result == TEEC_ERROR_BAD_PARAMETERS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_open),
     DSEC_TEST_CASE(test_case_open_null),
@@ -137,6 +201,8 @@ static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_close_already_closed),
     DSEC_TEST_CASE(test_case_close_unopened),
     DSEC_TEST_CASE(test_case_multiple_contexts),
+    DSEC_TEST_CASE(test_case_memref_null_parent),
+    DSEC_TEST_CASE(test_case_tmpref_null_buffer),
 };
 
 const struct dsec_test_suite_desc test_suite = {
