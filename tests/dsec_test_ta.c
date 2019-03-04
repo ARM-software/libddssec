@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,6 +31,8 @@
     #error "DSEC_TA_DESTINATION_DIR not defined"
 #endif
 
+/* Set to true if /data/tee already existed */
+static bool tee_data_existed;
 /* Set to true if the TA already existed */
 static bool ta_existed;
 /* Set to true if the TA directory already existed */
@@ -71,6 +73,18 @@ int dsec_test_ta_setup(void)
 {
     armtz_existed = false;
     int command_retval = DSEC_E_INIT;
+
+    if (access("/data/tee", R_OK) != -1) {
+        tee_data_existed = true;
+
+        command_retval = shell("mv /data/tee /data/tee_bak 2>/dev/null");
+
+        if (command_retval) {
+            fprintf(stderr,
+                "/data/tee could not be backed up to /data/tee_bak\n");
+            return DSEC_E_ACCESS;
+        }
+    }
 
     if (access(DSEC_TA_DESTINATION, R_OK) != -1) {
         ta_existed = true;
@@ -149,6 +163,20 @@ int dsec_test_ta_teardown(void)
 {
     int command_retval = DSEC_E_INIT;
 
+    /*
+     * Two files exist in /data/tee when secure storage has been used but is
+     * now empty. For every TEE persistent file created another file is created
+     * here, then deleted here when the TEE persistent file is deleted. This
+     * check fails if there are more than 2 files meaning the test suite has
+     * leaked persistent files. If secure storage has not been used, there will
+     * be no files here.
+     */
+    command_retval = shell("test $(ls /data/tee | wc -l) -lt %d", 3);
+    if (command_retval) {
+        fprintf(stderr, "/data/tee/ was not cleaned up during the tests\n");
+        return DSEC_E_DATA;
+    }
+
     /* Kill tee-supplicant daemon */
     command_retval = shell("pkill tee-supplicant");
     if (command_retval) {
@@ -161,6 +189,22 @@ int dsec_test_ta_teardown(void)
     if (command_retval != EXIT_SUCCESS) {
         /* The error codes for rm are not specific */
         return DSEC_E_ACCESS;
+    }
+
+    command_retval = shell("rm -rf /data/tee");
+    if (command_retval != EXIT_SUCCESS) {
+        /* The error codes for rm are not specific */
+        return DSEC_E_ACCESS;
+    }
+
+    if (tee_data_existed) {
+        command_retval = shell("mv /data/tee_bak /data/tee 2>/dev/null");
+
+        if (command_retval) {
+            fprintf(stderr,
+                "/data/tee backup at /data/tee_bak could not be moved back\n");
+            /* Not fatal, continue */
+        }
     }
 
     if (!armtz_existed) {

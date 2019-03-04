@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,10 +40,12 @@ int dsec_test_ta_setup(void);
  * \brief Removes the Trusted Application (TA) created by dsec_test_ta_setup()
  *      and restores any file that was in its path before. Kills tee-supplicant.
  *
- * \return ::DSEC_E_ACCESS if the TA or its directory cannot be removed.
- * \return ::DSEC_SUCCESS if the TA or its directory were removed. If the backed
- *      up TA cannot be restored or tee-supplicant cannot be killed, the error
- *      code is still DSEC_SUCCESS as it is not concidered as a fatal error.
+ * \retval ::DSEC_SUCCESS Success. The backed-up assets have been replaced,
+ *     tee-supplicant has been killed, and the secure-storage has been wiped.
+ * \retval ::DSEC_E_DATA The secure storage was not cleared.
+ * \retval ::DSEC_E_ACCESS The TA could not be removed.
+ * \retval ::DSEC_E_ACCESS The secure storage directory could not be removed.
+ * \retval ::DSEC_E_ACCESS The TA directory could not be removed.
  */
 int dsec_test_ta_teardown(void);
 
