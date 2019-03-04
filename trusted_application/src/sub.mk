@@ -7,8 +7,10 @@
 
 # Include directories used by the TA
 global-incdirs-y += \
-    ../include
+    ../include \
+    ../../include/libddssec
 
 # Source files to build the TA
 srcs-y += \
-    dsec_ta.c
+    dsec_ta.c \
+    dsec_ta_manage_object.c

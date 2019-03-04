@@ -19,7 +19,10 @@
 
 #if DSEC_TEST
 enum {
-    DSEC_TA_CMD_PLACEHOLDER = 1,
+    /*! Function ID for dsec_ta_test_load_object_builtin */
+    DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,
+    /*! Function ID for dsec_ta_test_unload_object */
+    DSEC_TA_CMD_UNLOAD_OBJECT,
 };
 #endif /* DSEC_TEST */
 

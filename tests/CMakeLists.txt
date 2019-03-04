@@ -12,6 +12,15 @@ dsec_add_test(
     NAME ca_common_functions
     SOURCE test_ca_common_functions.c ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
 )
+dsec_add_test(
+    NAME manage_object
+    SOURCE
+        ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
+        dsec_test_ta.c
+        dsec_test_canary.c
+        test_manage_object.c
+        test_manage_object_ca.c
+)
 
 dsec_embed_asset_ta_files(
     LOCATION "./assets"
