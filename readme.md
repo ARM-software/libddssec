@@ -28,13 +28,12 @@ To build __libddssec__, the following tools are required:
 - CMake (3.5 or later)
 - Gnu Make (4.1 or later)
 - GCC (5.6 or later)
+- Python (3.5 or later)
 
 In addition, the following tools are recommended:
 
 - Doxygen (1.8.11 or later): Required to build supporting documentation
 - Dot (Graphviz 2.38 or later): Required to add diagrams in the documentation
-- Python (3.5 or later): Required to run the Python based utilities under the
-  tools/ directory
 - checkpatch.pl (4.9 or later): Required by check_style.py.
 - cmakelint (1.4 or later): Required by check_style_cmake.py.
 

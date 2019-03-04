@@ -36,3 +36,10 @@ add_custom_target(ta-clean
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
         COMMENT "Cleaning trusted application"
         VERBATIM)
+
+#
+# Builtin assets
+#
+add_subdirectory(builtins)
+add_dependencies(ta builtins)
+add_dependencies(test-ta builtins)
