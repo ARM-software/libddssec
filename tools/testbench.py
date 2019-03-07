@@ -88,45 +88,55 @@ class TestBenchBase:
         do = self._do
 
         print('Connecting to remote...')
-        index = self.terminal.expect(['login:', '[pP]assword:'])
 
-        # Over keyless ssh, the username is supplied with the command so it
-        # only asks for the password.
-        if index == 0:
-            self.terminal.sendline(self.username)
-            self.terminal.expect(['[pP]assword:'])
+        try:
+            index = self.terminal.expect(['login:', '[pP]assword:'])
+            if index == 0:
+                # Over keyless ssh, the username is supplied with the command
+                # so it only asks for the password.
+                self.terminal.sendline(self.username)
+                self.terminal.expect(['[pP]assword:'])
 
-        self.terminal.sendline(self.password)
-        print('Logged in')
+            self.terminal.sendline(self.password)
+            print('Logged in')
 
-        do('mkdir -p {}'.format(self.assets_directory))
-        do('mkdir -p {}/build'.format(self.test_directory))
+            do('mkdir -p {}'.format(self.assets_directory))
+            do('mkdir -p {}/build'.format(self.test_directory))
 
-        for directory in self.required_dirs:
-            do('mkdir -p {}'.format(directory))
+            for directory in self.required_dirs:
+                do('mkdir -p {}'.format(directory))
 
-        self._setup_assets()
+            self._setup_assets()
 
-        do('cd {}'.format(self.assets_directory))
-        do('tar xf {}/{} -C {}'.format(
-            self.assets_directory, self.test_archive, self.test_directory))
+            do('cd {}'.format(self.assets_directory))
+            do('tar xf {}/{} -C {}'.format(
+                self.assets_directory, self.test_archive, self.test_directory))
 
-        do('cd {}/build'.format(self.test_directory))
+            do('cd {}/build'.format(self.test_directory))
 
-        if self.prebuild_path:
-            do('ctest', ['100% tests passed, 0 tests failed'])
+            if self.prebuild_path:
+                do('ctest', ['100% tests passed, 0 tests failed'])
 
-        else:
-            do('export OPTEECLIENT_DIR={}'.format(self.optee_client_dir))
-            do('cmake ..', expect=['Build files have been written to'],
-                unexpect=['Configuring incomplete, errors occurred!',
-                          'CMake Error'])
+            else:
+                do('export OPTEECLIENT_DIR={}'.format(self.optee_client_dir))
+                do('cmake ..', expect=['Build files have been written to'],
+                    unexpect=['Configuring incomplete, errors occurred!',
+                              'CMake Error'])
 
-            print("Building...")
-            do('export TA_DEV_KIT_DIR={}'.format(self.ta_dev_kit_dir))
-            do('make ta', expect=['Building trusted application',
-                                  'Built target ta'])
-            do('make build_and_test', expect=['Built target build_and_test'])
+                print("Building...")
+                do('export TA_DEV_KIT_DIR={}'.format(self.ta_dev_kit_dir))
+                do('make ta', expect=['Building trusted application',
+                                      'Built target ta'])
+                do('make build_and_test',
+                   expect=['Built target build_and_test'])
+        except (pexpect.exceptions.TIMEOUT, pexpect.exceptions.EOF):
+            # If there was an error within the connection (TIMEOUT or EOF) it
+            # might be because the ssh session or telnet was not opened
+            # properly or hanged.
+            print("Exiting as something went wrong with remote: pexpect "
+                  "received an unexpected TIMEOUT or EOF.")
+            self.exit_code = 1
+            self.terminal.close()
 
         # Stop printing into logfile
         self.terminal.logfile = None
@@ -229,10 +239,13 @@ class TestBenchFVP(TestBenchBase):
         self._do('mount -rw {} {}'.format(self.device, self.assets_directory))
 
     def __exit__(self, *args):
-        self._cleanup()
-        self._do('sync')
-        self._do('umount {}'.format(self.assets_directory))
-        self.terminal.sendline('shutdown -P now')
+        # If the remote cannot be accessed, the following commands cannot be
+        # executed.
+        if self.terminal.isalive():
+            self._cleanup()
+            self._do('sync')
+            self._do('umount {}'.format(self.assets_directory))
+            self.terminal.sendline('shutdown -P now')
 
         self.child.terminate(force=True)
         # Stall until the filesystem is unused and can be removed
@@ -283,9 +296,12 @@ class TestBenchSSH(TestBenchBase):
         return self
 
     def __exit__(self, *args):
-        self._cleanup()
-        self._do('rm -rf {}'.format(self.assets_directory))
-        self.terminal.sendline('exit')
+        # If the remote cannot be accessed, the following commands cannot be
+        # executed.
+        if self.terminal.isalive():
+            self._cleanup()
+            self._do('rm -rf {}'.format(self.assets_directory))
+            self.terminal.sendline('exit')
 
 
 class AssetsTar():
