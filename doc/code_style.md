@@ -207,8 +207,7 @@ int foo(void)
 __Note__ Such constructions like the example above should be avoided if
 possible.
 
-Types
------
+### Types
 
 Import "stdint.h" (part of the C Standard Library) for exact-width integer types
 (uint8_t, uint16_t, etc). These types can be used wherever the width of an
