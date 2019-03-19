@@ -39,7 +39,9 @@ class TestBenchBase:
                      '/run/data']  # Used for secure storage
 
     # Size of the buffer that is kept in memory to find the expected output
-    maxread_buffer_size = 8192
+    maxread_buffer_size = 100000000
+    # Size of the buffer that will be searched for input
+    searchwindow_size = 100
 
     def __init__(self, prebuild_path=None):
         self.prebuild_path = prebuild_path
@@ -232,6 +234,7 @@ class TestBenchFVP(TestBenchBase):
             timeout=600,
             logfile=sys.stdout.buffer,
             maxread=self.maxread_buffer_size,
+            searchwindowsize=self.searchwindow_size,
             echo=False)
         return self
 
@@ -290,6 +293,7 @@ class TestBenchSSH(TestBenchBase):
             timeout=600,
             logfile=sys.stdout.buffer,
             maxread=self.maxread_buffer_size,
+            searchwindowsize=self.searchwindow_size,
             ignore_sighup=True,
             echo=True)
 
