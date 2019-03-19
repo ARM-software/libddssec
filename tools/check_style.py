@@ -57,6 +57,8 @@ IGNORED_TYPES = [
     'FILE_PATH_CHANGES',  # Specific to the kernel development process
     'SPDX_LICENSE_TAG',  # Not required as we have a dedicated tool for this
                          # and more
+    'BRACES',  # Ignore braces warning for {} on single line 'if', 'else',
+               # 'while',..
 ]
 
 error_count = 0

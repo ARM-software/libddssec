@@ -99,17 +99,18 @@ default:
 }
 ```
 
-Conditional statements with single line of code must not use braces,
-preferring indentation only. A statement that spans multiple lines must use
-braces to improve readability:
+Conditional statements with single line of code are required to use braces as it
+can avoid unintentional control flow in the case new lines are added.
 
 ```C
-if (condition_a == true)
+if (condition_a) {
     function_call_a();
+} else {
+    function_call_b();
+}
 
-if (condition_b == true) {
-    function_call_b(long_variable_name_x |
-                    long_variable_name_y);
+while (condition_a) {
+    function_call_a();
 }
 ```
 
