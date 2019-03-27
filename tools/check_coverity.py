@@ -65,7 +65,6 @@ def do_check_profile(profile, output_dir):
     print("Checker: {}".format(profile['name']))
     print('*'*80)
 
-    output_dir = 'coverity_results' if output_dir is None else output_dir
     base_dir = os.path.abspath('..')
 
     # Analyze
@@ -100,7 +99,8 @@ def do_check_profile(profile, output_dir):
         return 1
 
 
-def do_check(selected_profiles, output_dir, use_cross_compilation):
+def do_check(selected_profiles, output_base_dir, use_cross_compilation,
+             selected_build_types):
     """
     Setup and build the project under the Coverity tools.
     Return 0 when the analysis succeeded. Any other value when the build fails
@@ -129,48 +129,63 @@ def do_check(selected_profiles, output_dir, use_cross_compilation):
               " you must only specify the executable name.")
         sys.exit(1)
 
-    with build_directory():
+    for build_type in selected_build_types:
 
-        cmake_params = ''
-        if use_cross_compilation:
-            cmake_params += '-DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake'
+        print('*'*80)
+        print("Build type: {}".format(build_type))
 
-        # Run cmake to prepare the build
-        ret = subprocess.call('cmake {} ..'.format(cmake_params), shell=True)
-        if ret != 0:
-            return ret
+        output_base_dir = 'coverity_results' if output_base_dir is None \
+            else output_base_dir
+        output_dir = os.path.join(output_base_dir, build_type)
 
-        # Configure compiler for native compilation
-        subprocess.check_call('cov-configure'
-                              '  --comptype gcc'
-                              '  --compiler {}'
-                              '  --config ./coverity_config.xml'
-                              '  --template'.format(compiler), shell=True)
+        with build_directory():
+            cmake_params = '-DCMAKE_BUILD_TYPE={}'.format(
+                build_type.capitalize())
 
-        # Initialize Coverity build directory
-        subprocess.check_call('cov-build'
-                              '  --config ./coverity_config.xml'
-                              '  --dir ./coverity_build'
-                              '  --initialize', shell=True)
+            if use_cross_compilation:
+                cmake_params += \
+                    ' -DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake'
 
-        # Build library and trusted application
-        ret = subprocess.call('cov-build'
-                              '  --config ./coverity_config.xml'
-                              '  --dir ./coverity_build'
-                              '  --capture make libddssec ta', shell=True)
-        if ret != 0:
-            return ret
+            print("CMake parameters: {}".format(cmake_params))
 
-        for profile_name in selected_profiles:
-            profile = next(p for p in profiles if profile_name == p['name'])
-            result = do_check_profile(profile, output_dir)
-            if result == 1:
-                has_issues = True
+            # Run cmake to prepare the build
+            ret = subprocess.call('cmake {} ..'.format(cmake_params),
+                                  shell=True)
+            if ret != 0:
+                return ret
 
-        if has_issues:
-            return 1
-        else:
-            return 0
+            # Configure compiler for native compilation
+            subprocess.check_call('cov-configure'
+                                  '  --comptype gcc'
+                                  '  --compiler {}'
+                                  '  --config ./coverity_config.xml'
+                                  '  --template'.format(compiler), shell=True)
+
+            # Initialize Coverity build directory
+            subprocess.check_call('cov-build'
+                                  '  --config ./coverity_config.xml'
+                                  '  --dir ./coverity_build'
+                                  '  --initialize', shell=True)
+
+            # Build library and trusted application
+            ret = subprocess.call('cov-build'
+                                  '  --config ./coverity_config.xml'
+                                  '  --dir ./coverity_build'
+                                  '  --capture make libddssec ta', shell=True)
+            if ret != 0:
+                return ret
+
+            for profile_name in selected_profiles:
+                profile = next(p for p in profiles
+                               if profile_name == p['name'])
+                result = do_check_profile(profile, output_dir)
+                if result == 1:
+                    has_issues = True
+
+    if has_issues:
+        return 1
+    else:
+        return 0
 
 
 def main(argv=[], prog_name=''):
@@ -182,12 +197,19 @@ def main(argv=[], prog_name=''):
     profile_list = ['all']
     profile_list += [p['name'] for p in profiles]
 
+    build_type_list = ['release', 'debug']
+
     # Build profiles documentation
     profile_doc = '\n'
     for profile in profiles:
         profile_doc += '{} - {}:\n{}\n'.format(profile['name'],
                                                profile['desc'],
                                                profile['checkers'])
+
+    parser.add_argument(
+        '-b', '--build-type', choices=build_type_list,
+        help='Build type.',
+        required=False, default=build_type_list, nargs='+')
 
     parser.add_argument(
         '-c', '--cross-compile', action='store_true',
@@ -240,7 +262,8 @@ def main(argv=[], prog_name=''):
               "variable $PATH.")
         sys.exit(1)
 
-    return do_check(selected_profiles, output_dir, args.cross_compile)
+    return do_check(selected_profiles, output_dir, args.cross_compile,
+                    args.build_type)
 
 
 if __name__ == '__main__':
