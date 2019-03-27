@@ -6,7 +6,8 @@
  */
 
 #include <dsec_macros.h>
-#include <tee_internal_api.h>
+#include <tee_ta_api.h>
+#include <trace.h>
 
 TEE_Result TA_CreateEntryPoint(void)
 {
@@ -19,8 +20,9 @@ void TA_DestroyEntryPoint(void)
     DMSG("Destroying libddssec's TA");
 }
 
-TEE_Result TA_OpenSessionEntryPoint(uint32_t ptype, TEE_Param param[4],
-    void **session_id_ptr)
+TEE_Result TA_OpenSessionEntryPoint(uint32_t ptype,
+                                    TEE_Param param[TEE_NUM_PARAMS],
+                                    void** session_id_ptr)
 {
     DSEC_UNUSED(ptype);
     DSEC_UNUSED(param);
@@ -29,13 +31,15 @@ TEE_Result TA_OpenSessionEntryPoint(uint32_t ptype, TEE_Param param[4],
     return TEE_SUCCESS;
 }
 
-void TA_CloseSessionEntryPoint(void *sess_ptr)
+void TA_CloseSessionEntryPoint(void* sess_ptr)
 {
     DSEC_UNUSED(sess_ptr);
 }
 
-TEE_Result TA_InvokeCommandEntryPoint(void *session_id, uint32_t command_id,
-    uint32_t parameters_type, TEE_Param parameters[4])
+TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
+                                      uint32_t command_id,
+                                      uint32_t parameters_type,
+                                      TEE_Param parameters[TEE_NUM_PARAMS])
 {
     DSEC_UNUSED(session_id);
     DSEC_UNUSED(command_id);

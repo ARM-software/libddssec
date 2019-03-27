@@ -15,7 +15,7 @@
 
 #ifndef DSEC_TA_UUID
     #error "DSEC_TA_UUID not defined"
-#endif
+#endif /* DSEC_TA_UUID */
 
 /*!
  * \}
