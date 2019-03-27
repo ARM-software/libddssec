@@ -60,12 +60,14 @@ def convert(path):
 
 
 def check_tabs(filename):
-    print("processing {}".format(filename))
+    has_tab = False
     with open(filename, encoding="utf-8") as file:
         for line, string in enumerate(file):
             if '\t' in string:
-                print('{}:{} has tab'.format(line, filename))
-                raise ErrorTab
+                print('{}:{}: Contain tab(s)'.format(filename, line))
+                has_tab = True
+    if has_tab:
+        raise ErrorTab
 
 
 def main(argv=[], prog_name=''):
@@ -101,7 +103,7 @@ def main(argv=[], prog_name=''):
         print("No tabs found")
         return 0
     else:
-        print('{} tab(s) found.'.format(error_tabs_count))
+        print('{} file(s) containing tab(s).'.format(error_tabs_count))
         return 1
 
 
