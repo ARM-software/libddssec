@@ -41,13 +41,14 @@ profiles = [
     {
         'name': 'misra',
         'desc': 'Misra-C 2012 containing exceptions for this project',
-        'checkers': '  --misra-config {}/tools/misra.config'
+        'checkers': '  --coding-standard-config {}/tools/misra.config'
             .format(os.getcwd()),
     },
     {
         'name': 'misra-strict',
         'desc': 'Strict Misra-C 2012 profile',
-        'checkers': '  --misra-config {}/config/MISRA/MISRA_c2012_7.config'
+        'checkers':
+            '  --coding-standard-config {}/config/MISRA/MISRA_c2012_7.config'
             .format(coverity_base_path() or "<path/to/coverity>"),
     },
 ]
