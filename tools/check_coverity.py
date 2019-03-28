@@ -60,6 +60,11 @@ def do_check_profile(profile, output_dir):
     If output_dir is set, the reports (html and text) are saved in the
     specified directory.
     """
+
+    print('*'*80)
+    print("Checker: {}".format(profile['name']))
+    print('*'*80)
+
     output_dir = 'coverity_results' if output_dir is None else output_dir
     base_dir = os.path.abspath('..')
 
@@ -95,7 +100,7 @@ def do_check_profile(profile, output_dir):
         return 1
 
 
-def do_check(profile_option, output_dir, use_cross_compilation):
+def do_check(selected_profiles, output_dir, use_cross_compilation):
     """
     Setup and build the project under the Coverity tools.
     Return 0 when the analysis succeeded. Any other value when the build fails
@@ -156,11 +161,11 @@ def do_check(profile_option, output_dir, use_cross_compilation):
         if ret != 0:
             return ret
 
-        for profile in profiles:
-            if profile_option == 'all' or profile_option == profile['name']:
-                result = do_check_profile(profile, output_dir)
-                if result == 1:
-                    has_issues = True
+        for profile_name in selected_profiles:
+            profile = next(p for p in profiles if profile_name == p['name'])
+            result = do_check_profile(profile, output_dir)
+            if result == 1:
+                has_issues = True
 
         if has_issues:
             return 1
@@ -200,8 +205,8 @@ def main(argv=[], prog_name=''):
     parser.add_argument(
         '-p', '--profile', choices=profile_list,
         help='Each profile enables one or more checkers:' +
-             profile_doc + '\'All\' checks all profiles',
-        required=False, default=profile_list[0])
+             profile_doc + '\'all\' checks all profiles',
+        required=False, default=[profile_list[0]], nargs='+')
 
     args = parser.parse_args(argv)
 
@@ -209,6 +214,19 @@ def main(argv=[], prog_name=''):
         output_dir = os.path.abspath(args.output_dir)
     else:
         output_dir = None
+
+    selected_profiles = args.profile
+
+    # Ensure 'all' is not being mixed with other profiles
+    for profile in args.profile:
+        if profile == 'all':
+            if len(args.profile) > 1:
+                print("Error: When using 'all', do not include any other "
+                      "profile")
+                return 1
+            else:
+                # When 'all' is used, replace it with all the profile names
+                selected_profiles = [p['name'] for p in profiles]
 
     if not args.cross_compile:
         if platform.machine() == 'x86_64':
@@ -222,7 +240,7 @@ def main(argv=[], prog_name=''):
               "variable $PATH.")
         sys.exit(1)
 
-    return do_check(args.profile, output_dir, args.cross_compile)
+    return do_check(selected_profiles, output_dir, args.cross_compile)
 
 
 if __name__ == '__main__':
