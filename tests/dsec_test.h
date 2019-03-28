@@ -70,7 +70,8 @@ struct dsec_test_suite_desc {
      *      fixture or to execute expensive routines that could otherwise be
      *      done within a test case setup function.
      *
-     * \retval DSEC_SUCCESS The test suite environment was successfully set up.
+     * \retval ::DSEC_SUCCESS The test suite environment was successfully set
+     * up.
      * \return Any of the other error codes defined by the framework.
      *
      * \note May be NULL, in which case the test suite is considered to have no
@@ -82,12 +83,14 @@ struct dsec_test_suite_desc {
     /*!
      * \brief Pointer to a test suite teardown function.
      *
-     * \return None.
+     * \retval ::DSEC_SUCCESS The test suite environment was successfully torn
+     *     down.
+     * \return Any of the other error codes defined by the framework.
      *
      * \note May be NULL, in which case the test suite is considered to have no
      *      teardown function.
      */
-    void (*test_suite_teardown)(void);
+    int (*test_suite_teardown)(void);
 
     /*!
      * \brief Pointer to a test case setup function.
@@ -95,22 +98,25 @@ struct dsec_test_suite_desc {
      * \details This function should be used to ensure test cases are running in
      *      a known, sane environment prior to execution.
      *
-     * \return None.
+     * \retval ::DSEC_SUCCESS The test case environment was successfully set up.
+     * \return Any of the other error codes defined by the framework.
      *
      * \note May be NULL, in which case the test case is considered to have no
      *      setup function.
      */
-    void (*test_case_setup)(void);
+    int (*test_case_setup)(void);
 
     /*!
      * \brief Pointer to a test case teardown function.
      *
-     * \return None.
+     * \retval ::DSEC_SUCCESS The test case environment was successfully torn
+     *     down.
+     * \return Any of the other error codes defined by the framework.
      *
      * \note May be NULL, in which case the test case is considered to have no
      *      teardown function.
      */
-    void (*test_case_teardown)(void);
+    int (*test_case_teardown)(void);
 
     /*! Number of test cases */
     unsigned int test_case_count;

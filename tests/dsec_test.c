@@ -54,19 +54,26 @@ static void print_result(const char *name, bool success)
     printf("%-72s %s\n", name, (success ? "SUCCESS" : "FAILURE"));
 }
 
-static unsigned int run_tests(void)
+static unsigned int run_tests(unsigned int* successful_tests_ptr)
 {
     unsigned int i;
-    bool success;
-    volatile unsigned int successful_tests = 0;
+    unsigned int* volatile successful_tests = successful_tests_ptr;
     const struct dsec_test_case_desc *test_case;
+    int error = DSEC_SUCCESS;
+    *successful_tests = 0;
 
     if (test_suite.test_suite_setup != NULL) {
-        if (test_suite.test_suite_setup() != DSEC_SUCCESS)
-            return 0;
+        error = test_suite.test_suite_setup();
+        if (error != DSEC_SUCCESS) {
+            fprintf(stderr,
+                    "\nTest suite setup failed with error %d\n", error);
+
+            return error;
+        }
     }
 
     for (i = 0; i < test_suite.test_case_count; i++) {
+        bool success = true;
         test_case = &test_suite.test_case_table[i];
 
         if ((test_case->test_execute == NULL) || (test_case->name == NULL)) {
@@ -75,8 +82,17 @@ static unsigned int run_tests(void)
             continue;
         }
 
-        if (test_suite.test_case_setup != NULL)
-            test_suite.test_case_setup();
+        if (test_suite.test_case_setup != NULL) {
+            error = test_suite.test_case_setup();
+            if (error != DSEC_SUCCESS) {
+                success = false;
+                fprintf(stderr,
+                        "\nTest case setup for test case:\n%s\n"
+                        "failed with error %d\n",
+                        test_case->name,
+                        error);
+            }
+        }
 
         /*
          * The setjmp function stores the execution context of the processor at
@@ -86,35 +102,58 @@ static unsigned int run_tests(void)
          * value. See __assert_fail() for exactly how assertion failure is
          * handled.
          */
-        if (setjmp(test_buf_context) == DSEC_SUCCESS) {
+        if (success && (setjmp(test_buf_context) == DSEC_SUCCESS)) {
             test_case->test_execute();
 
             success = true;
-            successful_tests++;
         } else
             success = false;
 
-        if (test_suite.test_case_teardown != NULL)
-            test_suite.test_case_teardown();
+        if (test_suite.test_case_teardown != NULL) {
+            error = test_suite.test_case_teardown();
+            if (error != DSEC_SUCCESS) {
+                success = false;
+                fprintf(stderr,
+                        "\nTest case teardown for test case:\n%s\n"
+                        "failed with error %d\n",
+                        test_case->name,
+                        error);
+            }
+        }
+
+        if (success) {
+            (*successful_tests)++;
+        }
 
         print_result(test_case->name, success);
     }
 
-    if (test_suite.test_suite_teardown != NULL)
-        test_suite.test_suite_teardown();
+    if (test_suite.test_suite_teardown != NULL) {
+        error = test_suite.test_suite_teardown();
+        if (error != DSEC_SUCCESS) {
+            fprintf(stderr,
+                    "\nTest case teardown for test case:\n%s\n"
+                    "failed with error %d\n",
+                    test_case->name,
+                    error);
+            return error;
+        }
+    }
 
-    return successful_tests;
+    return error;
 }
 
 int main(void)
 {
     unsigned int successful_tests;
     if (test_suite.test_case_count != 0) {
+        int error = 0;
         print_prologue();
-        successful_tests = run_tests();
+        error = run_tests(&successful_tests);
         print_epilogue(successful_tests);
 
-        if (successful_tests != test_suite.test_case_count)
+        if ((successful_tests != test_suite.test_case_count) ||
+            (error != DSEC_SUCCESS))
             return EXIT_FAILURE;
     }
 
