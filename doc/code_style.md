@@ -22,11 +22,56 @@ Do not use:
 - Camel case syntax (e.g. moduleSecurityType)
 - Hungarian notation, encoding types within names (e.g. int iSize)
 
-Public functions, macros, types and defines must have the "dsec_" prefix
+Public functions, macros, types and defines must have the `dsec_` prefix
 (upper case for macros and defines) used to identify the library API and avoid
 name colision with other projects.
+- In addition to this prefix, each module's functions should have a prefix name
+  specific to the module (e.g. `dsec_ta_<module>`,..).
 
 It is fine and encouraged to use a variable named "i" (index) for loops.
+
+Avoid magic numbers (values with unexplained meaning) where possible. If they
+cannot be avoided, specify the meaning of the value in a comment or the
+variable name in the prototype of the function or create a variable with a
+meaningful name.
+
+```C
+int return_value = function(NULL /* Variable name in prototype */,
+                            0    /* Size of buffer */);
+```
+
+### Type-casting
+
+While casting, prefer the following format (no space after the second ")" )
+
+```C
+variable_b = (int32_t)variable_a;
+```
+
+### Function Arguments Order
+
+While defining a function, output variables precede input variables. The order
+of the function parameters should always respect that output parameters are
+before the inputs and they should always be grouped.
+
+```C
+void function(uint8_t* destination,
+              size_t* size_destination,
+              uint8_t* source,
+              size_t size_source);
+
+```
+
+For TA functions, the order of the `TEE_Param` parameters should always put the
+output first.
+
+```C
+TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_OUTPUT,
+                TEE_PARAM_TYPE_MEMREF_INPUT,
+                TEE_PARAM_TYPE_NONE,
+                TEE_PARAM_TYPE_NONE);
+```
+
 
 ### Header Files
 
@@ -394,14 +439,14 @@ extern "C" {
 ```
 
 At a minimum:
-- All functions, structures and defines must have a "\brief" entry.
-- All functions must document their parameters (if any) with the "\param" tag.
+- All functions, structures and defines must have a "`\brief`" entry.
+- All functions must document their parameters (if any) with the "`\param`" tag.
 - Pointers to storage used to return data from a function should be decorated
-  with the "[out]" tag. \param [out] ptr Pointer to buffer
+  with the "`[out]`" tag. `\param [out]` ptr Pointer to buffer
 - All functions should document their return value:
-  - Use "\retval" tag to specify individual values
-  - Use the "\return" tag to describe the possible values
-  - When the return is void, simply use "\return None."
+  - Use "`\retval`" tag to specify individual values
+  - Use the "`\return`" tag to describe the possible values
+  - When the return is void, simply use "`\return None.`"
 
 Alignment and indentation:
 - Documentation must also obey the 80 columns limit.
@@ -413,8 +458,21 @@ References:
   use \ref. Apart from creating a link on the generated documentation, this will
   also ensure broken links (e.g. when updating API names) are caught during the
   document generation.
-- \return and \retval, do not allow using \ref. In this case, you must prepend
-  :: (double colon) to the symbol being referred to.
+- `\return` and `\retval` do not allow using `\ref`. In this case, you must
+  prepend `::` (double colon) to the symbol being referred to.
+
+Documenting a Trusted Application function must be more specific as it uses the
+`TEE_Param` structure as input and output:
+- All `TEE_Param` indices used (`i`) must be documented using `\param params[i]`
+  as the variable name
+- Types of the `TEE_Param` array must be documented in the `\details` section by
+  using the corresponding types (`TEE_PARAM_TYPE_*`).
+- When a `TEE_PARAM_TYPE_VALUE_*` is used, document what the value should hold
+  by specifying `param[0].a` and/or `param[0].b` in distinct Doxygen comments.
+- When a `TEE_PARAM_TYPE_MEMREF_*` is used, document what the buffer is and its
+  size by specifying `param[0].memref.buf` and `param[0].memref.size`
+- If the `TEE_Param` is an `OUTPUT`, the corresponding index should be decorated
+  with the `"[out]"` tag.
 
 Function documentation examples:
 
@@ -456,6 +514,40 @@ struct node {
     /*! A value the node carries */
     unsigned int value;
 };
+```
+
+Trusted Application Invoke functions:
+
+```C
+/*!
+ * \brief Do something.
+ *
+ * \details This function does something interesting, requiring multiple lines
+ *    to explain fully. Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+ *    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+ *    ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
+ *    ex ea commodo consequat.
+ *    The TEE_Param parameters expected are:
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_VARIABLE_OUTPUT
+ *        - TEE_PARAM_TYPE_MEMREF_INPUT
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *
+ * \param [out] param[0].memref.buf Pointer to buffer which will contain the
+ *     resulting data elements.
+ * \param [out] param[0].memref.size The size of the output buffer.
+ * \param [out] param[1].variable.a Sum of the elements contained in the output
+ *     buffer.
+ * \param [out] param[1].variable.b Unused
+ * \param param[2].memref.buf Pointer to buffer containing the input data
+ * \param param[2].memref.size size Buffer size
+ * \param param[3].variable.a Number used to increment the elements of the input
+ * \param param[3].variable.b Unused
+ *
+ * \retval ::TEE_SUCCESS Success.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS If any buffer contains an invalid pointer.
+ */
+TEE_Result dsec_ta_foo_do(uint32_t param_type, TEE_Param params[4])
 ```
 
 ### clang-format
