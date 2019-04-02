@@ -5,32 +5,40 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <syscall.h>
-#include <unistd.h>
-#include <linux/random.h>
 #include <dsec_errno.h>
 #include <dsec_rand.h>
 
-int dsec_rand(void *buffer, size_t nbytes)
+#include <sys/syscall.h>
+#include <unistd.h>
+#include <assert.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+int dsec_rand(void* buffer, size_t nbytes)
 {
-    int bytes_read;
+    int bytes_read = 0;
+    int result = 0;
 
-    if ((buffer == NULL) || (nbytes == 0) || (nbytes > 256))
-        return DSEC_E_PARAM;
+    if ((buffer != NULL) && (nbytes != 0UL) && (nbytes <= 256UL)) {
+        bytes_read = syscall(SYS_getrandom, buffer, nbytes, 0 /* flags */);
 
-    bytes_read = syscall(SYS_getrandom, buffer, nbytes, 0);
-
-    if (bytes_read < 0)
-        return DSEC_E_DATA;
-
-    /* Reading up to 256 bytes should always return all the data in one call */
-    if (bytes_read != ((int)nbytes)) {
-        assert(false);
-        return DSEC_E_DATA;
+        if (bytes_read >= 0) {
+            /*
+             * Reading up to 256 bytes should always return all the data in one
+             * call.
+             */
+            if (bytes_read == ((int)nbytes)) {
+                result = DSEC_SUCCESS;
+            } else {
+                assert(false);
+                result = DSEC_E_DATA;
+            }
+        } else {
+            result = DSEC_E_DATA;
+        }
+    } else {
+        result = DSEC_E_PARAM;
     }
 
-    return DSEC_SUCCESS;
+    return result;
 }

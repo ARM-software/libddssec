@@ -17,6 +17,8 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
+
 /*!
  * \defgroup GroupRand Random
  *
@@ -32,14 +34,14 @@ extern "C" {
  * \param[out] buffer Pointer to storage where random data will be written to.
  *
  * \param nbytes Number of random data in bytes. Must be bigger than 0. Must be
- *      no more than 256 bytes.
+ *     no more than 256 bytes.
  *
  * \retval ::DSEC_SUCCESS Success.
  * \retval ::DSEC_E_PARAM buffer pointer is invalid (NULL).
  * \retval ::DSEC_E_PARAM nbytes is zero or more than 256.
  * \retval ::DSEC_E_DATA The system failed to generate random data.
  */
-int dsec_rand(void *buffer, size_t nbytes);
+int dsec_rand(void* buffer, size_t nbytes);
 
 /*!
  * \}
