@@ -46,7 +46,6 @@ IncludeCategories:
   Priority: 4
 - Regex: '^<.+>$'
   Priority: 5
-IncludeBlocksStyle: IBS_Regroup
 IndentCaseLabels: 'false'
 IndentWidth: '4'
 IndentWrappedFunctionNames: 'true'
@@ -60,6 +59,7 @@ PenaltyBreakString: '1000'
 PenaltyExcessCharacter: '1000000'
 PenaltyReturnTypeOnItsOwnLine: '500000'
 PointerAlignment: Left
+SortIncludes: 'true'
 SpaceAfterCStyleCast: 'false'
 SpaceBeforeAssignmentOperators: 'true'
 SpaceBeforeParens: ControlStatements
