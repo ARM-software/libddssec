@@ -322,8 +322,22 @@ class AssetsTar():
         working_dir = os.getcwd()
 
         os.chdir(project_base_dir)
-        archive_cmd = '''( git ls-files --others --exclude-standard; \
-                      git ls-files )|tar -cf {} -T -'''.format(self.path)
+
+        # List all the files that should be tar-ed for the target:
+        #   - files that are untracked and not in .gitignore
+        #   - files that are tracked in the project
+        # All files that were deleted and previously tracked are discarded.
+        list_cmd = '''(if test -z "`git ls-files --deleted`" ; then
+                          git ls-files --others --exclude-standard && \
+                          git ls-files
+                       else
+                          (git ls-files --others --exclude-standard && \
+                           git ls-files) | \
+                          grep --invert-match "`git ls-files --deleted`"
+                       fi)'''
+
+        archive_cmd = '''{} | tar -cf {} -T -'''.format(list_cmd, self.path)
+
         subprocess.check_call(archive_cmd, shell=True)
 
         os.chdir(working_dir)
