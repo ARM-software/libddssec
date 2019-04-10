@@ -80,6 +80,7 @@ set(EXTERNAL_INCLUDES
 set(PROJECT_SOURCE
     src/dsec_ca.c
     src/dsec_rand.c
+    src/dsec_ih.c
 )
 
 #
