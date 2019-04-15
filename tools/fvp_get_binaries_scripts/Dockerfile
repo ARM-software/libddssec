@@ -61,6 +61,9 @@ RUN sed -i -e "s/DefaultInstance=tty1/DefaultInstance=${TTY_NAME_CONSOLE}/g" \
 RUN echo "${TTY_NAME_CONSOLE}" > /etc/securetty
 
 # Create symlinks for the test frameworks
-RUN ln -s /run/lib/optee-armtz /lib/optee-armtz && \
-    mkdir -p /data && \
-    ln -s /run/data /data
+RUN rm -f /lib/optee_armtz && \
+    mkdir -p /dev/shm/lib/optee_armtz && \
+    ln -s /dev/shm/lib/optee_armtz /lib/optee_armtz && \
+    rm -f /data && \
+    mkdir -p /dev/shm/data && \
+    ln -s /dev/shm/data /data

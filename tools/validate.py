@@ -167,8 +167,9 @@ def main():
                              shell=True)
     results.append(('Pycodestyle', result))
 
+    basedir = os.getcwd()
     with build_directory():
-        subprocess.call('cmake -DBUILD_DOC=ON ..', shell=True)
+        subprocess.call('cmake -DBUILD_DOC=ON {}'.format(basedir), shell=True)
         result = subprocess.call('make doc', shell=True)
         results.append(('Check doc', result))
 
@@ -176,19 +177,22 @@ def main():
 
     cmake_params = '-DBUILD_DOC=ON -DBUILD_TEST=ON '
     build_info = ''
+
     if machine == 'x86_64':
         print('Using cross-compilation')
         cmake_params += '-DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake'
         build_info += ' (cross-compiled)'
 
     with build_directory():
-        subprocess.call('cmake {} ..'.format(cmake_params), shell=True)
+        subprocess.call('cmake {} {}'.format(cmake_params, basedir),
+                        shell=True)
+
         result = subprocess.call('make -j{}'.format(threads), shell=True)
         results.append(('Build libddssec{}'.format(build_info), result))
         library_build_result = result
 
     with build_directory():
-        subprocess.call('cmake ..', shell=True)
+        subprocess.call('cmake {}'.format(basedir), shell=True)
         result = subprocess.call('make ta', shell=True)
         results.append(('Build trusted application', result))
         ta_build_result = result

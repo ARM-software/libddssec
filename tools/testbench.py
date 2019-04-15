@@ -29,14 +29,14 @@ class TestBenchBase:
     ta_dev_kit_dir = '$HOME/ta_dev_kit'
 
     # Directory containing libddssec assets (source code and prebuild files)
-    assets_directory = '/run/libddssec'
+    assets_directory = '/dev/shm/libddssec'
 
     # Directory where the tests are built and run from
-    test_directory = '/run/test'
+    test_directory = '/dev/shm/test'
 
     # Directories required by OPTEE during run-time (not used by this tool)
-    required_dirs = ['/run/lib/optee_armtz',  # Used to deploy TAs
-                     '/run/data']  # Used for secure storage
+    required_dirs = ['/dev/shm/lib/optee_armtz',  # Used to deploy TAs
+                     '/dev/shm/data']  # Used for secure storage
 
     # Size of the buffer that is kept in memory to find the expected output
     maxread_buffer_size = 100000000
