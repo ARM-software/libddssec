@@ -20,6 +20,7 @@
  * \{
  */
 
+#include <dsec_ta_ih_ca.h>
 #include <tee_api.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -45,6 +46,8 @@
 struct identity_handle_t {
     /*! Initialized field if the structure has been set. */
     bool initialized;
+    /*! Certificate Authority structure. */
+    struct ca_handle_t ca_handle;
 };
 
 /*!

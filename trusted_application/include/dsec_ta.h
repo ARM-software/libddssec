@@ -27,6 +27,10 @@ enum {
     DSEC_TA_CMD_IH_DELETE,
     /*! Function ID of dsec_ta_ih_get_info */
     DSEC_TA_CMD_IH_INFO,
+    /*! Function ID of dsec_ta_ih_ca_load */
+    DSEC_TA_CMD_IH_CA_LOAD,
+    /*! Function ID of dsec_ta_ih_ca_unload */
+    DSEC_TA_CMD_IH_CA_UNLOAD,
 #if DSEC_TEST
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,

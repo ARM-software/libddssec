@@ -29,6 +29,15 @@ dsec_add_test(
         dsec_test_ta.c
         test_ih.c
 )
+dsec_add_test(
+    NAME identity_handle_ca
+    SOURCE
+        ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_ih.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_ih_ca.c
+        dsec_test_ta.c
+        test_ih_ca.c
+)
 
 dsec_embed_asset_ta_files(
     LOCATION "./assets"

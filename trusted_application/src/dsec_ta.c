@@ -8,6 +8,7 @@
 #include <dsec_macros.h>
 #include <dsec_ta.h>
 #include <dsec_ta_ih.h>
+#include <dsec_ta_ih_ca.h>
 #include <dsec_ta_manage_object.h>
 #include <tee_ta_api.h>
 #include <trace.h>
@@ -57,6 +58,12 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
         break;
     case DSEC_TA_CMD_IH_INFO:
         result = dsec_ta_ih_get_info(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_IH_CA_LOAD:
+        result = dsec_ta_ih_ca_load(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_IH_CA_UNLOAD:
+        result = dsec_ta_ih_ca_unload(parameters_type, parameters);
         break;
 #if DSEC_TEST
     case DSEC_TA_CMD_LOAD_OBJECT_BUILTIN:

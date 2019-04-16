@@ -57,8 +57,9 @@ TEE_Result dsec_ta_ih_create(uint32_t parameters_type, TEE_Param parameters[1])
     if (parameters_type == expected_types) {
         index_ih = find_free_ih_element();
         if (index_ih >= 0) {
-            store[index_ih].initialized = true;
             parameters[0].value.a = index_ih;
+            store[index_ih].initialized = true;
+            store[index_ih].ca_handle.initialized = false;
             allocated_handle++;
         } else {
             EMSG("Cannot allocate more memory for any more handles.\n");
@@ -88,6 +89,7 @@ TEE_Result dsec_ta_ih_delete(uint32_t parameters_type,
         index_ih = (int32_t)parameters[0].value.a;
         if (ih_id_valid(index_ih)) {
             store[index_ih].initialized = false;
+            (void) dsec_ta_ih_ca_free(&(store[index_ih].ca_handle));
             allocated_handle--;
         } else {
             EMSG("Requested handle %d is uninitialized or out-of-bounds.\n",
