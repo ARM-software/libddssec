@@ -12,3 +12,11 @@ dsec_add_test(
     NAME ca_common_functions
     SOURCE test_ca_common_functions.c ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
 )
+
+dsec_embed_asset_ta_files(
+    LOCATION "./assets"
+    NAMES
+        cacert.pem
+        p1cert.pem
+        p1privkey.pem
+)
