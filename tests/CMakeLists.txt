@@ -36,4 +36,12 @@ dsec_embed_asset_ta_files(
         cacert.pem
         p1cert.pem
         p1privkey.pem
+        invalid_cacert_empty.pem
+        invalid_cacert_missing_byte.pem
+        invalid_cacert_mismatch1.pem
+        invalid_cacert_mismatch2.pem
+        invalid_p1_cert_shortterm_signed.pem
+        invalid_shortterm_ca.pem
+        invalid_nosignature_cert.pem
+        invalid_signature_cert.pem
 )
