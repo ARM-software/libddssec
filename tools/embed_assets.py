@@ -33,6 +33,8 @@ def write_array(input, output, variable_name):
                 else:
                     output.write(' ')
 
+        # Add a NULL byte at the end of the asset array for mbedTLS.
+        output.write("0x0, ")
         output.write('\n};\n\n')
 
 
