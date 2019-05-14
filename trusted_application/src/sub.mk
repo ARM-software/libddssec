@@ -15,4 +15,5 @@ srcs-y += \
     dsec_ta.c \
     dsec_ta_manage_object.c \
     dsec_ta_ih.c \
-    dsec_ta_ih_ca.c
+    dsec_ta_ih_ca.c \
+    dsec_ta_ih_cert.c

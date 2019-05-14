@@ -21,6 +21,7 @@
  */
 
 #include <dsec_ta_ih_ca.h>
+#include <dsec_ta_ih_cert.h>
 #include <tee_api.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -48,6 +49,8 @@ struct identity_handle_t {
     bool initialized;
     /*! Certificate Authority structure. */
     struct ca_handle_t ca_handle;
+    /*! Certificate of identity structure. */
+    struct cert_handle_t cert_handle;
 };
 
 /*!

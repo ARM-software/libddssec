@@ -82,6 +82,7 @@ set(PROJECT_SOURCE
     src/dsec_rand.c
     src/dsec_ih.c
     src/dsec_ih_ca.c
+    src/dsec_ih_cert.c
 )
 
 #
