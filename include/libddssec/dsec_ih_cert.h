@@ -70,6 +70,28 @@ int32_t dsec_ih_cert_unload(const struct dsec_instance* instance,
                             int32_t ih_id);
 
 /*!
+ * \brief Get a Certificate from an Identity Handle.
+ *
+ * \details Calls the Trusted Application to get a Certificate for a specific
+ *     Identity Handle ID.
+ *
+ * \param[out] output Byte array that will receive the data.
+ * \param[out] output_size Pointer to the size of the incoming buffer. This
+ *     value will be updated with the number of bytes written to the array.
+ *
+ * \param instance Initialized instance to access the Trusted Application.
+ * \param ih_id Handle ID of the Identity Handle.
+ *
+ * \retval ::DSEC_SUCCESS Certificate has been copied to the buffer.
+ * \retval TEE_Result from the function DSEC_TA_CMD_IH_CERT_GET invoked in the
+ *     TA converted to a DSEC_E_
+ */
+int32_t dsec_ih_cert_get(uint8_t* output,
+                         uint32_t* output_size,
+                         const struct dsec_instance* instance,
+                         int32_t ih_id);
+
+/*!
  * \}
  */
 

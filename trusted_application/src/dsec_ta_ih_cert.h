@@ -107,6 +107,39 @@ TEE_Result dsec_ta_ih_cert_free(struct cert_handle_t* cert_handle);
 TEE_Result dsec_ta_ih_cert_unload(uint32_t parameters_type,
                                   const TEE_Param parameters[1]);
 
+
+/*!
+ * \brief Return a PEM formatted string of the certificate in a identity handle.
+ *
+ * \details Given an index of a identity handle, return the PEM of the
+ *     certificate.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param[out] parameters[0].memref.buff Buffer containing the extracted PEM
+ *     string and size.
+ * \param[out] parameters[0].memref.size Contains the incoming buffer size and
+ *     is updated by the new output size.
+ *
+ * \param parameters_type The types of each of the parameters in parameters[2]
+ *     as described above.
+ * \param parameters[1].value.a Value containing the index of the identity
+ *    handle containing the wanted certificate.
+ *
+ * \retval ::TEE_SUCCESS if the buffer returned is the PEM string requested.
+ * \retval ::TEE_ERROR_BAD_FORMAT if the certificate could not be encoded as PEM
+ *     format.
+ * \retval ::TEE_ERROR_SHORT_BUFFER if the given buffer is too small.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS if the parameter types are not properly
+ *     set or if the index is invalid. The buffer returned is NULL and size set
+ *     to 0.
+ */
+TEE_Result dsec_ta_ih_cert_get(uint32_t parameters_type,
+                               TEE_Param parameters[2]);
+
 /*!
  * \}
  */
