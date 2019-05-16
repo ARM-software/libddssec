@@ -10,6 +10,7 @@
 #include <dsec_ta_ih.h>
 #include <dsec_ta_ih_ca.h>
 #include <dsec_ta_ih_cert.h>
+#include <dsec_ta_ih_privkey.h>
 #include <dsec_ta_manage_object.h>
 #include <tee_ta_api.h>
 #include <trace.h>
@@ -82,6 +83,12 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
         result = dsec_ta_ih_cert_get_signature_algorithm(parameters_type,
                                                          parameters);
 
+        break;
+    case DSEC_TA_CMD_IH_PRIVKEY_LOAD:
+        result = dsec_ta_ih_privkey_load(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_IH_PRIVKEY_UNLOAD:
+        result = dsec_ta_ih_privkey_unload(parameters_type, parameters);
         break;
 #if DSEC_TEST
     case DSEC_TA_CMD_LOAD_OBJECT_BUILTIN:

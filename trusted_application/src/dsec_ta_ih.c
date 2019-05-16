@@ -61,6 +61,7 @@ TEE_Result dsec_ta_ih_create(uint32_t parameters_type, TEE_Param parameters[1])
             store[index_ih].initialized = true;
             store[index_ih].ca_handle.initialized = false;
             store[index_ih].cert_handle.initialized = false;
+            store[index_ih].privkey_handle.initialized = false;
             allocated_handle++;
         } else {
             EMSG("Cannot allocate more memory for any more handles.\n");
@@ -92,6 +93,7 @@ TEE_Result dsec_ta_ih_delete(uint32_t parameters_type,
             store[index_ih].initialized = false;
             (void) dsec_ta_ih_ca_free(&(store[index_ih].ca_handle));
             (void) dsec_ta_ih_cert_free(&(store[index_ih].cert_handle));
+            (void) dsec_ta_ih_privkey_free(&(store[index_ih].privkey_handle));
             allocated_handle--;
         } else {
             EMSG("Requested handle %d is uninitialized or out-of-bounds.\n",
