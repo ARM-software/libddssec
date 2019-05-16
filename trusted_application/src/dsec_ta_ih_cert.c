@@ -308,3 +308,166 @@ TEE_Result dsec_ta_ih_cert_get(uint32_t parameters_type,
     return result;
 }
 
+TEE_Result dsec_ta_ih_cert_get_sn(uint32_t parameters_type,
+                                  TEE_Param parameters[2])
+{
+    TEE_Result result = 0;
+    int mbedtls_return = 0;
+    uint32_t index_ih = 0;
+    const struct identity_handle_t* ih = NULL;
+
+    const mbedtls_x509_crt* cert = NULL;
+    /* Size of the output buffer that was allocated */
+    size_t output_length = 0;
+    char* output_buffer = NULL;
+
+    const size_t CERT_MAX_SUBJECT_NAME_SIZE = 2048;
+
+    const uint32_t expected_types =
+        TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_OUTPUT,
+                        TEE_PARAM_TYPE_VALUE_INPUT,
+                        TEE_PARAM_TYPE_NONE,
+                        TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+
+        index_ih = (int32_t)parameters[1].value.a;
+        ih = dsec_ta_get_identity_handle(index_ih);
+
+        if (ih != NULL) {
+            if (ih->cert_handle.initialized) {
+                output_length = parameters[0].memref.size;
+                cert = &(ih->cert_handle.cert);
+                if (output_length >= CERT_MAX_SUBJECT_NAME_SIZE) {
+                    output_buffer = parameters[0].memref.buffer;
+
+                    const mbedtls_x509_name* ca_subject_name = &cert->subject;
+                    mbedtls_return =
+                        mbedtls_x509_dn_gets(output_buffer,
+                                             CERT_MAX_SUBJECT_NAME_SIZE,
+                                             ca_subject_name);
+                    /*
+                     * The return value contains the length of the string
+                     * without '\0' character or a negative error code.
+                     */
+                    if (mbedtls_return >= 0) {
+                        result = TEE_SUCCESS;
+                        parameters[0].memref.size = mbedtls_return + 1;
+                    } else {
+                        EMSG("An error occurred when getting the field 0x%x\n",
+                             mbedtls_return);
+
+                        result = TEE_ERROR_BAD_FORMAT;
+                        parameters[0].memref.size = 0;
+                    }
+
+                } else {
+                    EMSG("Output array is too short.\n");
+                    result = TEE_ERROR_SHORT_BUFFER;
+                }
+
+            } else {
+                EMSG("Certificate is not set.\n");
+                result = TEE_ERROR_NO_DATA;
+            }
+
+        } else {
+            EMSG("Index: 0x%x is invalid.\n", index_ih);
+            result = TEE_ERROR_BAD_PARAMETERS;
+        }
+
+        /*
+         * Set the size of the output buffer to 0 if an error occurred.
+         */
+        if (result != TEE_SUCCESS) {
+            parameters[0].memref.size = 0;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_ih_cert_get_signature_algorithm(uint32_t parameters_type,
+                                                   TEE_Param parameters[2])
+{
+    TEE_Result result = 0;
+    int mbedtls_return = 0;
+    uint32_t index_ih = 0;
+    const struct identity_handle_t* ih = NULL;
+
+    const mbedtls_x509_crt* cert = NULL;
+    /* Size of the output buffer that was allocated */
+    size_t output_length = 0;
+    char* output_buffer = NULL;
+
+    const size_t CERT_MAX_SUBJECT_NAME_SIZE = 64;
+
+    const uint32_t expected_types =
+        TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_OUTPUT,
+                        TEE_PARAM_TYPE_VALUE_INPUT,
+                        TEE_PARAM_TYPE_NONE,
+                        TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+
+        index_ih = (int32_t)parameters[1].value.a;
+        ih = dsec_ta_get_identity_handle(index_ih);
+
+        if ((ih != NULL) && ih->cert_handle.initialized) {
+            output_length = parameters[0].memref.size;
+            cert = &(ih->cert_handle.cert);
+            if (output_length > CERT_MAX_SUBJECT_NAME_SIZE) {
+                output_buffer = parameters[0].memref.buffer;
+
+                const mbedtls_x509_buf* sig_oid = &cert->sig_oid;
+                mbedtls_return = mbedtls_x509_sig_alg_gets(output_buffer,
+                                                           output_length,
+                                                           sig_oid,
+                                                           cert->sig_pk,
+                                                           cert->sig_md,
+                                                           cert->sig_opts);
+
+                /*
+                 * The return value contains the length of the string without
+                 * '\0' character or a negative error code.
+                 */
+                if (mbedtls_return >= 0) {
+                    result = TEE_SUCCESS;
+                    parameters[0].memref.size = mbedtls_return + 1;
+                } else {
+                    EMSG("An error occurred when getting the field 0x%x\n",
+                         mbedtls_return);
+
+                    result = TEE_ERROR_BAD_FORMAT;
+                    parameters[0].memref.size = 0;
+                }
+
+            } else {
+                EMSG("Output array is too short.\n");
+                result = TEE_ERROR_SHORT_BUFFER;
+            }
+
+        } else {
+            EMSG("Index: 0x%x is invalid or certificate is not set.\n",
+                 index_ih);
+
+            result = TEE_ERROR_NO_DATA;
+        }
+
+        /* Set the size of the output buffer to 0 if an error occurred. */
+        if (result != TEE_SUCCESS) {
+            parameters[0].memref.size = 0;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+

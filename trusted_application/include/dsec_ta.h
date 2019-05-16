@@ -37,6 +37,10 @@ enum {
     DSEC_TA_CMD_IH_CERT_UNLOAD,
     /*! Function ID of dsec_ta_ih_cert_get */
     DSEC_TA_CMD_IH_CERT_GET,
+    /*! Function ID of dsec_ta_ih_cert_get_sn */
+    DSEC_TA_CMD_IH_CERT_GET_SN,
+    /*! Function ID of dsec_ta_ih_cert_get_signature */
+    DSEC_TA_CMD_IH_CERT_GET_SIGNATURE_ALGORITHM,
 #if DSEC_TEST
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,
