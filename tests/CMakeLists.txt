@@ -54,6 +54,8 @@ dsec_add_test(
         ${CMAKE_SOURCE_DIR}/src/dsec_ih_cert.c
         dsec_test_ta.c
         test_ih_cert.c
+    DEPENDENCIES
+        builtins_test
 )
 dsec_add_test(
     NAME identity_handle_private_key
@@ -81,4 +83,15 @@ dsec_embed_asset_ta_files(
         invalid_shortterm_ca.pem
         invalid_nosignature_cert.pem
         invalid_signature_cert.pem
+)
+
+dsec_embed_asset_test_files(
+    LOCATION "./assets"
+    NAMES
+        p1cert.pem
+        invalid_p1_cert_shortterm_signed.pem
+        invalid_shortterm_ca.pem
+        invalid_nosignature_cert.pem
+        invalid_signature_cert.pem
+        p1privkey.pem
 )

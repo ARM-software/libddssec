@@ -140,6 +140,31 @@ int32_t dsec_ih_cert_get_signature_algorithm(
     int32_t ih_id);
 
 /*!
+ * \brief Load a Certificate from a buffer.
+ *
+ * \details Calls the Trusted Application to load a Certificate for a specific
+ *     Identity Handle ID. The Certificate will be checked against another
+ *     identity handle Certificate Authority.
+ *
+ * \param instance Initialized instance to access the Trusted Application.
+ * \param rih_id Handle ID of the remote identity handle that will have the
+ *     loaded certificate.
+ * \param input_buffer buffer containing the certificate to be loaded.
+ * \param input_size size in byte of the specified buffer.
+ * \param lih_id Handle ID of the local identity handle that will check the
+ *     input certificate.
+ *
+ * \retval ::DSEC_SUCCESS if the certificate has been loaded.
+ * \retval TEE_Result from the function DSEC_TA_CMD_IH_CERT_LOAD_FROM_BUFFER
+ *     invoked in the TA converted to a DSEC_E_
+ */
+int32_t dsec_ih_cert_load_from_buffer(const struct dsec_instance* instance,
+                                      int32_t rih_id,
+                                      const uint8_t* input_buffer,
+                                      uint32_t input_size,
+                                      int32_t lih_id);
+
+/*!
  * \}
  */
 

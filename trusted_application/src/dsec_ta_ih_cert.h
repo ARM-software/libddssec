@@ -203,6 +203,38 @@ TEE_Result dsec_ta_ih_cert_get_signature_algorithm(uint32_t parameters_type,
                                                    TEE_Param parameters[2]);
 
 /*!
+ * \brief Load a given Certificate to an Identity Handle
+ *
+ * \details Given an index of a identity handle, load the given certificate if
+ *     the IH has nothing initialized. The loaded certificate is checked against
+ *     the Certificate Authority contained in the local identity handle
+ *     specified.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_TYPE_MEMREF_INPUT
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_NONE
+ *
+ * \param parameters_type The types of each of the parameters in parameters[3]
+ *     as described above.
+ * \param parameters[0].value.a value of the index of the identity handle that
+ *     will get the certificate loaded.
+ * \param parameters[1].memref.buffer Buffer containing the certificate to be
+ *     loaded.
+ * \param parameters[1].memref.size Size of the incoming buffer.
+ * \param parameters[2].value.a value of the index of the identity handle that
+ *     will check the certificate signature.
+ *
+ * \retval ::TEE_SUCCESS if the buffer returned is the Signature Algorithm.
+ * \retval ::TEE_ERROR_BAD_FORMAT if the buffer cannot be parsed.
+ * \retval ::TEE_ERROR_SECURITY if the certificate has invalid signature.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS if the parameter types are not properly
+ *     set or if the index is invalid.
+ */
+TEE_Result dsec_ta_ih_cert_load_from_buffer(uint32_t parameters_type,
+                                            const TEE_Param parameters[3]);
+
+/*!
  * \}
  */
 

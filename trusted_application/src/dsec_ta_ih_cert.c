@@ -471,3 +471,75 @@ TEE_Result dsec_ta_ih_cert_get_signature_algorithm(uint32_t parameters_type,
     return result;
 }
 
+TEE_Result dsec_ta_ih_cert_load_from_buffer(uint32_t parameters_type,
+                                            const TEE_Param parameters[3])
+{
+
+    TEE_Result result = 0;
+
+    uint32_t index_rih = 0;
+    struct identity_handle_t* rih = NULL;
+    uint32_t index_lih = 0;
+    struct identity_handle_t* lih = NULL;
+
+    size_t input_length = 0;
+    const char* input_buffer = NULL;
+
+    const uint32_t expected_types =
+        TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
+                        TEE_PARAM_TYPE_MEMREF_INPUT,
+                        TEE_PARAM_TYPE_VALUE_INPUT,
+                        TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+
+        index_rih = (int32_t)parameters[0].value.a;
+        rih = dsec_ta_get_identity_handle(index_rih);
+
+        input_length = (size_t)parameters[1].memref.size;
+        input_buffer = (char*)parameters[1].memref.buffer;
+
+        index_lih = (int32_t)parameters[2].value.a;
+        lih = dsec_ta_get_identity_handle(index_lih);
+
+        if ((rih != NULL) &&
+            !rih->cert_handle.initialized &&
+            !rih->ca_handle.initialized) {
+
+            if ((lih != NULL) && lih->ca_handle.initialized) {
+                result = cert_parse_and_verify(&(rih->cert_handle.cert),
+                                               lih,
+                                               input_buffer,
+                                               input_length);
+
+                if (result == 0) {
+                    rih->cert_handle.initialized = true;
+                } else {
+                    rih->cert_handle.initialized = false;
+                }
+
+                /* Return the given result from the last function called */
+
+            } else {
+                EMSG("Index: 0x%x for lih is invalid or Certificate authority "
+                     "is not set.\n",
+                      index_lih);
+
+                result = TEE_ERROR_BAD_PARAMETERS;
+            }
+
+        } else {
+            EMSG("Index: 0x%x for rih is invalid or already has a certificate "
+                 "set.\n",
+                 index_rih);
+
+            result = TEE_ERROR_BAD_PARAMETERS;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}

@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <builtins/builtins_list.h>
 #include <dsec_ih.h>
 #include <dsec_ih_ca.h>
 #include <dsec_ih_cert.h>
@@ -416,6 +417,134 @@ static void test_case_invalid_get_signature(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
+static void test_case_load_get_store_cert(void)
+{
+    static const char ca[] = "cacert.pem";
+    static const char cert[] = "p1cert.pem";
+
+    uint8_t output_certificate[2048] = {0};
+    uint32_t output_certificate_size = DSEC_ARRAY_SIZE(output_certificate);
+
+    uint8_t output_certificate2[2048] = {0};
+    uint32_t output_certificate2_size = DSEC_ARRAY_SIZE(output_certificate2);
+
+    int32_t lih = -1;
+    int32_t rih = -1;
+
+    int32_t result = 0;
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_create(&lih, &instance) == DSEC_SUCCESS);
+
+    result = dsec_ih_ca_load(&instance, lih, ca);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_load(&instance, lih, cert);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_get(output_certificate,
+                              &output_certificate_size,
+                              &instance,
+                              lih);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_ih_create(&rih, &instance) == TEEC_SUCCESS);
+
+    result = dsec_ih_cert_load_from_buffer(&instance,
+                                           rih,
+                                           output_certificate,
+                                           output_certificate_size,
+                                           lih);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_get(output_certificate2,
+                              &output_certificate2_size,
+                              &instance,
+                              rih);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(memcmp(output_certificate2,
+                            output_certificate,
+                            output_certificate2_size) == 0);
+
+    result = dsec_ih_cert_unload(&instance, lih);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    result = dsec_ih_cert_unload(&instance, rih);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_ca_unload(&instance, lih);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    result = dsec_ih_ca_unload(&instance, rih);
+    DSEC_TEST_ASSERT(result != DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_ih_delete(&instance, lih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_delete(&instance, rih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
+static void test_case_load_get_store_cert_invalid(void)
+{
+    static const char ca[] = "cacert.pem";
+    static const char cert[] = "p1cert.pem";
+
+    const uint8_t* const cert_invalid[] = {
+        invalid_nosignature_cert_pem,
+        invalid_p1_cert_shortterm_signed_pem,
+        invalid_signature_cert_pem,
+        p1privkey_pem,
+    };
+
+    int32_t lih = -1;
+    int32_t rih = -1;
+
+    int32_t result = 0;
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_create(&lih, &instance) == DSEC_SUCCESS);
+    result = dsec_ih_ca_load(&instance, lih, ca);
+    DSEC_TEST_ASSERT(result == TEEC_SUCCESS);
+    result = dsec_ih_cert_load(&instance, lih, cert);
+    DSEC_TEST_ASSERT(result == TEEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_create(&rih, &instance) == DSEC_SUCCESS);
+
+    for (size_t i = 0U; i < DSEC_ARRAY_SIZE(cert_invalid); i++) {
+        result = dsec_ih_cert_load_from_buffer(
+            &instance,
+            rih,
+            cert_invalid[i],
+            strlen((char*) cert_invalid[i]) + 1,
+            lih);
+
+        DSEC_TEST_ASSERT(result != DSEC_SUCCESS);
+    }
+
+    result = dsec_ih_cert_unload(&instance, lih);
+    DSEC_TEST_ASSERT(result == TEEC_SUCCESS);
+    result = dsec_ih_cert_unload(&instance, rih);
+    DSEC_TEST_ASSERT(result != TEEC_SUCCESS);
+
+    result = dsec_ih_ca_unload(&instance, lih);
+    DSEC_TEST_ASSERT(result == TEEC_SUCCESS);
+    result = dsec_ih_ca_unload(&instance, rih);
+    DSEC_TEST_ASSERT(result != TEEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_ih_delete(&instance, lih) == TEEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_delete(&instance, rih) == TEEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_load_cert_from_builtin),
     DSEC_TEST_CASE(test_case_invalid_load_cert),
@@ -425,6 +554,8 @@ static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_get_signature),
     DSEC_TEST_CASE(test_case_invalid_get_subject_name),
     DSEC_TEST_CASE(test_case_invalid_get_signature),
+    DSEC_TEST_CASE(test_case_load_get_store_cert),
+    DSEC_TEST_CASE(test_case_load_get_store_cert_invalid),
 };
 
 const struct dsec_test_suite_desc test_suite = {

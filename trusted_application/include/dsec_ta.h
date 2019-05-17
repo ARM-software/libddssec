@@ -41,6 +41,8 @@ enum {
     DSEC_TA_CMD_IH_CERT_GET_SN,
     /*! Function ID of dsec_ta_ih_cert_get_signature */
     DSEC_TA_CMD_IH_CERT_GET_SIGNATURE_ALGORITHM,
+    /*! Function ID of dsec_ta_ih_cert_load_from_buffer */
+    DSEC_TA_CMD_IH_CERT_LOAD_FROM_BUFFER,
     /*! Function ID of dsec_ta_ih_privkey_load */
     DSEC_TA_CMD_IH_PRIVKEY_LOAD,
     /*! Function ID of dsec_ta_ih_privkey_unload */
