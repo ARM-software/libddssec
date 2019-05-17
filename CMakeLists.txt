@@ -91,7 +91,25 @@ set(PROJECT_SOURCE
 set(DSEC_TA_UUID
     "{0x8ee919be,0x3954,0x4170,{0xb4,0xc2,0xda,0x16,0x9f,0x39,0x53,0x6e}}"
 )
-set(DSEC_TA_UUID_STRING "8ee919be-3954-4170-b4c2-da169f39536e")
+
+string(REPLACE "{" "" DSEC_TA_UUID_STRING ${DSEC_TA_UUID})
+string(REPLACE "}" "" DSEC_TA_UUID_STRING ${DSEC_TA_UUID_STRING})
+string(REPLACE "0x" "" DSEC_TA_UUID_STRING ${DSEC_TA_UUID_STRING})
+
+string(REGEX MATCH "(.*),(.*),(.*),(.*,.*),(.*,.*,.*,.*,.*,.*)"
+       DSEC_TA_UUID_STRING
+       ${DSEC_TA_UUID_STRING})
+
+string(REPLACE "," "" PART1 ${CMAKE_MATCH_1})
+string(REPLACE "," "" PART2 ${CMAKE_MATCH_2})
+string(REPLACE "," "" PART3 ${CMAKE_MATCH_3})
+string(REPLACE "," "" PART4 ${CMAKE_MATCH_4})
+string(REPLACE "," "" PART5 ${CMAKE_MATCH_5})
+
+string(CONCAT
+       DSEC_TA_UUID_STRING
+       ${PART1} "-" ${PART2} "-" ${PART3} "-" ${PART4} "-" ${PART5}
+)
 
 list(APPEND COMPILE_DEFINITIONS
     -DDSEC_TA_UUID=${DSEC_TA_UUID}
