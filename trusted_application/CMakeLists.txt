@@ -41,5 +41,3 @@ add_custom_target(ta-clean
 # Builtin assets
 #
 add_subdirectory(builtins)
-add_dependencies(ta builtins)
-add_dependencies(test-ta builtins)
