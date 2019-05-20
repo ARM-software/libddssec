@@ -165,10 +165,134 @@ static void test_case_unload_privkey(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
+static void test_case_load_and_sign(void)
+{
+    static const char name_ca[] = "cacert.pem";
+    static const char name_li[] = "p1cert.pem";
+    static const char name_pk[] = "p1privkey.pem";
+
+    int32_t lih = -1;
+    int32_t result = 0;
+
+    uint8_t buffer[1024];
+    uint32_t buffer_size = DSEC_ARRAY_SIZE(buffer);
+    uint8_t signature[128];
+    uint32_t signature_size = DSEC_ARRAY_SIZE(signature);
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    for (uint32_t i = 0; i < buffer_size; i++) {
+        buffer[i] = i;
+    }
+
+    struct dsec_instance inst = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst) == DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_ih_create(&lih, &inst) == DSEC_SUCCESS);
+    result = dsec_ih_ca_load(&inst, lih, name_ca);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_load(&inst, lih, name_li);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    result = dsec_ih_privkey_load(&inst, lih, name_pk, "", 0);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_privkey_sign(signature,
+                                  &signature_size,
+                                  &inst,
+                                  lih,
+                                  buffer,
+                                  buffer_size);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_verify(&inst,
+                                 lih,
+                                 buffer,
+                                 buffer_size,
+                                 signature,
+                                 signature_size);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_ih_privkey_unload(&inst, lih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_cert_unload(&inst, lih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_ca_unload(&inst, lih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_delete(&inst, lih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst) == DSEC_SUCCESS);
+}
+
+static void test_case_load_and_sign_invalid(void)
+{
+    static const char name_ca[] = "cacert.pem";
+    static const char name_li[] = "p1cert.pem";
+    static const char name_pk[] = "p1privkey.pem";
+
+    int32_t lih = -1;
+    int32_t result = 0;
+
+    uint8_t buffer[1024];
+    uint32_t buffer_size = DSEC_ARRAY_SIZE(buffer);
+    uint8_t signature[128];
+    uint32_t signature_size = DSEC_ARRAY_SIZE(signature);
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    for (uint32_t i = 0; i < buffer_size; i++) {
+        buffer[i] = i;
+    }
+
+    struct dsec_instance inst = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst) == DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_ih_create(&lih, &inst) == DSEC_SUCCESS);
+    result = dsec_ih_ca_load(&inst, lih, name_ca);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_load(&inst, lih, name_li);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    /* Try to sign before the private key is loaded */
+    result = dsec_ih_privkey_sign(signature,
+                                  &signature_size,
+                                  &inst,
+                                  lih,
+                                  buffer,
+                                  buffer_size);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_DATA);
+
+    result = dsec_ih_privkey_load(&inst, lih, name_pk, "", 0);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    /* Try to sign with a signature buffer too small. */
+    signature_size = 8;
+    buffer_size = DSEC_ARRAY_SIZE(buffer);
+    result = dsec_ih_privkey_sign(signature,
+                                  &signature_size,
+                                  &inst,
+                                  lih,
+                                  buffer,
+                                  buffer_size);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_SHORT_BUFFER);
+
+    DSEC_TEST_ASSERT(dsec_ih_privkey_unload(&inst, lih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_cert_unload(&inst, lih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_ca_unload(&inst, lih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_delete(&inst, lih) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst) == DSEC_SUCCESS);
+}
 
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_load_privkey),
     DSEC_TEST_CASE(test_case_unload_privkey),
+    DSEC_TEST_CASE(test_case_load_and_sign),
+    DSEC_TEST_CASE(test_case_load_and_sign_invalid),
 };
 
 const struct dsec_test_suite_desc test_suite = {

@@ -49,6 +49,8 @@ enum {
     DSEC_TA_CMD_IH_PRIVKEY_UNLOAD,
     /*! Function ID of dsec_ta_ih_cert_signature_verify */
     DSEC_TA_CMD_IH_CERT_VERIFY,
+    /*! Function ID of dsec_ta_ih_privkey_sign */
+    DSEC_TA_CMD_IH_PRIVKEY_SIGN,
 #if DSEC_TEST
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,

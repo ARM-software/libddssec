@@ -90,6 +90,38 @@ TEE_Result dsec_ta_ih_privkey_unload(uint32_t parameters_type,
                                      const TEE_Param parameters[1]);
 
 /*!
+ * \brief Sign a message using a Private Key from an Identity Handle.
+ *
+ * \details Retrieve the Private Key of the Identity Handle and sign the
+ *     buffer. Return the signature to the Client Application.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_TYPE_MEMREF_INPUT
+ *        - TEE_PARAM_NONE
+ *
+ * \param[out] parameters[0].memref.buffer Output buffer containing the
+ *     signature.
+ * \param[out] parameters[0].memref.size Size of the incoming output buffer.
+ *     This will be updated with the actual number of bytes written to the
+ *     buffer.
+ *
+ * \param parameters_type The types of each of the parameters in parameters[3]
+ *     as described above.
+ * \param parameters[1] Identity Handle ID of the Identity Handle.
+ * \param parameters[2].memref.buffer Input message to sign.
+ * \param parameters[2].memref.size Input buffer size.
+ *
+ * \retval ::TEE_SUCCESS Signature is written to the input buffer.
+ * \retval ::TEE_ERROR_NO_DATA Private key is not initialized.
+ * \retval ::TEE_ERROR_BAD_FORMAT Private key cannot be parsed.
+ * \retval ::TEE_ERROR_SECURITY Signature cannot be generated.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter type are not properly set.
+ */
+TEE_Result dsec_ta_ih_privkey_sign(uint32_t parameters_type,
+                                   TEE_Param parameters[3]);
+
+/*!
  * \}
  */
 

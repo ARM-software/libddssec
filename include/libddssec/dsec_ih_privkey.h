@@ -81,6 +81,32 @@ int32_t dsec_ih_privkey_unload(const struct dsec_instance* instance,
                                int32_t ih_id);
 
 /*!
+ * \brief Sign the buffer using the Private Key from the Identity Handle
+ *
+ * \details Calls the Trusted Application to sign a buffer using the Private Key
+ *     contained in the Identity Handle.
+ *
+ * \param[out] signature Buffer where the signature will be written.
+ * \param[out] signature_size Pointer to the size of the output buffer. This
+ *     value is overwritten with the actual size of the output signature.
+ *
+ * \param instance Initialized instance to access the Trusted Application.
+ * \param lih_id Identity Handle ID which contains the private key.
+ * \param input_buffer Buffer containing the message to be signed.
+ * \param input_size Size of the input buffer.
+ *
+ * \retval ::DSEC_SUCCESS Signature has been written to the output buffer.
+ * \return TEE_Result from the function DSEC_TA_CMD_IH_PRIVKEY_LOAD invoked in
+ *     the TA converted to a DSEC_E_
+ */
+int32_t dsec_ih_privkey_sign(void* signature,
+                             uint32_t* signature_size,
+                             const struct dsec_instance* instance,
+                             int32_t lih_id,
+                             const void* input_buffer,
+                             uint32_t input_size);
+
+/*!
  * \}
  */
 
