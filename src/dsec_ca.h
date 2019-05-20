@@ -54,6 +54,11 @@ TEEC_Result dsec_ca_invoke(const struct dsec_instance* instance,
                            TEEC_Operation* operation,
                            uint32_t* origin);
 
+/*
+ * Convert the incoming TEEC_Result to a DSEC_E code.
+ */
+int32_t dsec_ca_convert_teec_result(TEEC_Result teec_result);
+
 #ifdef __cplusplus
 }
 #endif

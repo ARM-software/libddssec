@@ -183,6 +183,46 @@ int32_t dsec_ca_instance_close(struct dsec_instance* instance)
     return result;
 }
 
+int32_t dsec_ca_convert_teec_result(TEEC_Result teec_result)
+{
+    int32_t result = 0;
+
+    switch (teec_result) {
+    case TEEC_SUCCESS:
+        result = DSEC_SUCCESS;
+        break;
+    case TEEC_ERROR_BAD_PARAMETERS:
+        result = DSEC_E_PARAM;
+        break;
+    case TEEC_ERROR_ITEM_NOT_FOUND:
+        result = DSEC_E_NOT_FOUND;
+        break;
+    case TEEC_ERROR_BAD_FORMAT:
+        result = DSEC_E_BAD_FORMAT;
+        break;
+    case TEEC_ERROR_OUT_OF_MEMORY:
+        result = DSEC_E_MEMORY;
+        break;
+    case TEEC_ERROR_SECURITY:
+        result = DSEC_E_SECURITY;
+        break;
+    case TEEC_ERROR_NO_DATA:
+        result = DSEC_E_DATA;
+        break;
+    case TEEC_ERROR_SHORT_BUFFER:
+        result = DSEC_E_SHORT_BUFFER;
+        break;
+    default:
+        result = DSEC_E_TEE;
+    }
+
+    dsec_print("TEEC_Result 0x%x converted to dsec error code 0x%x\n",
+               teec_result,
+               result);
+
+    return result;
+}
+
 TEEC_Result dsec_ca_invoke(const struct dsec_instance* instance,
                            uint32_t command_id,
                            TEEC_Operation* operation,
