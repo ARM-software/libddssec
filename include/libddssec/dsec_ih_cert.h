@@ -165,6 +165,31 @@ int32_t dsec_ih_cert_load_from_buffer(const struct dsec_instance* instance,
                                       int32_t lih_id);
 
 /*!
+ * \brief Verify a buffer signature using a Public Key from an Identity Handle.
+ *
+ * \details Calls the Trusted Application to verify if a given signature matches
+ *     the buffer signature using the public key of a remote identity handle.
+ *
+ * \param instance Initialized instance to access the Trusted Application.
+ * \param rih_id Handle ID of the remote identity handle that will check the
+ *     signature.
+ * \param input_buffer buffer containing the message to be verified.
+ * \param input_size size in byte of the specified buffer.
+ * \param signature signature of the buffer to be verified
+ * \param signature_size sze in byte of the signature buffer.
+ *
+ * \retval ::DSEC_SUCCESS if the certificate has been loaded.
+ * \return TEE_Result from the function DSEC_TA_CMD_IH_CERT_VERIFY invoked in
+ *     the TA converted to a DSEC_E_
+ */
+int32_t dsec_ih_cert_verify(const struct dsec_instance* instance,
+                            int32_t rih_id,
+                            const void* input_buffer,
+                            uint32_t input_size,
+                            const void* signature,
+                            uint32_t signature_size);
+
+/*!
  * \}
  */
 

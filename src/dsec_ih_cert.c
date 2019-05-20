@@ -254,3 +254,43 @@ int32_t dsec_ih_cert_load_from_buffer(const struct dsec_instance* instance,
 
     return result;
 }
+
+int32_t dsec_ih_cert_verify(const struct dsec_instance* instance,
+                            int32_t rih_id,
+                            const void* input_buffer,
+                            uint32_t input_size,
+                            const void* signature,
+                            uint32_t signature_size)
+{
+    TEEC_Result teec_result = 0;
+    int32_t result = 0;
+    uint32_t return_origin = 0;
+    TEEC_Operation operation = {0};
+
+    operation.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT,
+                                            TEEC_MEMREF_TEMP_INPUT,
+                                            TEEC_MEMREF_TEMP_INPUT,
+                                            TEEC_NONE);
+
+    operation.params[0].value.a = (uint32_t)rih_id;
+
+    operation.params[1].tmpref.buffer = (void*)input_buffer;
+    operation.params[1].tmpref.size = input_size;
+
+    operation.params[2].tmpref.buffer = (void*)signature;
+    operation.params[2].tmpref.size = signature_size;
+
+    teec_result = dsec_ca_invoke(instance,
+                                 DSEC_TA_CMD_IH_CERT_VERIFY,
+                                 &operation,
+                                 &return_origin);
+
+    if (teec_result == TEEC_SUCCESS) {
+        result = DSEC_SUCCESS;
+    } else {
+        result = dsec_ca_convert_teec_result(teec_result);
+        (void)dsec_print("An error occurred: 0x%x.\n", result);
+    }
+
+    return result;
+}

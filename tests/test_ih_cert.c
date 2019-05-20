@@ -545,6 +545,107 @@ static void test_case_load_get_store_cert_invalid(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
+static void test_case_verify_signature(void)
+{
+    static const char ca[] = "cacert.pem";
+    static const char cert[] = "p1cert.pem";
+
+    int32_t lih_id = -1;
+
+    static const uint8_t input_buffer[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24};
+    uint32_t input_size = DSEC_ARRAY_SIZE(input_buffer);
+
+    /* Precomputed signature for input_buffer */
+    static const uint8_t signature[] = {
+        0x30, 0x45, 0x2, 0x21, 0x0, 0x9e, 0x8, 0x6f, 0x20, 0x76, 0x58, 0x1b,
+        0x6d, 0xd4, 0xd4, 0xab, 0xfd, 0xbb, 0x97, 0xfa, 0xbb, 0xdd, 0x5, 0x9f,
+        0x8d, 0xb6, 0x21, 0x37, 0x86, 0x6d, 0x43, 0x38, 0xad, 0x33, 0x8b, 0x3b,
+        0x7d, 0x2, 0x20, 0x20, 0xae, 0x5e, 0xa7, 0x5c, 0x8e, 0x70, 0xd2, 0xbb,
+        0x26, 0x47, 0xba, 0x77, 0xa2, 0x2f, 0xaa, 0x10, 0x12, 0xa8, 0xd7, 0x47,
+        0x50, 0xb3, 0x80, 0x1f, 0x4b, 0xea, 0x4b, 0x66, 0x75, 0x4c, 0x27};
+    uint32_t signature_size = DSEC_ARRAY_SIZE(signature);
+
+    /* Buffer with different data that should not produce the same signature */
+    static const uint8_t invalid_buffer[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 25};
+    uint32_t invalid_buffer_size = DSEC_ARRAY_SIZE(invalid_buffer);
+
+    /* Modified signature that is invalid for input_buffer */
+    static const uint8_t invalid_signature[] = {
+        0x31, 0x45, 0x2, 0x21, 0x0, 0x9e, 0x8, 0x6f, 0x20, 0x76, 0x58, 0x1b,
+        0x6d, 0xd4, 0xd4, 0xab, 0xfd, 0xbb, 0x97, 0xfa, 0xbb, 0xdd, 0x5, 0x9f,
+        0x8d, 0xb6, 0x21, 0x37, 0x86, 0x6d, 0x43, 0x38, 0xad, 0x33, 0x8b, 0x3b,
+        0x7d, 0x2, 0x20, 0x20, 0xae, 0x5e, 0xa7, 0x5c, 0x8e, 0x70, 0xd2, 0xbb,
+        0x26, 0x47, 0xba, 0x77, 0xa2, 0x2f, 0xaa, 0x10, 0x12, 0xa8, 0xd7, 0x47,
+        0x50, 0xb3, 0x80, 0x1f, 0x4b, 0xea, 0x4b, 0x66, 0x75, 0x4c, 0x27};
+    uint32_t invalid_signature_size = DSEC_ARRAY_SIZE(invalid_signature);
+
+    static const uint8_t big_signature[1024] = {1};
+    uint32_t big_signature_size = DSEC_ARRAY_SIZE(big_signature);
+
+    int32_t result = 0;
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_create(&lih_id, &instance) == DSEC_SUCCESS);
+
+    result = dsec_ih_ca_load(&instance, lih_id, ca);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_load(&instance, lih_id, cert);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    /* Check precomputed array */
+    result = dsec_ih_cert_verify(&instance,
+                                 lih_id,
+                                 input_buffer,
+                                 input_size,
+                                 signature,
+                                 signature_size);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    /* Check with a modified buffer but same signature */
+    result = dsec_ih_cert_verify(&instance,
+                                 lih_id,
+                                 invalid_buffer,
+                                 invalid_buffer_size,
+                                 signature,
+                                 signature_size);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_SECURITY);
+
+    /* Check with same buffer but modified signature */
+    result = dsec_ih_cert_verify(&instance,
+                                 lih_id,
+                                 input_buffer,
+                                 input_size,
+                                 invalid_signature,
+                                 invalid_signature_size);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_SECURITY);
+
+    /* Check with a signature size too big */
+    result = dsec_ih_cert_verify(&instance,
+                                 lih_id,
+                                 input_buffer,
+                                 input_size,
+                                 big_signature,
+                                 big_signature_size);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_PARAM);
+
+    DSEC_TEST_ASSERT(dsec_ih_delete(&instance, lih_id) == TEEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_load_cert_from_builtin),
     DSEC_TEST_CASE(test_case_invalid_load_cert),
@@ -556,6 +657,7 @@ static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_invalid_get_signature),
     DSEC_TEST_CASE(test_case_load_get_store_cert),
     DSEC_TEST_CASE(test_case_load_get_store_cert_invalid),
+    DSEC_TEST_CASE(test_case_verify_signature),
 };
 
 const struct dsec_test_suite_desc test_suite = {

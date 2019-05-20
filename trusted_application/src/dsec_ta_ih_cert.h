@@ -235,6 +235,37 @@ TEE_Result dsec_ta_ih_cert_load_from_buffer(uint32_t parameters_type,
                                             const TEE_Param parameters[3]);
 
 /*!
+ * \brief Verify given signature against given buffer and the public key of the
+ *     given identity handle.
+ *
+ * \details Create the hash of the message, and read the signature with the
+ *     public key contained by the identity handle specified to see if the
+ *     computed signature and the given signature matches.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_TYPE_MEMREF_INPUT
+ *        - TEE_PARAM_TYPE_MEMREF_INPUT
+ *        - TEE_PARAM_NONE
+ *
+ * \param parameters_type The types of each of the parameters in parameters[3]
+ *     as described above.
+ * \param parameters[0].value.a value of the index of the identity handle that
+ *     has the public key.
+ * \param parameters[1].memref.buffer Buffer to be checked.
+ * \param parameters[1].memref.size Size of the incoming buffer.
+ * \param parameters[2].memref.buffer Signature buffer to be checked.
+ * \param parameters[2].memref.size Size of the incoming signature.
+ *
+ * \retval ::TEE_SUCCESS Signature is valid.
+ * \retval ::TEE_ERROR_BAD_FORMAT Buffer cannot be parsed.
+ * \retval ::TEE_ERROR_SECURITY Buffer and signature do not match.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set or
+ *     index is invalid.
+ */
+TEE_Result dsec_ta_ih_cert_signature_verify(uint32_t parameters_type,
+                                            const TEE_Param parameters[3]);
+
+/*!
  * \}
  */
 

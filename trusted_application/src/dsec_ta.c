@@ -93,6 +93,9 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
     case DSEC_TA_CMD_IH_PRIVKEY_UNLOAD:
         result = dsec_ta_ih_privkey_unload(parameters_type, parameters);
         break;
+    case DSEC_TA_CMD_IH_CERT_VERIFY:
+        result = dsec_ta_ih_cert_signature_verify(parameters_type, parameters);
+        break;
 #if DSEC_TEST
     case DSEC_TA_CMD_LOAD_OBJECT_BUILTIN:
         result = dsec_ta_test_load_object_builtin(parameters_type, parameters);
