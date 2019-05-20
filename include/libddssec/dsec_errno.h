@@ -22,35 +22,35 @@
 /*! Invalid parameter(s) */
 #define DSEC_E_PARAM         -1
 
-/*! Invalid size */
-#define DSEC_E_SIZE          -2
-
-/*! Invalid handler or callback */
-#define DSEC_E_HANDLER       -3
-
 /*! Invalid access or permission denied */
-#define DSEC_E_ACCESS        -4
-
-/*! Value out of range */
-#define DSEC_E_RANGE         -5
-
-/*! Operation timed out */
-#define DSEC_E_TIMEOUT       -6
-
-/*! Memory allocation failed */
-#define DSEC_E_NOMEM         -7
+#define DSEC_E_ACCESS        -2
 
 /*! Not supported or disabled */
-#define DSEC_E_SUPPORT       -8
+#define DSEC_E_SUPPORT       -3
 
-/*! Handler or resource busy */
-#define DSEC_E_BUSY          -9
-
-/*! Unexpected or invalid data */
-#define DSEC_E_DATA          -10
+/*! Unexpected, uninitialized or invalid data */
+#define DSEC_E_DATA          -4
 
 /*! Accessing an uninitialized resource */
-#define DSEC_E_INIT          -11
+#define DSEC_E_INIT          -5
+
+/*! TEE interaction failed */
+#define DSEC_E_TEE           -6
+
+/*! Requested item/data not found */
+#define DSEC_E_NOT_FOUND     -7
+
+/*! Data is not the correct type and cannot be parsed */
+#define DSEC_E_BAD_FORMAT    -8
+
+/*! No more memory or memory allocation failed */
+#define DSEC_E_MEMORY        -9
+
+/*! Verification of a signature failed or error within the authentication */
+#define DSEC_E_SECURITY      -10
+
+/*! Given buffer is too small */
+#define DSEC_E_SHORT_BUFFER  -11
 
 /*!
  * \}
