@@ -51,6 +51,12 @@ enum {
     DSEC_TA_CMD_IH_CERT_VERIFY,
     /*! Function ID of dsec_ta_ih_privkey_sign */
     DSEC_TA_CMD_IH_PRIVKEY_SIGN,
+    /*! Function ID of dsec_ta_hh_create */
+    DSEC_TA_CMD_HH_CREATE,
+    /*! Function ID of dsec_ta_hh_delete */
+    DSEC_TA_CMD_HH_DELETE,
+    /*! Function ID of dsec_ta_hh_get_info */
+    DSEC_TA_CMD_HH_INFO,
 #if DSEC_TEST
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,

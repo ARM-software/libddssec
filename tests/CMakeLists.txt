@@ -67,6 +67,14 @@ dsec_add_test(
         dsec_test_ta.c
         test_ih_privkey.c
 )
+dsec_add_test(
+    NAME handshake_handle
+    SOURCE
+        ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_hh.c
+        dsec_test_ta.c
+        test_hh.c
+)
 
 dsec_embed_asset_ta_files(
     LOCATION "./assets"

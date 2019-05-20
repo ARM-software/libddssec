@@ -7,6 +7,7 @@
 
 #include <dsec_macros.h>
 #include <dsec_ta.h>
+#include <dsec_ta_hh.h>
 #include <dsec_ta_ih.h>
 #include <dsec_ta_ih_ca.h>
 #include <dsec_ta_ih_cert.h>
@@ -98,6 +99,15 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
         break;
     case DSEC_TA_CMD_IH_PRIVKEY_SIGN:
         result = dsec_ta_ih_privkey_sign(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_HH_CREATE:
+        result = dsec_ta_hh_create(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_HH_DELETE:
+        result = dsec_ta_hh_delete(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_HH_INFO:
+        result = dsec_ta_hh_get_info(parameters_type, parameters);
         break;
 #if DSEC_TEST
     case DSEC_TA_CMD_LOAD_OBJECT_BUILTIN:
