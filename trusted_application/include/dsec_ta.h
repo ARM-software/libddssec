@@ -57,6 +57,12 @@ enum {
     DSEC_TA_CMD_HH_DELETE,
     /*! Function ID of dsec_ta_hh_get_info */
     DSEC_TA_CMD_HH_INFO,
+    /*! Function ID of dsec_ta_hh_dh_generate_keys */
+    DSEC_TA_CMD_HH_DH_GENERATE_KEYS,
+    /*! Function ID of dsec_ta_hh_dh_get_public */
+    DSEC_TA_CMD_HH_DH_GET_PUBLIC,
+    /*! Function ID of dsec_ta_hh_dh_unload */
+    DSEC_TA_CMD_HH_DH_UNLOAD,
 #if DSEC_TEST
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,

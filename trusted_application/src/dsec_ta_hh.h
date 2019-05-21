@@ -18,6 +18,7 @@
  * \{
  */
 
+#include <dsec_ta_dh.h>
 #include <tee_api.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -43,6 +44,8 @@
 struct handshake_handle_t {
     /*! Initialized field set to true if the structure has been set. */
     bool initialized;
+    /*! Diffie Hellman key pair structure. */
+    struct dh_pair_handle_t dh_pair_handle;
 };
 
 /*!

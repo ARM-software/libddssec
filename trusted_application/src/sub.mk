@@ -18,4 +18,5 @@ srcs-y += \
     dsec_ta_ih_ca.c \
     dsec_ta_ih_cert.c \
     dsec_ta_ih_privkey.c \
-    dsec_ta_hh.c
+    dsec_ta_hh.c \
+    dsec_ta_dh.c

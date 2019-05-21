@@ -75,6 +75,15 @@ dsec_add_test(
         dsec_test_ta.c
         test_hh.c
 )
+dsec_add_test(
+    NAME diffie_hellman
+    SOURCE
+        ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_hh.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_hh_dh.c
+        dsec_test_ta.c
+        test_hh_dh.c
+)
 
 dsec_embed_asset_ta_files(
     LOCATION "./assets"
