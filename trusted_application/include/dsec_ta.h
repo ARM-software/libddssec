@@ -63,6 +63,8 @@ enum {
     DSEC_TA_CMD_HH_DH_GET_PUBLIC,
     /*! Function ID of dsec_ta_hh_dh_unload */
     DSEC_TA_CMD_HH_DH_UNLOAD,
+    /*! Function ID of dsec_ta_hh_dh_set_public */
+    DSEC_TA_CMD_HH_DH_SET_PUBLIC,
 #if DSEC_TEST
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,

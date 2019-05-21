@@ -58,8 +58,57 @@ static void test_case_dh_generate_get_public(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
+static void test_case_dh_set_public(void)
+{
+    TEEC_Session session;
+    TEEC_Context context;
+
+    int32_t hh_h = -1;
+    int32_t result = 0;
+
+    uint8_t dh_public[256];
+    uint32_t dh_public_size = DSEC_ARRAY_SIZE(dh_public);
+
+    uint8_t dh_public_too_big[2048];
+    uint32_t dh_public_too_big_size = DSEC_ARRAY_SIZE(dh_public_too_big);
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+
+    /* Handle is not initialized */
+    result = dsec_hh_dh_set_public(&instance, hh_h, dh_public, dh_public_size);
+    DSEC_TEST_ASSERT(result == DSEC_E_PARAM);
+
+    DSEC_TEST_ASSERT(dsec_hh_create(&hh_h, &instance) == DSEC_SUCCESS);
+
+    result = dsec_hh_dh_set_public(&instance, hh_h, dh_public, dh_public_size);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    /* The key was already set, cannot set it back */
+    result = dsec_hh_dh_set_public(&instance, hh_h, dh_public, dh_public_size);
+    DSEC_TEST_ASSERT(result == DSEC_E_DATA);
+
+    DSEC_TEST_ASSERT(dsec_hh_dh_unload(&instance, hh_h) == DSEC_SUCCESS);
+
+    result = dsec_hh_dh_set_public(&instance,
+                                   hh_h,
+                                   dh_public_too_big,
+                                   dh_public_too_big_size);
+
+    /* Buffer is too big */
+    DSEC_TEST_ASSERT(result != DSEC_SUCCESS);
+
+    result = dsec_hh_dh_set_public(&instance, hh_h, dh_public, dh_public_size);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_hh_delete(&instance, hh_h) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_dh_generate_get_public),
+    DSEC_TEST_CASE(test_case_dh_set_public),
 };
 
 const struct dsec_test_suite_desc test_suite = {

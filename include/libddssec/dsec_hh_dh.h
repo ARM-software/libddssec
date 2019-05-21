@@ -80,6 +80,25 @@ int32_t dsec_hh_dh_get_public(void* buffer,
 int32_t dsec_hh_dh_unload(const struct dsec_instance* instance, int32_t hh_id);
 
 /*!
+ * \brief Set a remote Diffie Hellman public key to a specific Handshake Handle.
+ *
+ * \details
+ *
+ * \param instance Initialized instance to access the Trusted Application.
+ * \param hh_id Handle ID of the Handshake Handle.
+ * \param buffer Buffer representing the public key.
+ * \param buffer_size Size of the input buffer.
+ *
+ * \retval ::DSEC_SUCCESS Public key has been set.
+ * \return TEE_Result from the function DSEC_TA_CMD_HH_SET_PUBLIC invoked in the
+ *     TA converted to a DSEC_E_
+ */
+int32_t dsec_hh_dh_set_public(const struct dsec_instance* instance,
+                              int32_t hh_id,
+                              const void* buffer,
+                              uint32_t buffer_size);
+
+/*!
  * \}
  */
 

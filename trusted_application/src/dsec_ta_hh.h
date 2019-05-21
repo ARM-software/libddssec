@@ -46,6 +46,8 @@ struct handshake_handle_t {
     bool initialized;
     /*! Diffie Hellman key pair structure. */
     struct dh_pair_handle_t dh_pair_handle;
+    /* Diffie Hellman public key structure */
+    struct dh_public_handle_t dh_public_handle;
 };
 
 /*!

@@ -57,6 +57,7 @@ TEE_Result dsec_ta_hh_create(uint32_t parameters_type, TEE_Param parameters[1])
             parameters[0].value.a = index_hh;
             hh_store[index_hh].initialized = true;
             hh_store[index_hh].dh_pair_handle.initialized = false;
+            hh_store[index_hh].dh_public_handle.initialized = false;
             allocated_handle++;
         } else {
             EMSG("Cannot allocate memory for a new handle.\n");
@@ -90,6 +91,8 @@ TEE_Result dsec_ta_hh_delete(uint32_t parameters_type, TEE_Param parameters[1])
                 (void) dsec_ta_hh_dh_free_keypair(
                     &(hh_store[index_hh].dh_pair_handle));
             }
+
+            hh_store[index_hh].dh_public_handle.initialized = false;
 
             allocated_handle--;
         } else {

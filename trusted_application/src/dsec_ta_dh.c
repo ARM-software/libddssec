@@ -193,6 +193,8 @@ TEE_Result dsec_ta_hh_dh_unload(uint32_t parameters_type,
 
         if (hh != NULL) {
             (void)dsec_ta_hh_dh_free_keypair(&(hh->dh_pair_handle));
+            (void)dsec_ta_hh_dh_free_keypair(&(hh->dh_pair_handle));
+            hh->dh_public_handle.initialized = false;
             result = TEE_SUCCESS;
         } else {
             EMSG("Identity handle is invalid.\n");
@@ -201,6 +203,56 @@ TEE_Result dsec_ta_hh_dh_unload(uint32_t parameters_type,
 
     } else {
         EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_hh_dh_set_public(uint32_t parameters_type,
+                                    TEE_Param parameters[2])
+{
+    TEE_Result result = 0;
+    uint32_t index_hh = 0;
+    struct handshake_handle_t* hh = NULL;
+    const void* input = NULL;
+    size_t input_size = 0;
+
+    const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
+                                                    TEE_PARAM_TYPE_MEMREF_INPUT,
+                                                    TEE_PARAM_TYPE_NONE,
+                                                    TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+        index_hh = (int32_t)parameters[0].value.a;
+        hh = dsec_ta_get_handshake_handle(index_hh);
+
+        input = parameters[1].memref.buffer;
+        input_size = parameters[1].memref.size;
+
+        if (hh != NULL) {
+            if (input_size <= DSEC_TA_DH_MAX_KEY_BYTES) {
+                if (!hh->dh_public_handle.initialized) {
+                    TEE_MemMove(hh->dh_public_handle.key, input, input_size);
+                    hh->dh_public_handle.initialized = true;
+                    hh->dh_public_handle.key_size = input_size;
+                } else {
+                    EMSG("Element dh_public is already set.\n");
+                    result = TEE_ERROR_NO_DATA;
+                }
+
+            } else {
+                EMSG("Input buffer is too big.\n");
+                result = TEE_ERROR_OVERFLOW;
+            }
+
+        } else {
+            EMSG("Handshake Handle index is not valid %d.\n", index_hh);
+            result = TEE_ERROR_BAD_PARAMETERS;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x.\n", parameters_type);
         result = TEE_ERROR_BAD_PARAMETERS;
     }
 

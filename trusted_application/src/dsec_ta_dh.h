@@ -24,6 +24,8 @@
 
 /*! Maximum number of bits for the Diffie Hellman Key */
 #define DSEC_TA_DH_MAX_KEY_BITS 2048
+/*! Maximum number of bytes for the Diffie Hellman Key */
+#define DSEC_TA_DH_MAX_KEY_BYTES (DSEC_TA_DH_MAX_KEY_BITS/8)
 
 /*!
  * \brief Diffie Hellman key pair structure.
@@ -33,6 +35,18 @@ struct dh_pair_handle_t {
     bool initialized;
     /*! Structure containing the public and private key. */
     TEE_ObjectHandle key_pair;
+};
+
+/*!
+ * \brief Diffie Hellman public key structure.
+ */
+struct dh_public_handle_t {
+    /*! Initialized field if the structure has been set. */
+    bool initialized;
+    /*! Array containing the public key. */
+    uint8_t key[DSEC_TA_DH_MAX_KEY_BYTES];
+    /*! Size of the public key stored. */
+    size_t key_size;
 };
 
 /*!
@@ -117,5 +131,29 @@ TEE_Result dsec_ta_hh_dh_free_keypair(struct dh_pair_handle_t* key_pair);
  */
 TEE_Result dsec_ta_hh_dh_unload(uint32_t parameters_type,
                                 TEE_Param parameters[1]);
+
+/*!
+ * \brief Set public key of a Handshake Handle.
+ *
+ * \details Given a Handshake Handle ID, copy the given buffer to the public key
+ *     structure.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_TYPE_MEMREF_INPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param parameters_type The types of each of the parameters in parameters as
+ *     specified above.
+ * \param parameters[0].value.a Handle ID of the Handshake Handle.
+ * \param parameters[1].memref.buffer Input buffer.
+ * \param parameters[1].memref.size Size of the incoming buffer.
+ *
+ * \retval ::TEE_SUCCESS Public key has been copied to the structure.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameters are not properly set.
+ * \retval ::TEE_ERROR_SHORT_BUFFER Input buffer is too big to be stored.
+ */
+TEE_Result dsec_ta_hh_dh_set_public(uint32_t parameters_type,
+                                    TEE_Param parameters[2]);
 
 #endif /* DSEC_TA_DH_H */
