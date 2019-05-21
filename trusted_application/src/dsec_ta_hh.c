@@ -58,6 +58,7 @@ TEE_Result dsec_ta_hh_create(uint32_t parameters_type, TEE_Param parameters[1])
             hh_store[index_hh].initialized = true;
             hh_store[index_hh].dh_pair_handle.initialized = false;
             hh_store[index_hh].dh_public_handle.initialized = false;
+            hh_store[index_hh].shared_secret_handle.initialized = true;
             allocated_handle++;
         } else {
             EMSG("Cannot allocate memory for a new handle.\n");
@@ -93,6 +94,10 @@ TEE_Result dsec_ta_hh_delete(uint32_t parameters_type, TEE_Param parameters[1])
             }
 
             hh_store[index_hh].dh_public_handle.initialized = false;
+
+            if (hh_store[index_hh].shared_secret_handle.initialized) {
+                dsec_ta_ssh_free(&(hh_store[index_hh].shared_secret_handle));
+            }
 
             allocated_handle--;
         } else {

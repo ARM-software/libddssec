@@ -19,6 +19,7 @@
  */
 
 #include <dsec_ta_dh.h>
+#include <dsec_ta_ssh.h>
 #include <tee_api.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -48,6 +49,8 @@ struct handshake_handle_t {
     struct dh_pair_handle_t dh_pair_handle;
     /* Diffie Hellman public key structure */
     struct dh_public_handle_t dh_public_handle;
+    /*! Shared Secret structure. */
+    struct shared_secret_handle_t shared_secret_handle;
 };
 
 /*!
