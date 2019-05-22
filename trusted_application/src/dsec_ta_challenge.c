@@ -16,10 +16,9 @@ TEE_Result dsec_ta_hh_challenge_generate(uint32_t parameters_type,
 {
     TEE_Result result = 0;
     uint32_t index_hh = 0;
-    struct handshake_handle_t* hh = NULL;
-    struct shared_secret_handle_t* shared_secret_h = NULL;
+    struct shared_secret_handle_t* ssh = NULL;
+    size_t size = 0;
     struct challenge_handle_t* challenge_handle = NULL;
-    uint32_t size = 0;
     uint8_t challenge_id = 0;
 
     const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
@@ -27,20 +26,18 @@ TEE_Result dsec_ta_hh_challenge_generate(uint32_t parameters_type,
                                                     TEE_PARAM_TYPE_VALUE_INPUT,
                                                     TEE_PARAM_TYPE_NONE);
 
-
     if (parameters_type == expected_types) {
         index_hh = (int32_t)parameters[0].value.a;
         size = parameters[1].value.a;
+        ssh = dsec_ta_hh_get_shared_secret_handle(index_hh);
         challenge_id = (uint8_t)parameters[2].value.a;
-        hh = dsec_ta_get_handshake_handle(index_hh);
 
-        if (hh != NULL) {
-            shared_secret_h = &(hh->shared_secret_handle);
+        if (ssh != NULL) {
 
             if (challenge_id == 1) {
-                challenge_handle = &(shared_secret_h->challenge1_handle);
+                challenge_handle = &(ssh->challenge1_handle);
             } else if (challenge_id == 2) {
-                challenge_handle = &(shared_secret_h->challenge2_handle);
+                challenge_handle = &(ssh->challenge2_handle);
             } else {
                 challenge_handle = NULL;
             }
@@ -81,10 +78,10 @@ TEE_Result dsec_ta_hh_challenge_get(uint32_t parameters_type,
 {
     TEE_Result result = 0;
     uint32_t index_hh = 0;
-    struct handshake_handle_t* hh = NULL;
-    struct shared_secret_handle_t* shared_secret_h = NULL;
+    struct shared_secret_handle_t* ssh = NULL;
     struct challenge_handle_t* challenge_handle = NULL;
     uint8_t challenge_id = 0;
+
     void* output = NULL;
     size_t output_size = 0;
     size_t challenge_size = 0;
@@ -100,17 +97,16 @@ TEE_Result dsec_ta_hh_challenge_get(uint32_t parameters_type,
         output_size = parameters[0].memref.size;
 
         index_hh = (int32_t)parameters[1].value.a;
-        hh = dsec_ta_get_handshake_handle(index_hh);
+        ssh = dsec_ta_hh_get_shared_secret_handle(index_hh);
 
         challenge_id = (uint8_t)parameters[2].value.a;
 
-        if (hh != NULL) {
-            shared_secret_h = &(hh->shared_secret_handle);
+        if (ssh != NULL) {
 
             if (challenge_id == 1) {
-                challenge_handle = &(shared_secret_h->challenge1_handle);
+                challenge_handle = &(ssh->challenge1_handle);
             } else if (challenge_id == 2) {
-                challenge_handle = &(shared_secret_h->challenge2_handle);
+                challenge_handle = &(ssh->challenge2_handle);
             } else {
                 challenge_handle = NULL;
             }
@@ -150,7 +146,7 @@ TEE_Result dsec_ta_hh_challenge_unload(uint32_t parameters_type,
 {
     TEE_Result result = 0;
     uint32_t index_hh = 0;
-    struct handshake_handle_t* hh = NULL;
+    struct shared_secret_handle_t* ssh = NULL;
     const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
                                                     TEE_PARAM_TYPE_NONE,
                                                     TEE_PARAM_TYPE_NONE,
@@ -158,13 +154,13 @@ TEE_Result dsec_ta_hh_challenge_unload(uint32_t parameters_type,
 
     if (parameters_type == expected_types) {
         index_hh = (int32_t)parameters[0].value.a;
-        hh = dsec_ta_get_handshake_handle(index_hh);
+        ssh = dsec_ta_hh_get_shared_secret_handle(index_hh);
 
-        if (hh != NULL) {
-            hh->shared_secret_handle.challenge1_handle.initialized = false;
-            hh->shared_secret_handle.challenge1_handle.data_size = 0;
-            hh->shared_secret_handle.challenge2_handle.initialized = false;
-            hh->shared_secret_handle.challenge2_handle.data_size = 0;
+        if (ssh != NULL) {
+            ssh->challenge1_handle.initialized = false;
+            ssh->challenge1_handle.data_size = 0;
+            ssh->challenge2_handle.initialized = false;
+            ssh->challenge2_handle.data_size = 0;
         } else {
             result = TEE_ERROR_BAD_PARAMETERS;
             EMSG("Handshake handle is invalid.\n");
@@ -178,7 +174,7 @@ TEE_Result dsec_ta_hh_challenge_unload(uint32_t parameters_type,
     return result;
 }
 
-static TEE_Result set_remote_challenge(struct handshake_handle_t* hh,
+static TEE_Result set_remote_challenge(struct shared_secret_handle_t* ssh,
                                        const void* input,
                                        size_t input_size,
                                        uint8_t challenge_id)
@@ -187,13 +183,12 @@ static TEE_Result set_remote_challenge(struct handshake_handle_t* hh,
     struct challenge_handle_t* challenge_handle = NULL;
 
     if (challenge_id == 1) {
-        challenge_handle = &(hh->shared_secret_handle.challenge1_handle);
+        challenge_handle = &(ssh->challenge1_handle);
     } else if (challenge_id == 2) {
-        challenge_handle = &(hh->shared_secret_handle.challenge2_handle);
+        challenge_handle = &(ssh->challenge2_handle);
     } else {
         challenge_handle = NULL;
     }
-
 
     if (challenge_handle != NULL) {
         if (input_size <= DSEC_TA_CHALLENGE_MAX_DATA_SIZE) {
@@ -225,7 +220,7 @@ TEE_Result dsec_ta_hh_challenge_set(uint32_t parameters_type,
 {
     TEE_Result result = 0;
     uint32_t index_hh = 0;
-    struct handshake_handle_t* hh = NULL;
+    struct shared_secret_handle_t* ssh = NULL;
     const void* input = NULL;
     size_t input_size = 0;
     uint8_t challenge_id = 0;
@@ -237,15 +232,15 @@ TEE_Result dsec_ta_hh_challenge_set(uint32_t parameters_type,
 
     if (parameters_type == expected_types) {
         index_hh = (int32_t)parameters[0].value.a;
-        hh = dsec_ta_get_handshake_handle(index_hh);
+        ssh = dsec_ta_hh_get_shared_secret_handle(index_hh);
 
         input = parameters[1].memref.buffer;
         input_size = parameters[1].memref.size;
 
         challenge_id = (uint8_t)parameters[2].value.a;
 
-        if ((hh != NULL) && hh->initialized) {
-            result = set_remote_challenge(hh, input, input_size, challenge_id);
+        if (ssh != NULL) {
+            result = set_remote_challenge(ssh, input, input_size, challenge_id);
         } else {
             result = TEE_ERROR_BAD_PARAMETERS;
             EMSG("Handshake Handle index is not valid %d.\n", index_hh);

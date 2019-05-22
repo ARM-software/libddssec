@@ -10,6 +10,39 @@
 #include <dsec_ta_hh.h>
 #include <tee_api.h>
 
+static struct shared_secret_handle_t store[DSEC_TA_MAX_SHARED_SECRET_HANDLE];
+static uint32_t allocated_handle = 0;
+
+/*
+ * Returns a valid index to an element from the array which has not been
+ * initialized.
+ */
+static int32_t find_free_element(void)
+{
+    int32_t index = 0;
+
+    index = TEE_ERROR_NO_DATA;
+    for (int32_t id = 0; id < DSEC_TA_MAX_SHARED_SECRET_HANDLE; id++) {
+        if (!store[id].initialized) {
+            index = id;
+            break;
+        }
+    }
+
+    return index;
+}
+
+/*
+ * Checks if a given index leads to an initialized handle (i.e. not
+ * out-of-bounds and has its boolean flag initialized set.
+ */
+static bool ssh_is_valid(int32_t index)
+{
+    return (index >= 0) &&
+           (index < DSEC_TA_MAX_SHARED_SECRET_HANDLE) &&
+           store[index].initialized;
+}
+
 /*
  * This function calls the TEE API to derive the shared key and updates the
  * handle shared_key_handle_t to setup the key.
@@ -101,39 +134,49 @@ static TEE_Result ss_derive(const struct dh_pair_handle_t* dh_local_handle,
 }
 
 TEE_Result dsec_ta_hh_ssh_derive(uint32_t parameters_type,
-                                 TEE_Param parameters[1])
+                                 TEE_Param parameters[2])
 {
     TEE_Result result = 0;
     uint32_t index_hh = 0;
-    struct handshake_handle_t* hh = NULL;
+    const struct handshake_handle_t* hh = NULL;
     const struct dh_pair_handle_t* dh_local_handle = NULL;
     const struct dh_public_handle_t* dh_remote_handle = NULL;
-    struct shared_key_handle_t* shared_key_handle = NULL;
+    struct shared_secret_handle_t* ssh = NULL;
+    struct shared_key_handle_t* skh = NULL;
 
-    const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
-                                                    TEE_PARAM_TYPE_NONE,
+    const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_OUTPUT,
+                                                    TEE_PARAM_TYPE_VALUE_INPUT,
                                                     TEE_PARAM_TYPE_NONE,
                                                     TEE_PARAM_TYPE_NONE);
 
     if (parameters_type == expected_types) {
-        index_hh = (int32_t)parameters[0].value.a;
+        index_hh = (int32_t) parameters[1].value.a;
+        parameters[0].value.a = (uint32_t)(-1);
         hh = dsec_ta_get_handshake_handle(index_hh);
+
         if ((hh != NULL) && hh->initialized) {
 
             dh_local_handle = &(hh->dh_pair_handle);
             dh_remote_handle = &(hh->dh_public_handle);
-            shared_key_handle = &(hh->shared_secret_handle.shared_key_handle);
+            ssh = dsec_ta_ssh_get(hh->shared_secret_id);
+            if (ssh != NULL) {
+                skh = &(ssh->shared_key_handle);
 
-            if (dh_local_handle->initialized &&
-                dh_remote_handle->initialized &&
-                !hh->shared_secret_handle.shared_key_handle.initialized) {
+                if (dh_local_handle->initialized &&
+                    dh_remote_handle->initialized &&
+                    !skh->initialized) {
 
-                result = ss_derive(dh_local_handle,
-                                   dh_remote_handle,
-                                   shared_key_handle);
+                    result = ss_derive(dh_local_handle, dh_remote_handle, skh);
+                    if (result == TEE_SUCCESS) {
+                        parameters[0].value.a = hh->shared_secret_id;
+                    }
 
+                } else {
+                    EMSG("Elements not initialized or Shared Key is set.\n");
+                    result = TEE_ERROR_NO_DATA;
+                }
             } else {
-                EMSG("Elements are not initialized or Shared Key is set.\n");
+                EMSG("Could not retrieve Shared Key handle.\n");
                 result = TEE_ERROR_NO_DATA;
             }
 
@@ -167,6 +210,95 @@ TEE_Result dsec_ta_ssh_free(
     } else {
         EMSG("Shared Secret Handle is not set.\n");
         result = TEE_ERROR_NO_DATA;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_ssh_create(int32_t* index)
+{
+    TEE_Result result = TEE_SUCCESS;
+
+    if (index != NULL) {
+        *index = find_free_element();
+        if (*index >= 0) {
+            store[*index].initialized = true;
+            store[*index].shared_key_handle.initialized = false;
+            store[*index].challenge1_handle.initialized = false;
+            store[*index].challenge2_handle.initialized = false;
+
+            allocated_handle++;
+            result = TEE_SUCCESS;
+        } else {
+            EMSG("Cannot allocate memory to create a new handle.\n");
+            result = TEE_ERROR_OUT_OF_MEMORY;
+        }
+    } else {
+        EMSG("Specified index is NULL.\n");
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+struct shared_secret_handle_t* dsec_ta_ssh_get(int32_t index)
+{
+    struct shared_secret_handle_t* return_ssh = NULL;
+
+    if (ssh_is_valid(index)) {
+        return_ssh = &(store[index]);
+    }
+
+    return return_ssh;
+}
+
+TEE_Result dsec_ta_ssh_get_info(uint32_t parameters_type,
+                                TEE_Param parameters[1])
+{
+    TEE_Result result = TEE_SUCCESS;
+
+    const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_OUTPUT,
+                                                    TEE_PARAM_TYPE_NONE,
+                                                    TEE_PARAM_TYPE_NONE,
+                                                    TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+        parameters[0].value.a = DSEC_TA_MAX_SHARED_SECRET_HANDLE;
+        parameters[0].value.b = allocated_handle;
+        result = TEE_SUCCESS;
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_ssh_unload(uint32_t parameters_type,
+                              const TEE_Param parameters[1])
+{
+    TEE_Result result = 0;
+    uint32_t index = 0;
+    struct shared_secret_handle_t* ssh = NULL;
+    const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
+                                                    TEE_PARAM_TYPE_NONE,
+                                                    TEE_PARAM_TYPE_NONE,
+                                                    TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+        index = (int32_t)parameters[0].value.a;
+        ssh = dsec_ta_ssh_get(index);
+
+        if (ssh != NULL) {
+            result = dsec_ta_ssh_free(ssh);
+        } else {
+            EMSG("Shared Secret Handle is invalid.\n");
+            result = TEE_ERROR_BAD_PARAMETERS;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
     }
 
     return result;

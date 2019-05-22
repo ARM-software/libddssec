@@ -24,6 +24,22 @@
 #include <stddef.h>
 
 /*!
+ * \brief Maximum number of Shared Secret Handles that can be loaded
+ *     concurrently.
+ */
+#define DSEC_TA_MAX_SHARED_SECRET_HANDLE (4U)
+
+/*
+ * Extra care is taken here to make sure the maximum size of the array storing
+ * the handles cannot exceed INT32_MAX. This is because OPTEE-OS parameters are
+ * uint32_t and the index of a handle is an int32_t. When the cast occurres, if
+ * the index overflows, it will make the handle ID invalid.
+ */
+#if (DSEC_TA_MAX_SHARED_SECRET_HANDLE > INT32_MAX)
+#error "DSEC_TA_MAX_SHARED_SECRET_HANDLE cannot be more than INT32_MAX"
+#endif
+
+/*!
  * \brief Shared Key Handle (SKH) structure.
  *     Contains the derived key secret.
  */
@@ -58,16 +74,18 @@ struct shared_secret_handle_t {
  *     derive the shared key from the Public/Private keys of the local identity
  *     and the Public key from the remote identity stored in the Handshake
  *     Handle. If there is a field non initialialized, this call return a value
- *     different from success.
+ *     different from success. This function returns the identifier of the
+ *     Shared Secret Handle.
  *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_VARIABLE_OUTPUT
  *        - TEE_PARAM_TYPE_VARIABLE_INPUT
  *        - TEE_PARAM_NONE
  *        - TEE_PARAM_NONE
- *        - TEE_PARAM_NONE
  *
+ * \param parameters[0].value.a Identifier of the Shared Secret Handle.
  * \param parameters_type The types of each of the parameters in parameters as
  *     specified above.
- * \param parameters[0].value.a Identifier of the Handshake Handle.
+ * \param parameters[1].value.a Identifier of the Handshake Handle.
  *
  * \retval ::TEE_SUCCESS The key has been derived.
  * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly
@@ -79,7 +97,7 @@ struct shared_secret_handle_t {
  *     indicates an error during the derivation of the key.
  */
 TEE_Result dsec_ta_hh_ssh_derive(uint32_t parameters_type,
-                                 TEE_Param parameters[1]);
+                                 TEE_Param parameters[2]);
 
 /*!
  * \brief Free a shared_secret_handle structure (SSH)
@@ -94,6 +112,79 @@ TEE_Result dsec_ta_hh_ssh_derive(uint32_t parameters_type,
  */
 TEE_Result dsec_ta_ssh_free(
     struct shared_secret_handle_t* shared_secret_handle);
+
+/*!
+ * \brief Create a shared_secret_handle structure (SSH) and return its index.
+ *
+ * \details Allocate the handle and return its identifier.
+ *
+ * \param[out] index Pointer to an integer that will contain the index. The
+ *     index returned will be greater or equal than 0 on success.
+ *
+ * \retval ::TEE_SUCCESS if the index returned is valid.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS if the index pointer is NULL.
+ * \retval ::TEE_ERROR_OUT_OF_MEMORY if there are no more valid handle in the
+ *     array.
+ */
+TEE_Result dsec_ta_ssh_create(int32_t* index);
+
+/*!
+ * \brief Given an index, return a pointer to shared_secret_handle_t (SSH).
+ *
+ * \details Check the incoming index and return the associated handle if it
+ *     is initialized.
+ *
+ * \param index Index of the handle.
+ *
+ * \return Pointer to shared_secret_handle_t
+ * \retval ::NULL if the given index does not lead to a valid handle.
+ */
+struct shared_secret_handle_t* dsec_ta_ssh_get(int32_t index);
+
+/*!
+ * \brief Get information about the current status of the Shared Secret Handle.
+ *
+ * \details Return the the number of handles currently allocated and the maximum
+ *     number of handles that can be allocated.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_VARIABLE_OUTPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param parameters_type The types of each of the parameters in parameters as
+ *     specified above.
+ *
+ * \param[out] parameters[0].value.a Maximum number of handles.
+ * \param[out] parameters[0].value.b Current number of allocated handles.
+ *
+ * \retval ::TEE_SUCCESS
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set.
+ */
+TEE_Result dsec_ta_ssh_get_info(uint32_t parameters_type,
+                                TEE_Param parameters[1]);
+
+/*!
+ * \brief Unload the given Shared Secret Handle (SHH)
+ *
+ * \details Given the ID of a Shared Secret Handle, unload the structure.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param parameters_type The types of each of the parameters in parameters as
+ *     specified above.
+ * \param parameters[0].value.a Identifier of the Shared Secret Handle.
+ *
+ * \retval ::TEE_SUCCESS Handle is unloaded.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set or
+ *     identifier specified leads to an invalid handle.
+ * \retval ::TEE_ERROR_NO_DATA Structure has uninitialized fields.
+ */
+TEE_Result dsec_ta_ssh_unload(uint32_t parameters_type,
+                              const TEE_Param parameters[1]);
 
 /*!
  * \}

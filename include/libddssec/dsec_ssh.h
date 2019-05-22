@@ -32,6 +32,8 @@ extern "C" {
  * \details Calls the Trusted Application to derive a shared secret from the
  *     information stored in the Handshake Handle specified.
  *
+ * \param[out] ssh_id Handle ID of the shared secret.
+ *
  * \param instance Initialized instance to access the Trusted Application
  * \param hh_id Handle ID of the Handshake Handle.
  *
@@ -39,7 +41,9 @@ extern "C" {
  * \return TEE_Result from the function DSEC_TA_CMD_SSH_DERIVE invoked in the TA
  *     converted to a DSEC_E_
  */
-int32_t dsec_ssh_derive(const struct dsec_instance* instance, int32_t hh_id);
+int32_t dsec_ssh_derive(int32_t* ssh_id,
+                        const struct dsec_instance* instance,
+                        int32_t hh_id);
 
 /*!
  * \}

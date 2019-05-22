@@ -49,8 +49,8 @@ struct handshake_handle_t {
     struct dh_pair_handle_t dh_pair_handle;
     /* Diffie Hellman public key structure */
     struct dh_public_handle_t dh_public_handle;
-    /*! Shared Secret structure. */
-    struct shared_secret_handle_t shared_secret_handle;
+    /*! Shared Secret structure ID. */
+    int32_t shared_secret_id;
 };
 
 /*!
@@ -132,6 +132,9 @@ struct handshake_handle_t* dsec_ta_get_handshake_handle(int32_t hh_id);
  */
 TEE_Result dsec_ta_hh_get_info(uint32_t parameters_type,
                                TEE_Param parameters[1]);
+
+struct shared_secret_handle_t* dsec_ta_hh_get_shared_secret_handle(
+    int32_t index_hh);
 
 /*!
  * \}

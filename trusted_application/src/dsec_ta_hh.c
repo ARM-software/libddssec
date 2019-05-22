@@ -54,15 +54,16 @@ TEE_Result dsec_ta_hh_create(uint32_t parameters_type, TEE_Param parameters[1])
     if (parameters_type == expected_types) {
         index_hh = find_free_hh_element();
         if (index_hh >= 0) {
-            parameters[0].value.a = index_hh;
             hh = (&hh_store[index_hh]);
-            hh->initialized = true;
-            hh->dh_pair_handle.initialized = false;
-            hh->dh_public_handle.initialized = false;
-            hh->shared_secret_handle.initialized = true;
-            hh->shared_secret_handle.challenge1_handle.initialized = false;
-            hh->shared_secret_handle.challenge2_handle.initialized = false;
-            allocated_handle++;
+            result = dsec_ta_ssh_create(&(hh->shared_secret_id));
+            if (result == TEE_SUCCESS) {
+                hh->initialized = true;
+                hh->dh_pair_handle.initialized = false;
+                hh->dh_public_handle.initialized = false;
+
+                parameters[0].value.a = index_hh;
+                allocated_handle++;
+            }
         } else {
             EMSG("Cannot allocate memory for a new handle.\n");
             result = TEE_ERROR_OUT_OF_MEMORY;
@@ -80,6 +81,8 @@ TEE_Result dsec_ta_hh_delete(uint32_t parameters_type, TEE_Param parameters[1])
     TEE_Result result = TEE_SUCCESS;
 
     int32_t index_hh = 0;
+    struct handshake_handle_t* hh = NULL;
+    struct shared_secret_handle_t* ssh = NULL;
 
     const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
                                                     TEE_PARAM_TYPE_NONE,
@@ -88,19 +91,20 @@ TEE_Result dsec_ta_hh_delete(uint32_t parameters_type, TEE_Param parameters[1])
 
     if (parameters_type == expected_types) {
         index_hh = (int32_t)parameters[0].value.a;
+
         if (hh_is_valid(index_hh)) {
-            hh_store[index_hh].initialized = false;
+            hh = &(hh_store[index_hh]);
+            hh->initialized = false;
 
-            if (hh_store[index_hh].dh_pair_handle.initialized) {
-                (void) dsec_ta_hh_dh_free_keypair(
-                    &(hh_store[index_hh].dh_pair_handle));
+            if (hh->dh_pair_handle.initialized) {
+                (void) dsec_ta_hh_dh_free_keypair(&(hh->dh_pair_handle));
             }
 
-            hh_store[index_hh].dh_public_handle.initialized = false;
+            hh->dh_public_handle.initialized = false;
 
-            if (hh_store[index_hh].shared_secret_handle.initialized) {
-                dsec_ta_ssh_free(&(hh_store[index_hh].shared_secret_handle));
-            }
+            ssh = dsec_ta_ssh_get(hh->shared_secret_id);
+            /* Ignore return value */
+            (void) dsec_ta_ssh_free(ssh);
 
             allocated_handle--;
         } else {
@@ -148,4 +152,18 @@ TEE_Result dsec_ta_hh_get_info(uint32_t parameters_type,
     }
 
     return result;
+}
+
+struct shared_secret_handle_t* dsec_ta_hh_get_shared_secret_handle(
+    int32_t index_hh)
+{
+    struct handshake_handle_t* hh = NULL;
+    struct shared_secret_handle_t* return_ssh = NULL;
+
+    if (hh_is_valid(index_hh)) {
+        hh = &(hh_store[index_hh]);
+        return_ssh = dsec_ta_ssh_get(hh->shared_secret_id);
+    }
+
+    return return_ssh;
 }
