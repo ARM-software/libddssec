@@ -160,6 +160,9 @@ TEE_Result dsec_ta_ssh_free(
         TEE_FreeTransientObject(
             shared_secret_handle->shared_key_handle.shared_key);
 
+        shared_secret_handle->challenge1_handle.initialized = false;
+        shared_secret_handle->challenge2_handle.initialized = false;
+
         result = TEE_SUCCESS;
     } else {
         EMSG("Shared Secret Handle is not set.\n");

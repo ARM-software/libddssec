@@ -85,6 +85,15 @@ dsec_add_test(
         test_hh_dh.c
 )
 dsec_add_test(
+    NAME challenges
+    SOURCE
+        ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_hh.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_hh_challenge.c
+        dsec_test_ta.c
+        test_hh_challenge.c
+)
+dsec_add_test(
     NAME shared_secret
     SOURCE
         ${CMAKE_SOURCE_DIR}/src/dsec_ca.c

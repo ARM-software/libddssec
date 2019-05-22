@@ -67,6 +67,14 @@ enum {
     DSEC_TA_CMD_HH_DH_SET_PUBLIC,
     /*! Function ID of dsec_ta_hh_ssh_derive */
     DSEC_TA_CMD_SSH_DERIVE,
+    /*! Function ID of dsec_ta_hh_challenge_generate */
+    DSEC_TA_CMD_HH_CHALLENGE_GENERATE,
+    /*! Function ID of dsec_ta_hh_challenge_get */
+    DSEC_TA_CMD_HH_CHALLENGE_GET,
+    /*! Function ID of dsec_ta_hh_challenge_set */
+    DSEC_TA_CMD_HH_CHALLENGE_SET,
+    /*! Function ID of dsec_ta_hh_challenge_unload */
+    DSEC_TA_CMD_HH_CHALLENGE_UNLOAD,
 #if DSEC_TEST
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,

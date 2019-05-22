@@ -18,6 +18,7 @@
  * \{
  */
 
+#include <dsec_ta_challenge.h>
 #include <tee_internal_api.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -44,6 +45,10 @@ struct shared_secret_handle_t {
     bool initialized;
     /*! Shared Key Handle structure. */
     struct shared_key_handle_t shared_key_handle;
+    /*! Challenge Handle. */
+    struct challenge_handle_t challenge1_handle;
+    /*! Challenge Handle. */
+    struct challenge_handle_t challenge2_handle;
 };
 
 /*!

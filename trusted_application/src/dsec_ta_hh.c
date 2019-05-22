@@ -45,7 +45,7 @@ TEE_Result dsec_ta_hh_create(uint32_t parameters_type, TEE_Param parameters[1])
     TEE_Result result = TEE_SUCCESS;
 
     int32_t index_hh = 0;
-
+    struct handshake_handle_t* hh = NULL;
     const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_OUTPUT,
                                                     TEE_PARAM_TYPE_NONE,
                                                     TEE_PARAM_TYPE_NONE,
@@ -55,10 +55,13 @@ TEE_Result dsec_ta_hh_create(uint32_t parameters_type, TEE_Param parameters[1])
         index_hh = find_free_hh_element();
         if (index_hh >= 0) {
             parameters[0].value.a = index_hh;
-            hh_store[index_hh].initialized = true;
-            hh_store[index_hh].dh_pair_handle.initialized = false;
-            hh_store[index_hh].dh_public_handle.initialized = false;
-            hh_store[index_hh].shared_secret_handle.initialized = true;
+            hh = (&hh_store[index_hh]);
+            hh->initialized = true;
+            hh->dh_pair_handle.initialized = false;
+            hh->dh_public_handle.initialized = false;
+            hh->shared_secret_handle.initialized = true;
+            hh->shared_secret_handle.challenge1_handle.initialized = false;
+            hh->shared_secret_handle.challenge2_handle.initialized = false;
             allocated_handle++;
         } else {
             EMSG("Cannot allocate memory for a new handle.\n");

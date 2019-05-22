@@ -86,6 +86,7 @@ set(PROJECT_SOURCE
     src/dsec_hh.c
     src/dsec_hh_dh.c
     src/dsec_ssh.c
+    src/dsec_hh_challenge.c
 )
 
 #

@@ -20,4 +20,5 @@ srcs-y += \
     dsec_ta_ih_privkey.c \
     dsec_ta_hh.c \
     dsec_ta_dh.c \
-    dsec_ta_ssh.c
+    dsec_ta_ssh.c \
+    dsec_ta_challenge.c
