@@ -100,6 +100,7 @@ dsec_add_test(
         ${CMAKE_SOURCE_DIR}/src/dsec_ssh.c
         ${CMAKE_SOURCE_DIR}/src/dsec_hh.c
         ${CMAKE_SOURCE_DIR}/src/dsec_hh_dh.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_hh_challenge.c
         dsec_test_ta.c
         test_ssh.c
 )

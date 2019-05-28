@@ -46,6 +46,39 @@ int32_t dsec_ssh_derive(int32_t* ssh_id,
                         int32_t hh_id);
 
 /*!
+ * \brief Get the data stored by a shared secret handle
+ *
+ * \details Calls the Trusted Application to get the data from a shared secret.
+ *
+ * \param[out] challenge1 Buffer where the challenge will be written.
+ * \param[out] challenge1_size Pointer to the size of the buffer. This value is
+ *     overwritten with the actual size of the output buffer.
+ * \param[out] challenge2 Buffer where the challenge will be written.
+ * \param[out] challenge2_size Pointer to the size of the buffer. This value is
+ *     overwritten with the actual size of the output buffer.
+ * \param[out] shared_key Buffer where the shared key will be written.
+ * \param[out] shared_key_size Pointer to the size of the buffer. This value is
+ *     overwritten with the actual size of the output buffer.
+ *
+ * \param instance Initialized instance to access the Trusted Application
+ * \param ssh_id Handle ID of the shared secret.
+ *
+ * \retval ::DSEC_SUCCESS Data has been returned
+ * \retval ::DSEC_E_PARAM Parameter types are not properly set or identifier
+ *     specified leads to an invalid handle.
+ * \retval ::DSEC_E_DATA At least one requested field is not initialized.
+ * \retval ::DSEC_E_SHORT_BUFFER One of the buffer is not big enough.
+ */
+int32_t dsec_ssh_get_data(void* shared_key,
+                          uint32_t* shared_key_size,
+                          void* challenge1,
+                          uint32_t* challenge1_size,
+                          void* challenge2,
+                          uint32_t* challenge2_size,
+                          const struct dsec_instance* instance,
+                          int32_t ssh_id);
+
+/*!
  * \}
  */
 

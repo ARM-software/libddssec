@@ -303,3 +303,92 @@ TEE_Result dsec_ta_ssh_unload(uint32_t parameters_type,
 
     return result;
 }
+
+TEE_Result dsec_ta_ssh_get_data(uint32_t parameters_type,
+                                TEE_Param parameters[4])
+{
+    TEE_Result result = 0;
+    int32_t index = 0;
+    void* output_shared_key = NULL;
+    uint32_t shared_key_size = 0;
+    void* output_challenge1 = NULL;
+    uint32_t challenge1_size = 0;
+    void* output_challenge2 = NULL;
+    uint32_t challenge2_size = 0;
+    const struct shared_secret_handle_t* ssh = NULL;
+
+    const uint32_t expected_types = TEE_PARAM_TYPES(
+        TEE_PARAM_TYPE_MEMREF_OUTPUT,
+        TEE_PARAM_TYPE_MEMREF_OUTPUT,
+        TEE_PARAM_TYPE_MEMREF_OUTPUT,
+        TEE_PARAM_TYPE_VALUE_INPUT);
+
+    if (parameters_type == expected_types) {
+        index = (int32_t)parameters[3].value.a;
+        ssh = dsec_ta_ssh_get(index);
+
+        if ((ssh != NULL) &&
+            ssh->initialized &&
+            ssh->shared_key_handle.initialized &&
+            ssh->challenge1_handle.initialized &&
+            ssh->challenge2_handle.initialized) {
+
+            output_shared_key = parameters[0].memref.buffer;
+            shared_key_size = parameters[0].memref.size;
+            output_challenge1 = parameters[1].memref.buffer;
+            challenge1_size = parameters[1].memref.size;
+            output_challenge2 = parameters[2].memref.buffer;
+            challenge2_size = parameters[2].memref.size;
+
+            if ((challenge1_size >= ssh->challenge1_handle.data_size) &&
+                (challenge2_size >= ssh->challenge2_handle.data_size)) {
+
+              result = TEE_GetObjectBufferAttribute(
+                  ssh->shared_key_handle.shared_key,
+                  TEE_ATTR_SECRET_VALUE,
+                  output_shared_key,
+                  &shared_key_size);
+
+              if (result == TEE_SUCCESS) {
+                    parameters[0].memref.size = shared_key_size;
+
+                    TEE_MemMove(output_challenge1,
+                                ssh->challenge1_handle.data,
+                                ssh->challenge1_handle.data_size);
+
+                    parameters[1].memref.size =
+                        ssh->challenge1_handle.data_size;
+
+                    TEE_MemMove(output_challenge2,
+                                ssh->challenge2_handle.data,
+                                ssh->challenge2_handle.data_size);
+
+                    parameters[2].memref.size =
+                        ssh->challenge2_handle.data_size;
+
+                } else {
+                    EMSG("Unable to retrieve the Shared Secret.\n");
+                    parameters[0].memref.size = 0;
+                    parameters[1].memref.size = 0;
+                    parameters[2].memref.size = 0;
+
+                    /* Return the value of TEE_GetObjectBufferAttribute */
+                }
+
+            } else {
+                EMSG("Given buffers are not big enough.\n");
+                result = TEE_ERROR_SHORT_BUFFER;
+            }
+
+        } else {
+            EMSG("Handle is invalid or has un-initialized fields.\n");
+            result = TEE_ERROR_NO_DATA;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}

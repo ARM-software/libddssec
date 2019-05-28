@@ -187,6 +187,36 @@ TEE_Result dsec_ta_ssh_unload(uint32_t parameters_type,
                               const TEE_Param parameters[1]);
 
 /*!
+ * \brief [UNSAFE] Return all the data fields of a Shared Secret Handle (SHH)
+ *
+ * \details Extract the fields of the shared secret handle outside the TA.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *
+ * \param[out] parameters[0].memref.buffer Shared Secret data.
+ * \param[out] parameters[0].memref.size Shared Secret size.
+ * \param[out] parameters[1].memref.buffer Challenge1 data.
+ * \param[out] parameters[1].memref.size Challenge1 size.
+ * \param[out] parameters[2].memref.buffer Challenge2 data.
+ * \param[out] parameters[2].memref.size Challenge2 size.
+ *
+ * \param parameters_type The types of each of the parameters in parameters as
+ *     specified above.
+ * \param parameters[3].value.a Identifier of the Shared Secret Handle.
+ *
+ * \retval ::TEE_SUCCESS Attributes of the structures are returned.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set or
+ *     identifier specified leads to an invalid handle.
+ * \retval ::TEE_ERROR_NO_DATA One field of a structure is not initialized.
+ * \retval ::TEE_ERROR_SHORT_BUFFER One of the buffer is not big enough.
+ * \retval TEE_Result from TEE_GetObjectBufferAttribute
+ */
+TEE_Result dsec_ta_ssh_get_data(uint32_t parameters_type,
+                                TEE_Param parameters[4]);
+/*!
  * \}
  */
 

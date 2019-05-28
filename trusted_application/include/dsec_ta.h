@@ -75,6 +75,8 @@ enum {
     DSEC_TA_CMD_HH_CHALLENGE_SET,
     /*! Function ID of dsec_ta_hh_challenge_unload */
     DSEC_TA_CMD_HH_CHALLENGE_UNLOAD,
+    /*! Function ID of dsec_ta_ssh_get_data */
+    DSEC_TA_CMD_SSH_GET_DATA,
 #if DSEC_TEST
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,

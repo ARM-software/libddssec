@@ -51,3 +51,60 @@ int32_t dsec_ssh_derive(int32_t* ssh_id,
 
     return result;
 }
+
+int32_t dsec_ssh_get_data(void* shared_key,
+                          uint32_t* shared_key_size,
+                          void* challenge1,
+                          uint32_t* challenge1_size,
+                          void* challenge2,
+                          uint32_t* challenge2_size,
+                          const struct dsec_instance* instance,
+                          int32_t ssh_id)
+{
+
+    TEEC_Result teec_result = 0;
+    int32_t result = 0;
+    uint32_t return_origin = 0;
+    TEEC_Operation operation = {0};
+
+    if ((shared_key_size != NULL) &&
+        (challenge1_size != NULL) &&
+        (challenge2_size != NULL)) {
+
+        operation.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_OUTPUT,
+                                                TEEC_MEMREF_TEMP_OUTPUT,
+                                                TEEC_MEMREF_TEMP_OUTPUT,
+                                                TEEC_VALUE_INPUT);
+
+        operation.params[0].tmpref.buffer = shared_key;
+        operation.params[0].tmpref.size = *shared_key_size;
+        operation.params[1].tmpref.buffer = challenge1;
+        operation.params[1].tmpref.size = *challenge1_size;
+        operation.params[2].tmpref.buffer = challenge2;
+        operation.params[2].tmpref.size = *challenge2_size;
+        operation.params[3].value.a = (uint32_t)ssh_id;
+
+        teec_result = dsec_ca_invoke(instance,
+                                     DSEC_TA_CMD_SSH_GET_DATA,
+                                     &operation,
+                                     &return_origin);
+
+        if (teec_result == TEEC_SUCCESS) {
+            *shared_key_size = operation.params[0].tmpref.size;
+            *challenge1_size = operation.params[1].tmpref.size;
+            *challenge2_size = operation.params[2].tmpref.size;
+            result = DSEC_SUCCESS;
+        } else {
+            *shared_key_size = 0;
+            *challenge1_size = 0;
+            *challenge2_size = 0;
+            result = dsec_ca_convert_teec_result(teec_result);
+            (void)dsec_print("An error occurred: 0x%x.\n", result);
+        }
+    } else {
+        result = DSEC_E_PARAM;
+        (void)dsec_print("Given parameters are NULL.\n");
+    }
+
+    return result;
+}
