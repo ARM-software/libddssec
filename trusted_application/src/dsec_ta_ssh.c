@@ -138,7 +138,7 @@ TEE_Result dsec_ta_hh_ssh_derive(uint32_t parameters_type,
 {
     TEE_Result result = 0;
     uint32_t index_hh = 0;
-    const struct handshake_handle_t* hh = NULL;
+    struct handshake_handle_t* hh = NULL;
     const struct dh_pair_handle_t* dh_local_handle = NULL;
     const struct dh_public_handle_t* dh_remote_handle = NULL;
     struct shared_secret_handle_t* ssh = NULL;
@@ -169,6 +169,13 @@ TEE_Result dsec_ta_hh_ssh_derive(uint32_t parameters_type,
                     result = ss_derive(dh_local_handle, dh_remote_handle, skh);
                     if (result == TEE_SUCCESS) {
                         parameters[0].value.a = hh->shared_secret_id;
+
+                        /*
+                         * Free the Handshake handle elements but not the shared
+                         * secret handle as it is returned.
+                         * From this point, the Handshake Handle cannot be used.
+                         */
+                         hh->shared_secret_id = -1;
                     }
 
                 } else {
