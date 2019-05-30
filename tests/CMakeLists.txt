@@ -213,7 +213,7 @@ dsec_add_test(
         test_ssh.c
 )
 
-dsec_embed_asset_ta_files(
+dsec_embed_asset_ta_test_files(
     LOCATION "./assets"
     NAMES
         cacert.pem

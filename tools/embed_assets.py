@@ -41,21 +41,18 @@ def write_array(input, output, variable_name):
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input-files',
-                        required=True,
-                        nargs='*')
+    parser.add_argument('--output-file', required=True, nargs=1)
 
-    parser.add_argument('--output-file',
-                        required=True,
-                        nargs=1)
+    sub_parser = parser.add_subparsers()
 
-    parser.add_argument('--filenames',
-                        required=True,
-                        nargs='*')
+    parser_empty = sub_parser.add_parser('empty_builtin')
+    parser_empty.set_defaults(parser='empty_builtin')
 
-    parser.add_argument('--variable-names',
-                        required=True,
-                        nargs='*')
+    parser_data = sub_parser.add_parser('data_builtin')
+    parser_data.add_argument('--input-files', required=True, nargs='*')
+    parser_data.add_argument('--filenames', required=True, nargs='*')
+    parser_data.add_argument('--variable-names', required=True, nargs='*')
+    parser_data.set_defaults(parser='data_builtin')
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -81,22 +78,30 @@ def main():
                      '\n'
                      '\n')
 
-        i = 0
-        for input in args.input_files:
-            write_array(input, output, args.variable_names[i])
-            i += 1
+        if args.parser == 'data_builtin':
+            i = 0
+            for input in args.input_files:
+                write_array(input, output, args.variable_names[i])
+                i += 1
 
         output.write('static const struct builtin_data builtin_objects[] = {')
-        i = 0
-        for variable in args.variable_names:
+
+        if args.parser == 'empty_builtin':
             output.write('\n    {\n')
-
-            output.write('        .name = "{}",\n'.format(args.filenames[i]))
-            output.write('        .builtin = {},\n'.format(variable))
-            output.write('        .size = sizeof({}),\n'.format(variable))
-
+            output.write('        .name = "",\n')
+            output.write('        .builtin = NULL,\n')
+            output.write('        .size = 0,\n')
             output.write('    },')
-            i += 1
+        else:
+            i = 0
+            for variable in args.variable_names:
+                filename = args.filenames[i]
+                output.write('\n    {\n')
+                output.write('        .name = "{}",\n'.format(filename))
+                output.write('        .builtin = {},\n'.format(variable))
+                output.write('        .size = sizeof({}),\n'.format(variable))
+                output.write('    },')
+                i += 1
 
         output.write('\n};'
                      '\n'

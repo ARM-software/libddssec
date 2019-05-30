@@ -41,3 +41,4 @@ add_custom_target(ta-clean
 # Builtin assets
 #
 add_subdirectory(builtins)
+dsec_embed_asset_ta_files()

@@ -36,46 +36,65 @@ function(dsec_embed_asset_files)
         )
     endif()
 
-    # Builtin objects must have NAMES
-    if(NOT DEFINED ARG_BUILTIN_NAMES)
-        message(FATAL_ERROR "Builtin objects must have NAMES.")
+    if(NOT DEFINED ARG_BUILTIN_HEADER_FILE_DIR)
+        message(FATAL_ERROR "Builtin objects must have a output directory:
+                HEADER_FILE_DIR")
     endif()
 
     if(NOT DEFINED ARG_BUILTIN_TARGET)
         message(FATAL_ERROR "Builtin objects must have a valid TARGET.")
     endif()
 
-    if(NOT DEFINED ARG_BUILTIN_HEADER_FILE_DIR)
-        message(FATAL_ERROR "Builtin objects must have a output directory:
-                HEADER_FILE_DIR")
-    endif()
-
-    # Builtin object may have a LOCATION
-    set(FILE_LOCATION ${CMAKE_CURRENT_SOURCE_DIR})
-    if(DEFINED ARG_BUILTIN_LOCATION)
-        set(FILE_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_BUILTIN_LOCATION})
-    endif()
-
-    set(NAMES "")
-    foreach(NAME ${ARG_BUILTIN_NAMES})
-        set(NAMES ${NAMES} ${FILE_LOCATION}/${NAME})
-    endforeach()
-
-    string(REPLACE "." "_" VARIABLE_NAMES "${ARG_BUILTIN_NAMES}")
     set(OUTPUT_FILE builtins_list.h)
-
     set(GENERATE_BUILTIN_TARGET generate-builtin-header-${ARG_BUILTIN_TARGET})
-    add_custom_target(${GENERATE_BUILTIN_TARGET}
-        WORKING_DIRECTORY ${FILE_LOCATION}/
-        COMMAND python ${CMAKE_SOURCE_DIR}/tools/embed_assets.py
-            --input-files ${NAMES}
-            --output-file ${ARG_BUILTIN_HEADER_FILE_DIR}/${OUTPUT_FILE}
-            --filenames ${ARG_BUILTIN_NAMES}
-            --variable-names ${VARIABLE_NAMES}
-            COMMENT
-                "Generating builtin header for target ${ARG_BUILTIN_TARGET}."
-        VERBATIM
-    )
+
+    # Builtin objects must have NAMES
+    if(NOT DEFINED ARG_BUILTIN_NAMES AND NOT DEFINED ARG_BUILTIN_LOCATION)
+
+        add_custom_target(${GENERATE_BUILTIN_TARGET}
+            WORKING_DIRECTORY ${FILE_LOCATION}/
+            COMMAND python ${CMAKE_SOURCE_DIR}/tools/embed_assets.py
+                --output-file ${ARG_BUILTIN_HEADER_FILE_DIR}/${OUTPUT_FILE}
+                empty_builtin
+                COMMENT
+                    "Generating empty builtin for target ${ARG_BUILTIN_TARGET}."
+            VERBATIM
+        )
+
+    else()
+
+        if(NOT DEFINED ARG_BUILTIN_NAMES)
+            message(FATAL_ERROR "Builtin objects must have valid NAMES.")
+        endif()
+
+        # Builtin object may have a LOCATION
+        set(FILE_LOCATION ${CMAKE_CURRENT_SOURCE_DIR})
+        if(DEFINED ARG_BUILTIN_LOCATION)
+            set(FILE_LOCATION
+                ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_BUILTIN_LOCATION})
+        endif()
+
+        set(NAMES "")
+        foreach(NAME ${ARG_BUILTIN_NAMES})
+            set(NAMES ${NAMES} ${FILE_LOCATION}/${NAME})
+        endforeach()
+
+        string(REPLACE "." "_" VARIABLE_NAMES "${ARG_BUILTIN_NAMES}")
+
+        add_custom_target(${GENERATE_BUILTIN_TARGET}
+            WORKING_DIRECTORY ${FILE_LOCATION}/
+            COMMAND python ${CMAKE_SOURCE_DIR}/tools/embed_assets.py
+                --output-file ${ARG_BUILTIN_HEADER_FILE_DIR}/${OUTPUT_FILE}
+                data_builtin
+                    --input-files ${NAMES}
+                    --filenames ${ARG_BUILTIN_NAMES}
+                    --variable-names ${VARIABLE_NAMES}
+                COMMENT
+                    "Generating builtin for target ${ARG_BUILTIN_TARGET}."
+            VERBATIM
+        )
+
+    endif()
 
     add_dependencies(${ARG_BUILTIN_TARGET} ${GENERATE_BUILTIN_TARGET})
 
