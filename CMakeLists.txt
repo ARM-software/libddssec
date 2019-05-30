@@ -14,6 +14,9 @@ message(STATUS
     "${${PROJECT_NAME}_DESCRIPTION_SUMMARY} version ${PROJECT_VERSION}"
 )
 
+option(BUILD_TEST "Build tests" OFF)
+option(BUILD_DOC "Build doxygen documentation" OFF)
+
 # Toolchain options
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
@@ -123,14 +126,18 @@ list(APPEND COMPILE_DEFINITIONS
 add_subdirectory(trusted_application)
 
 #
-# Test support
+# Test support subdirectory
 #
-add_subdirectory(tests)
+if(BUILD_TEST)
+    add_subdirectory(tests)
+endif()
 
 #
 # Documentation
 #
-add_subdirectory(doc)
+if(BUILD_DOC)
+    add_subdirectory(doc)
+endif()
 
 #
 # Library settings

@@ -166,13 +166,13 @@ def main():
     results.append(('Pycodestyle', result))
 
     with build_directory():
-        subprocess.call('cmake ..', shell=True)
+        subprocess.call('cmake -DBUILD_DOC=ON ..', shell=True)
         result = subprocess.call('make doc', shell=True)
         results.append(('Check doc', result))
 
     banner('Builds')
 
-    cmake_params = ''
+    cmake_params = '-DBUILD_DOC=ON -DBUILD_TEST=ON '
     build_info = ''
     if machine == 'x86_64':
         print('Using cross-compilation')

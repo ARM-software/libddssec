@@ -88,6 +88,9 @@ To build and run the unit tests on an Arm device:
 
     $> make build_and_test
 
+Note: To enable the tests, the flag `BUILD_TEST` must be defined to `ON`
+(`-DBUILD_TEST=ON`) when cmake is invoked.
+
 The ```validation.py``` tool can be used during development to verify the code.
 This tool will build and run the units as well check code style and
 documentation.
@@ -141,6 +144,9 @@ If Doxygen is available on the system containing the __libddssec__ then
 comprehensive documentation can be generated. The complete set of documentation
 is compiled into a bundle in HTML format and placed in the *_build_/doc*
 directory.
+
+Note: To enable the documentation generation, the flag `BUILD_DOC` must be
+defined to `ON` (`-DBUILD_DOC=ON`) when cmake is invoked.
 
 After you create a build directory and run cmake, from within your _build_
 directory Doxygen can be invoked using the __doc__ target:

@@ -121,7 +121,8 @@ class TestBenchBase:
 
             else:
                 do('export OPTEECLIENT_DIR={}'.format(self.optee_client_dir))
-                do('cmake ..', expect=['Build files have been written to'],
+                do('cmake -DBUILD_TEST=ON ..',
+                    expect=['Build files have been written to'],
                     unexpect=['Configuring incomplete, errors occurred!',
                               'CMake Error'])
 
