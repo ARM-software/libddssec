@@ -110,6 +110,22 @@ static void test_case_close_unopened(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_E_INIT);
 }
 
+static void test_case_multiple_contexts(void)
+{
+    TEEC_Session session1;
+    TEEC_Context context1;
+    TEEC_Session session2;
+    TEEC_Context context2;
+
+    struct dsec_instance inst1 = dsec_ca_instance_create(&session1, &context1);
+    struct dsec_instance inst2 = dsec_ca_instance_create(&session2, &context2);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst1) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst2) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst1) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst2) == DSEC_SUCCESS);
+}
+
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_open),
     DSEC_TEST_CASE(test_case_open_null),
@@ -121,6 +137,7 @@ static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_close_null),
     DSEC_TEST_CASE(test_case_close_already_closed),
     DSEC_TEST_CASE(test_case_close_unopened),
+    DSEC_TEST_CASE(test_case_multiple_contexts),
 };
 
 const struct dsec_test_suite_desc test_suite = {

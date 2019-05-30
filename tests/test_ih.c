@@ -150,10 +150,40 @@ static void test_case_ih_unload_unloaded(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
+static void test_case_ih_multiple_contexts(void)
+{
+    TEEC_Session session1;
+    TEEC_Context context1;
+
+    TEEC_Session session2;
+    TEEC_Context context2;
+
+    int32_t ih_h = -1;
+    int32_t result = 0;
+
+    struct dsec_instance inst1 = dsec_ca_instance_create(&session1, &context1);
+    struct dsec_instance inst2 = dsec_ca_instance_create(&session2, &context2);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst1) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst2) == DSEC_SUCCESS);
+
+    result = dsec_ih_create(&ih_h, &inst1);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(ih_h == 0);
+
+    result = dsec_ih_create(&ih_h, &inst2);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(ih_h == 0);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst1) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst2) == DSEC_SUCCESS);
+}
+
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_ih_load_unload),
     DSEC_TEST_CASE(test_case_ih_load_max),
     DSEC_TEST_CASE(test_case_ih_unload_unloaded),
+    DSEC_TEST_CASE(test_case_ih_multiple_contexts),
 };
 
 const struct dsec_test_suite_desc test_suite = {
