@@ -70,8 +70,8 @@ find_package(OPTEECLIENT REQUIRED)
 #
 set(PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}
-    ${CMAKE_CURRENT_BINARY_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/trusted_application/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 # Files from external libraries which need to be included in the source but
@@ -143,13 +143,77 @@ endif()
 # Library settings
 #
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE})
-target_link_libraries(${PROJECT_NAME} OPTEECLIENT::OPTEECLIENT)
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
+
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        OPTEECLIENT::OPTEECLIENT
+)
+
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_compile_definitions(${PROJECT_NAME} PRIVATE ${COMPILE_DEFINITIONS})
 target_include_directories(
     ${PROJECT_NAME}
     PUBLIC
-        ${EXTERNAL_INCLUDES}
         ${PROJECT_INCLUDES}
+    PRIVATE
+        ${EXTERNAL_INCLUDES}
 )
+
+set_target_properties(
+    ${PROJECT_NAME}
+    PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/libddssec>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/trusted_application/include>
+            $<INSTALL_INTERFACE:include>
+        INTERFACE_LINK_LIBRARIES
+            ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.so
+        LINK_INTERFACE_LANGUAGES
+            C
+            CXX
+        COMPILE_DEFINITIONS
+            ${COMPILE_DEFINITIONS}
+        COMPILE_OPTIONS
+            ${COMPILE_OPTIONS}
+        IMPORTED_LINK_INTERFACE_LIBRARIES
+            OPTEECLIENT::OPTEECLIENT
+        PREFIX
+             ""
+)
+
+install(
+    TARGETS
+        ${PROJECT_NAME}
+    EXPORT
+        ${PROJECT_NAME}
+    LIBRARY
+        DESTINATION lib
+    INCLUDES
+        DESTINATION include
+    PUBLIC_HEADER
+        DESTINATION include
+)
+
+# Generates and installs a CMake file containing code to import targets from the
+# installation tree into another project. The generated file is
+# ${PROJECT_NAME}.cmake (value specified in EXPORT)
+install(
+    EXPORT
+        ${PROJECT_NAME}
+    DESTINATION
+        lib/cmake/libddssec
+    COMPONENT
+        OPTEECLIENT::OPTEECLIENT
+    EXPORT_LINK_INTERFACE_LIBRARIES
+)
+
+export(
+    TARGETS
+        ${PROJECT_NAME}
+    FILE
+      "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake"
+    EXPORT_LINK_INTERFACE_LIBRARIES
+)
+
+add_library(arm::libddssec ALIAS ${PROJECT_NAME})
+

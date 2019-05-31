@@ -152,7 +152,7 @@ find_package_handle_standard_args(
 
 # If the necessary files were found and the Target was not previously configured
 if(OPTEECLIENT_FOUND AND NOT TARGET OPTEECLIENT::OPTEECLIENT)
-    add_library(OPTEECLIENT::OPTEECLIENT INTERFACE IMPORTED)
+    add_library(OPTEECLIENT::OPTEECLIENT INTERFACE IMPORTED GLOBAL)
     set_target_properties(
         OPTEECLIENT::OPTEECLIENT
         PROPERTIES
