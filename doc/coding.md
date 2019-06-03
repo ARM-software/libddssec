@@ -1,3 +1,39 @@
+The source code is divided in multiple subdirectories:
+
+```
+├── cmake
+│   └── modules
+├── CMakeLists.txt
+├── doc                       // Contains the documentation of the project
+│   └── CMakeLists.txt        // Sub CMake script for Doxygen
+├── include
+│   └── libddssec             // Public header files
+├── src                       // Source files of the Client Application
+├── tests                     // Source code of the tests and framework
+│   ├── assets                // Contains list of assets used for the tests
+│   ├── builtins
+│   │   └── CMakeLists.txt    // Test Builtin calling
+|   |                         //     cmake/modules/builtin_function.cmake
+│   ├── CMakeLists.txt        // Sub CMake script for building the tests
+├── tools                     // Various utility scripts (code checking,..)
+└── trusted_application
+    ├── builtins
+    │   └── CMakeLists.txt    // TA Builtin calling
+    |                         //     cmake/modules/builtin_function.cmake
+    ├── CMakeLists.txt        // Cmake script building the TA using a makefile
+    ├── include               // Public header files of the TA
+    └── src                   // Source code of the TA
+```
+
+The top level `CMakeList.txt` will call the following sub directories:
+- `doc/CMakeLists.txt`: Generation of the doxygen documentation
+- `test/CMakeLists.txt`: Responsible for the tests
+- `trusted_application/CMakelists.txt`: Building of the Trusted Application
+
+Among calling those subscripts, the top level CMakeLists.txt looks for the
+OPTEE-Client library and includes by loading the script
+`cmake/modules/FindOPTEECLIENT.cmake`. It will also build the library.
+
 # Adding a new TA source file.
 
 - Create a new source file in `libddssec/trusted_application/src` with its
