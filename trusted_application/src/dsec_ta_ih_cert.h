@@ -265,6 +265,45 @@ TEE_Result dsec_ta_ih_cert_load_from_buffer(uint32_t parameters_type,
 TEE_Result dsec_ta_ih_cert_signature_verify(uint32_t parameters_type,
                                             const TEE_Param parameters[3]);
 
+
+/*!
+ * \brief Return a string buffer of the Subject Name of a certificate.
+ *
+ * \details Given a mbedtls_x509_crt, return the Subject Name (SN) of the
+ *     certificate loaded.
+ *
+ * \param[out] output_buffer Buffer containing the extracted SN string.
+ * \param[out] output_length Contains the incoming buffer size and is
+ *     updated with the new output size.
+ *
+ * \param cert Pointer to the certificate.
+ *
+ * \retval ::TEE_SUCCESS Buffer returned is the requested Subject Name.
+ * \retval ::TEE_ERROR_BAD_FORMAT Subject Name could not be extracted.
+ * \retval ::TEE_ERROR_SHORT_BUFFER Given buffer is too small.
+ */
+TEE_Result dsec_ta_cert_get_sn(char* output_buffer,
+                               size_t* output_length,
+                               const mbedtls_x509_crt* cert);
+
+/*!
+ * \brief Return a string buffer of the Signature Algorithm of a certificate.
+ *
+ * \details Given a mbedtls_x509_crt, return the signature algorithm.
+ *
+ * \param[out] output_buffer Buffer containing the extracted signature algorithm
+ * \param[out] output_length Contains the incoming buffer size and is updated
+ *     with the new output size.
+ *
+ * \param cert Pointer to the certificate.
+ *
+ * \retval ::TEE_SUCCESS Buffer returned is the Signature Algorithm.
+ * \retval ::TEE_ERROR_BAD_FORMAT Signature Algorithm could not be extracted.
+ * \retval ::TEE_ERROR_SHORT_BUFFER Given buffer is too small.
+ */
+TEE_Result dsec_ta_cert_get_signature_algorithm(char* output_buffer,
+                                                size_t* output_length,
+                                                const mbedtls_x509_crt* cert);
 /*!
  * \}
  */

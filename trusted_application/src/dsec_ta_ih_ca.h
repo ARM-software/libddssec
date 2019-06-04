@@ -98,4 +98,65 @@ TEE_Result dsec_ta_ih_ca_free(struct ca_handle_t* ca_h);
 TEE_Result dsec_ta_ih_ca_unload(uint32_t parameters_type,
                                 const TEE_Param parameters[1]);
 
+/*!
+ * \brief Return a string buffer of the Subject Name of a certificate.
+ *
+ * \details Given an index of a identity handle, return the Subject Name (SN)
+ *     of the certificate loaded.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param[out] parameters[0].memref.buff Buffer containing the extracted SN
+ *     string.
+ * \param[out] parameters[0].memref.size Contains the incoming buffer size and
+ *     is updated with the new output size.
+ *
+ * \param parameters_type The types of each of the parameters in parameters as
+ *     described above.
+ * \param parameters[1].value.a Value containing the index of the identity
+ *     handle containing an initialized CA.
+ *
+ * \retval ::TEE_SUCCESS Buffer returned is the Subject Name requested.
+ * \retval ::TEE_ERROR_BAD_FORMAT Subject Name could not be extracted.
+ * \retval ::TEE_ERROR_SHORT_BUFFER Given buffer is too small.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set or
+ *     the index is invalid. The buffer returned has no data and size set to 0.
+ */
+TEE_Result dsec_ta_ih_ca_get_sn(uint32_t parameters_type,
+                                TEE_Param parameters[2]);
+
+/*!
+ * \brief Return a string buffer of the Signature Algorithm of a certificate.
+ *
+ * \details Given an index of a identity handle, return the Signature Algorithm
+ *     of the certificate loaded.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param[out] parameters[0].memref.buff Buffer containing the extracted
+ *     signature algorithm string.
+ * \param[out] parameters[0].memref.size Contains the incoming buffer size and
+ *     is updated with the new output size.
+ *
+ * \param parameters_type The types of each of the parameters in parameters[2]
+ *     as described above.
+ * \param parameters[1].value.a Value containing the index of the Identity
+ *    Handle containing an initialized CA.
+ *
+ * \retval ::TEE_SUCCESS Buffer returned is the Signature Algorithm.
+ * \retval ::TEE_ERROR_BAD_FORMAT Signature Algorithm could not be extracted.
+ * \retval ::TEE_ERROR_SHORT_BUFFER Given buffer is too small.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set or
+ *     the index is invalid. The buffer returned has no data and size set to 0.
+ */
+TEE_Result dsec_ta_ih_ca_get_signature_algorithm(uint32_t parameters_type,
+                                                 TEE_Param parameters[2]);
+
+
 #endif /* DSEC_TA_IH_CA_H */

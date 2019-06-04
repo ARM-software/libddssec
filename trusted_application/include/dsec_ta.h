@@ -31,6 +31,10 @@ enum {
     DSEC_TA_CMD_IH_CA_LOAD,
     /*! Function ID of dsec_ta_ih_ca_unload */
     DSEC_TA_CMD_IH_CA_UNLOAD,
+    /*! Function ID of dsec_ta_ih_ca_get_sn */
+    DSEC_TA_CMD_IH_CA_GET_SN,
+    /*! Function ID of dsec_ta_ih_ca_get_signature_algorithm */
+    DSEC_TA_CMD_IH_CA_GET_SIGNATURE_ALGORITHM,
     /*! Function ID of dsec_ta_ih_cert_load */
     DSEC_TA_CMD_IH_CERT_LOAD,
     /*! Function ID of dsec_ta_ih_cert_unload */

@@ -68,6 +68,14 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
     case DSEC_TA_CMD_IH_CA_UNLOAD:
         result = dsec_ta_ih_ca_unload(parameters_type, parameters);
         break;
+    case DSEC_TA_CMD_IH_CA_GET_SN:
+        result = dsec_ta_ih_ca_get_sn(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_IH_CA_GET_SIGNATURE_ALGORITHM:
+        result = dsec_ta_ih_ca_get_signature_algorithm(parameters_type,
+                                                       parameters);
+
+        break;
     case DSEC_TA_CMD_IH_CERT_LOAD:
         result = dsec_ta_ih_cert_load(parameters_type, parameters);
         break;

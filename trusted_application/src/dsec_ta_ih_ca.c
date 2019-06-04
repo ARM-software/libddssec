@@ -6,6 +6,7 @@
  */
 
 #include <dsec_ta_ih_ca.h>
+#include <dsec_ta_ih_cert.h>
 #include <dsec_ta_ih.h>
 #include <dsec_ta_manage_object.h>
 
@@ -157,6 +158,108 @@ TEE_Result dsec_ta_ih_ca_unload(uint32_t parameters_type,
             EMSG("Pointer to Identity Handle is NULL.\n");
             result = TEE_ERROR_NO_DATA;
         }
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_ih_ca_get_sn(uint32_t parameters_type,
+                                TEE_Param parameters[2])
+{
+    TEE_Result result = 0;
+
+    uint32_t index_ih = 0;
+    const struct identity_handle_t* ih = NULL;
+    const mbedtls_x509_crt* cert = NULL;
+    /* Size of the output buffer that was allocated */
+    size_t output_length = 0;
+    char* output_buffer = NULL;
+
+    const uint32_t expected_types =
+        TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_OUTPUT,
+                        TEE_PARAM_TYPE_VALUE_INPUT,
+                        TEE_PARAM_TYPE_NONE,
+                        TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+
+        index_ih = (int32_t)parameters[1].value.a;
+        ih = dsec_ta_get_identity_handle(index_ih);
+
+        if ((ih != NULL) && ih->ca_handle.initialized) {
+            output_buffer = parameters[0].memref.buffer;
+            output_length = parameters[0].memref.size;
+            cert = &(ih->ca_handle.cert);
+
+            result = dsec_ta_cert_get_sn(output_buffer, &output_length, cert);
+            if (result == TEE_SUCCESS) {
+                parameters[0].memref.size = output_length;
+            } else {
+                /* Return the result from dsec_ta_cert_get_sn */
+                parameters[0].memref.size = 0;
+            }
+
+        } else {
+            EMSG("Index: 0x%x is invalid or has no CA initialized\n", index_ih);
+            result = TEE_ERROR_NO_DATA;
+            parameters[0].memref.size = 0;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_ih_ca_get_signature_algorithm(uint32_t parameters_type,
+                                                 TEE_Param parameters[2])
+{
+    TEE_Result result = 0;
+    uint32_t index_ih = 0;
+    const struct identity_handle_t* ih = NULL;
+    const mbedtls_x509_crt* cert = NULL;
+    /* Size of the output buffer that was allocated */
+    size_t output_length = 0;
+    char* output_buffer = NULL;
+
+    const uint32_t expected_types =
+        TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_OUTPUT,
+                        TEE_PARAM_TYPE_VALUE_INPUT,
+                        TEE_PARAM_TYPE_NONE,
+                        TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+
+        index_ih = (int32_t)parameters[1].value.a;
+        ih = dsec_ta_get_identity_handle(index_ih);
+
+        if ((ih != NULL) && ih->ca_handle.initialized) {
+            output_buffer = parameters[0].memref.buffer;
+            output_length = parameters[0].memref.size;
+            cert = &(ih->ca_handle.cert);
+
+            result = dsec_ta_cert_get_signature_algorithm(output_buffer,
+                                                          &output_length,
+                                                          cert);
+
+            if (result == TEE_SUCCESS) {
+                parameters[0].memref.size = output_length;
+            } else {
+                /* Return the result from last function */
+                parameters[0].memref.size = 0;
+            }
+
+        } else {
+            EMSG("Index: 0x%x is invalid or has no CA initialized\n", index_ih);
+            parameters[0].memref.size = 0;
+            result = TEE_ERROR_NO_DATA;
+        }
+
     } else {
         EMSG("Bad parameters types: 0x%x\n", parameters_type);
         result = TEE_ERROR_BAD_PARAMETERS;
