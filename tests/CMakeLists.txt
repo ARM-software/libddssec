@@ -93,7 +93,6 @@ add_custom_target(build_and_test
         --verbose
         --timeout 360
 )
-add_dependencies(build_and_test test-ta)
 
 # Test source used for the base framework
 set(TEST_SOURCES dsec_test.c dsec_test_ta.c dsec_test_canary.c)
@@ -110,12 +109,11 @@ set(TEST_COMPILE_DEFINITIONS ${COMPILE_DEFINITIONS})
 
 # Tests needs the location of the TA and its destination as the framework will
 # do the copy on the device running the tests.
-set(DSEC_TA_LOCATION_DIR "${CMAKE_BINARY_DIR}/trusted_application")
+set(DSEC_TA_LOCATION_DIR ${CMAKE_BINARY_DIR}/trusted_application/test/)
 set(DSEC_TA_LOCATION "${DSEC_TA_LOCATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
 set(DSEC_TA_DESTINATION_DIR "/lib/optee_armtz")
 set(DSEC_TA_DESTINATION "${DSEC_TA_DESTINATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
 list(APPEND TEST_COMPILE_DEFINITIONS
-    -DDSEC_TA_LOCATION_DIR="${DSEC_TA_LOCATION_DIR}"
     -DDSEC_TA_LOCATION="${DSEC_TA_LOCATION}"
     -DDSEC_TA_DESTINATION_DIR="${DSEC_TA_DESTINATION_DIR}"
     -DDSEC_TA_DESTINATION="${DSEC_TA_DESTINATION}"
@@ -213,29 +211,37 @@ dsec_add_test(
         test_ssh.c
 )
 
-dsec_embed_asset_ta_test_files(
-    LOCATION "./assets"
-    NAMES
-        cacert.pem
-        p1cert.pem
-        p1privkey.pem
-        invalid_cacert_empty.pem
-        invalid_cacert_missing_byte.pem
-        invalid_cacert_mismatch1.pem
-        invalid_cacert_mismatch2.pem
-        invalid_p1_cert_shortterm_signed.pem
-        invalid_shortterm_ca.pem
-        invalid_nosignature_cert.pem
-        invalid_signature_cert.pem
+dsec_embed_asset_test_files(
+    FILE_PATH
+        assets/p1cert.pem
+        assets/invalid_p1_cert_shortterm_signed.pem
+        assets/invalid_shortterm_ca.pem
+        assets/invalid_nosignature_cert.pem
+        assets/invalid_signature_cert.pem
+        assets/p1privkey.pem
 )
 
-dsec_embed_asset_test_files(
-    LOCATION "./assets"
-    NAMES
-        p1cert.pem
-        invalid_p1_cert_shortterm_signed.pem
-        invalid_shortterm_ca.pem
-        invalid_nosignature_cert.pem
-        invalid_signature_cert.pem
-        p1privkey.pem
+dsec_build_ta(
+    TARGET_NAME
+        test-ta
+    OUTPUT_DIR
+        ${DSEC_TA_LOCATION_DIR}
+    TA_UUID
+        ${DSEC_TA_UUID}
+    FILE_PATH
+        assets/cacert.pem
+        assets/p1cert.pem
+        assets/p1privkey.pem
+        assets/invalid_cacert_empty.pem
+        assets/invalid_cacert_missing_byte.pem
+        assets/invalid_cacert_mismatch1.pem
+        assets/invalid_cacert_mismatch2.pem
+        assets/invalid_p1_cert_shortterm_signed.pem
+        assets/invalid_shortterm_ca.pem
+        assets/invalid_nosignature_cert.pem
+        assets/invalid_signature_cert.pem
+    BUILD_TEST_TA
 )
+
+# Add the test ta as a dependency for the tests.
+add_dependencies(build_and_test test-ta)

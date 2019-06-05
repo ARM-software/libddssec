@@ -96,37 +96,21 @@ set(PROJECT_SOURCE
     src/dsec_hh_challenge.c
 )
 
-#
-# Trusted Application
-#
 set(DSEC_TA_UUID
     "{0x8ee919be,0x3954,0x4170,{0xb4,0xc2,0xda,0x16,0x9f,0x39,0x53,0x6e}}"
-)
+    CACHE INTERNAL "")
 
-string(REPLACE "{" "" DSEC_TA_UUID_STRING ${DSEC_TA_UUID})
-string(REPLACE "}" "" DSEC_TA_UUID_STRING ${DSEC_TA_UUID_STRING})
-string(REPLACE "0x" "" DSEC_TA_UUID_STRING ${DSEC_TA_UUID_STRING})
-
-string(REGEX MATCH "(.*),(.*),(.*),(.*,.*),(.*,.*,.*,.*,.*,.*)"
-       DSEC_TA_UUID_STRING
-       ${DSEC_TA_UUID_STRING})
-
-string(REPLACE "," "" PART1 ${CMAKE_MATCH_1})
-string(REPLACE "," "" PART2 ${CMAKE_MATCH_2})
-string(REPLACE "," "" PART3 ${CMAKE_MATCH_3})
-string(REPLACE "," "" PART4 ${CMAKE_MATCH_4})
-string(REPLACE "," "" PART5 ${CMAKE_MATCH_5})
-
-string(CONCAT
-       DSEC_TA_UUID_STRING
-       ${PART1} "-" ${PART2} "-" ${PART3} "-" ${PART4} "-" ${PART5}
-)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/util_function.cmake)
+dsec_get_string_uuid(${DSEC_TA_UUID} DSEC_TA_UUID_STRING)
 
 list(APPEND COMPILE_DEFINITIONS
     -DDSEC_TA_UUID=${DSEC_TA_UUID}
     -DDSEC_TA_UUID_STRING="${DSEC_TA_UUID_STRING}"
 )
 
+#
+# Trusted Application
+#
 add_subdirectory(trusted_application)
 
 #

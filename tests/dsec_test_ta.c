@@ -22,10 +22,6 @@
 #ifndef DSEC_TA_LOCATION
     #error "DSEC_TA_LOCATION not defined"
 #endif
-/* The source directory of the TA to be used for the test */
-#ifndef DSEC_TA_LOCATION_DIR
-    #error "DSEC_TA_LOCATION_DIR not defined"
-#endif
 /* The full destination path of the TA to be used for the test */
 #ifndef DSEC_TA_DESTINATION
     #error "DSEC_TA_DESTINATION not defined"

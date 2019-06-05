@@ -128,8 +128,8 @@ class TestBenchBase:
 
                 print("Building...")
                 do('export TA_DEV_KIT_DIR={}'.format(self.ta_dev_kit_dir))
-                do('make ta', expect=['Building trusted application',
-                                      'Built target ta'])
+                do('make test-ta', expect=['Building trusted application',
+                                           'Built target ta'])
                 do('make build_and_test',
                    expect=['Built target build_and_test'])
         except (pexpect.exceptions.TIMEOUT, pexpect.exceptions.EOF):

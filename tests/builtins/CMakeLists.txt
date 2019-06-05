@@ -11,7 +11,7 @@ if(${PROJECT_NAME} STREQUAL "Project")
 endif()
 
 set(OUTPUT_HEADER_FILE_DIR_TEST ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/modules/builtin_function.cmake)
+include(${DSEC_CMAKE_MODULE_PATH}/builtin_function.cmake)
 
 function(dsec_embed_asset_test_files)
 
