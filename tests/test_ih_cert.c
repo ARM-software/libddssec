@@ -646,6 +646,120 @@ static void test_case_verify_signature(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
+static void test_case_get_sha256_sn(void)
+{
+    static const char ca[] = "cacert.pem";
+    static const char cert_valid[] = "p1cert.pem";
+
+    uint8_t output_sha256_sn[128] = {0};
+    uint32_t output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
+    /*
+     * This array is the expected SHA256 of the Subject Name of the p1cert.pem
+     * certificate.
+     */
+    static const char expected_sha256_sn[] = {
+        0x92, 0x87, 0x1b, 0xbe, 0x72, 0x95, 0x18, 0x32, 0x52, 0x40, 0x30, 0x15,
+        0xae, 0x6f, 0x86, 0x21, 0xe, 0x73, 0x71, 0x4d, 0x31, 0x67, 0xa, 0x7f,
+        0x6f, 0x9b, 0x2a, 0x90, 0x2, 0x9e, 0x54, 0xeb};
+    uint32_t expected_sha256_sn_size = DSEC_ARRAY_SIZE(expected_sha256_sn);
+
+    int32_t handle = -1;
+    int32_t result = 0;
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_create(&handle, &instance) == DSEC_SUCCESS);
+    result = dsec_ih_ca_load(&instance, handle, ca);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    result = dsec_ih_cert_load(&instance, handle, cert_valid);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_get_sha256_sn(output_sha256_sn,
+                                        &output_sha256_sn_size,
+                                        &instance,
+                                        handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(output_sha256_sn_size == expected_sha256_sn_size);
+    DSEC_TEST_ASSERT(memcmp((char*)output_sha256_sn,
+                            expected_sha256_sn,
+                            expected_sha256_sn_size) == 0);
+
+    DSEC_TEST_ASSERT(dsec_ih_cert_unload(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_ca_unload(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_delete(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
+static void test_case_invalid_get_sha256_sn(void)
+{
+    static const char ca[] = "cacert.pem";
+    static const char cert_valid[] = "p1cert.pem";
+
+    uint8_t output_sha256_sn[4] = {0};
+    uint32_t output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
+
+    int32_t handle = -1;
+    int32_t result = 0;
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    /* Check for NULL input */
+    result = dsec_ih_cert_get_sha256_sn(output_sha256_sn,
+                                        NULL,
+                                        &instance,
+                                        handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_PARAM);
+
+    /* Check for short buffer */
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_create(&handle, &instance) == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_get_sha256_sn(output_sha256_sn,
+                                        &output_sha256_sn_size,
+                                        &instance,
+                                        handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_DATA);
+
+    result = dsec_ih_ca_load(&instance, handle, ca);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    result = dsec_ih_cert_load(&instance, handle, cert_valid);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
+    result = dsec_ih_cert_get_sha256_sn(output_sha256_sn,
+                                        &output_sha256_sn_size,
+                                        &instance,
+                                        handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_SHORT_BUFFER);
+    DSEC_TEST_ASSERT(output_sha256_sn_size == 0);
+
+    DSEC_TEST_ASSERT(dsec_ih_cert_unload(&instance, handle) == DSEC_SUCCESS);
+
+    /* Certificate is not loaded anymore. */
+    output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
+    result = dsec_ih_cert_get_sha256_sn(output_sha256_sn,
+                                        &output_sha256_sn_size,
+                                        &instance,
+                                        handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_DATA);
+
+    DSEC_TEST_ASSERT(dsec_ih_ca_unload(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_delete(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_load_cert_from_builtin),
     DSEC_TEST_CASE(test_case_invalid_load_cert),
@@ -658,6 +772,8 @@ static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_load_get_store_cert),
     DSEC_TEST_CASE(test_case_load_get_store_cert_invalid),
     DSEC_TEST_CASE(test_case_verify_signature),
+    DSEC_TEST_CASE(test_case_get_sha256_sn),
+    DSEC_TEST_CASE(test_case_invalid_get_sha256_sn),
 };
 
 const struct dsec_test_suite_desc test_suite = {

@@ -304,6 +304,29 @@ TEE_Result dsec_ta_cert_get_sn(char* output_buffer,
 TEE_Result dsec_ta_cert_get_signature_algorithm(char* output_buffer,
                                                 size_t* output_length,
                                                 const mbedtls_x509_crt* cert);
+
+/*!
+ * \brief Return a string buffer of the hashed Subject Name of a certificate.
+ *
+ * \details Given a mbedtls_x509_crt, return the hashed Subject Name (SN) of the
+ *     loaded certificate.
+ *
+ * \param[out] parameters[0].memref.buffer Buffer containing the output hash.
+ * \param[out] parameters[0].memref.size At invocation, a pointer to the size of
+ *     the incoming buffer. When the function finishes, this size is updated to
+ *     the new output size.
+ *
+ * \param parameters_type The types of each of the parameters in parameters as
+ *     described above.
+ *
+ * \retval ::TEE_SUCCESS Buffer returned is the hash requested.
+ * \retval ::TEE_ERROR_BAD_FORMAT Subject Name could not be extracted or
+ *     parameter types are not properly set or index is invalid.
+ * \retval ::TEE_ERROR_SHORT_BUFFER if the given buffer is too small.
+ */
+TEE_Result dsec_ta_ih_cert_get_sha256_sn(uint32_t parameters_type,
+                                         TEE_Param parameters[2]);
+
 /*!
  * \}
  */

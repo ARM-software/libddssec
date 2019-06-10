@@ -757,3 +757,65 @@ TEE_Result dsec_ta_ih_cert_signature_verify(uint32_t parameters_type,
 
     return result;
 }
+
+TEE_Result dsec_ta_ih_cert_get_sha256_sn(uint32_t parameters_type,
+                                         TEE_Param parameters[2])
+{
+    TEE_Result result = 0;
+    uint32_t index_ih = 0;
+    const struct identity_handle_t* ih = NULL;
+
+    const mbedtls_x509_crt* cert = NULL;
+    mbedtls_x509_buf raw_sn;
+    /* Size of the output buffer that was allocated */
+    size_t output_length = 0;
+    unsigned char* output_buffer = NULL;
+
+    const uint32_t expected_types =
+        TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_OUTPUT,
+                        TEE_PARAM_TYPE_VALUE_INPUT,
+                        TEE_PARAM_TYPE_NONE,
+                        TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+
+        index_ih = (int32_t)parameters[1].value.a;
+        ih = dsec_ta_get_identity_handle(index_ih);
+
+        if ((ih != NULL) && ih->cert_handle.initialized) {
+            output_buffer = parameters[0].memref.buffer;
+            output_length = parameters[0].memref.size;
+
+            parameters[0].memref.size = 0;
+            if (output_length >= 32) {
+                cert = &(ih->cert_handle.cert);
+
+                raw_sn = cert->subject_raw;
+                mbedtls_sha256(raw_sn.p,
+                               raw_sn.len,
+                               output_buffer,
+                               0 /* is224 */);
+
+                parameters[0].memref.size = 32;
+
+            } else {
+                EMSG("Output buffer is too small.\n");
+                parameters[0].memref.size = 0;
+                result = TEE_ERROR_SHORT_BUFFER;
+            }
+
+        } else {
+            EMSG("Index: 0x%x is too invalid or certificate is not set.\n",
+                 index_ih);
+
+            parameters[0].memref.size = 0;
+            result = TEE_ERROR_NO_DATA;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
