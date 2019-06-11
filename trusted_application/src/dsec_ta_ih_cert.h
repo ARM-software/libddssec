@@ -328,6 +328,34 @@ TEE_Result dsec_ta_ih_cert_get_sha256_sn(uint32_t parameters_type,
                                          TEE_Param parameters[2]);
 
 /*!
+ * \brief Return a string buffer of the raw Subject Name of a certificate.
+ *
+ * \details Given a mbedtls_x509_crt, return the raw Subject Name (SN) of the
+ *     certificate loaded.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_VARIABLE_INPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param[out] parameters[0].memref.buffer Buffer containing the output.
+ * \param[out] parameters[0].memref.size Contains the incoming buffer size and
+ *     is updated with the new output size.
+ *
+ * \param parameters_type The types of each of the parameters in parameters as
+ *     described above.
+ *
+ * \retval ::TEE_SUCCESS Buffer returned is the data requested.
+ * \retval ::TEE_ERROR_BAD_FORMAT Subject Name could not be extracted or
+ *     parameter types are not properly set or index is invalid.
+ * \retval ::TEE_ERROR_SHORT_BUFFER if the given buffer is too small.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set or
+ *     index is invalid.
+ */
+TEE_Result dsec_ta_ih_cert_get_raw_sn(uint32_t parameters_type,
+                                      TEE_Param parameters[2]);
+
+/*!
  * \}
  */
 

@@ -99,6 +99,9 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
     case DSEC_TA_CMD_IH_CERT_GET_SHA256_SN:
         result = dsec_ta_ih_cert_get_sha256_sn(parameters_type, parameters);
         break;
+    case DSEC_TA_CMD_IH_CERT_GET_RAW_SN:
+        result = dsec_ta_ih_cert_get_raw_sn(parameters_type, parameters);
+        break;
     case DSEC_TA_CMD_IH_PRIVKEY_LOAD:
         result = dsec_ta_ih_privkey_load(parameters_type, parameters);
         break;

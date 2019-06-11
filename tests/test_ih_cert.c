@@ -760,6 +760,127 @@ static void test_case_invalid_get_sha256_sn(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
+static void test_case_get_raw_sn(void)
+{
+    static const char ca[] = "cacert.pem";
+    static const char cert_valid[] = "p1cert.pem";
+
+    uint8_t output_raw_sn[128] = {0};
+    uint32_t output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
+    /* Data extracted from test/assets/p1cert.pem using mbedTLS. */
+    static const char expected_raw_sn[] = {
+        0x30, 0x6b, 0x31, 0xb, 0x30, 0x9, 0x6, 0x3, 0x55, 0x4, 0x6, 0x13, 0x2,
+        0x55, 0x4b, 0x31, 0xb, 0x30, 0x9, 0x6, 0x3, 0x55, 0x4, 0x8, 0xc, 0x2,
+        0x43, 0x42, 0x31, 0xc, 0x30, 0xa, 0x6, 0x3, 0x55, 0x4, 0xa, 0xc, 0x3,
+        0x41, 0x72, 0x6d, 0x31, 0x1d, 0x30, 0x1b, 0x6, 0x3, 0x55, 0x4, 0x3, 0xc,
+        0x14, 0x6c, 0x69, 0x62, 0x64, 0x64, 0x73, 0x73, 0x65, 0x63, 0x41, 0x70,
+        0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x31, 0x22, 0x30,
+        0x20, 0x6, 0x9, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0xd, 0x1, 0x9, 0x1, 0x16,
+        0x13, 0x61, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+        0x40, 0x61, 0x72, 0x6d, 0x2e, 0x63, 0x6f, 0x6d, 0x30};
+    uint32_t expected_raw_sn_size = DSEC_ARRAY_SIZE(expected_raw_sn);
+
+    int32_t handle = -1;
+    int32_t result = 0;
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_create(&handle, &instance) == DSEC_SUCCESS);
+
+    result = dsec_ih_ca_load(&instance, handle, ca);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    result = dsec_ih_cert_load(&instance, handle, cert_valid);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_get_raw_sn(output_raw_sn,
+                                     &output_raw_sn_size,
+                                     &instance,
+                                     handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(output_raw_sn_size == expected_raw_sn_size);
+    DSEC_TEST_ASSERT(memcmp((char*)output_raw_sn,
+                            expected_raw_sn,
+                            expected_raw_sn_size) == 0);
+
+    DSEC_TEST_ASSERT(dsec_ih_cert_unload(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_ca_unload(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_delete(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
+static void test_case_invalid_get_raw_sn(void)
+{
+    static const char ca[] = "cacert.pem";
+    static const char cert_valid[] = "p1cert.pem";
+
+    uint8_t output_raw_sn[4] = {0};
+    uint32_t output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
+
+    int32_t handle = -1;
+    int32_t result = 0;
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+
+    /* Check for NULL input */
+    result = dsec_ih_cert_get_raw_sn(output_raw_sn,
+                                     NULL,
+                                     &instance,
+                                     handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_PARAM);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_create(&handle, &instance) == DSEC_SUCCESS);
+
+    output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
+    result = dsec_ih_cert_get_raw_sn(output_raw_sn,
+                                     &output_raw_sn_size,
+                                     &instance,
+                                     handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_DATA);
+    DSEC_TEST_ASSERT(output_raw_sn_size == 0);
+
+    result = dsec_ih_ca_load(&instance, handle, ca);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_ih_cert_load(&instance, handle, cert_valid);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    /* Check for short buffer */
+    result = dsec_ih_cert_get_raw_sn(output_raw_sn,
+                                     &output_raw_sn_size,
+                                     &instance,
+                                     handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_SHORT_BUFFER);
+    DSEC_TEST_ASSERT(output_raw_sn_size == 0);
+
+    DSEC_TEST_ASSERT(dsec_ih_cert_unload(&instance, handle) == DSEC_SUCCESS);
+
+    /* Certificate is not loaded anymore. */
+    output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
+    result = dsec_ih_cert_get_raw_sn(output_raw_sn,
+                                     &output_raw_sn_size,
+                                     &instance,
+                                     handle);
+
+    DSEC_TEST_ASSERT(result == DSEC_E_DATA);
+    DSEC_TEST_ASSERT(output_raw_sn_size == 0);
+
+    DSEC_TEST_ASSERT(dsec_ih_ca_unload(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ih_delete(&instance, handle) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_load_cert_from_builtin),
     DSEC_TEST_CASE(test_case_invalid_load_cert),
@@ -774,6 +895,8 @@ static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_verify_signature),
     DSEC_TEST_CASE(test_case_get_sha256_sn),
     DSEC_TEST_CASE(test_case_invalid_get_sha256_sn),
+    DSEC_TEST_CASE(test_case_get_raw_sn),
+    DSEC_TEST_CASE(test_case_invalid_get_raw_sn),
 };
 
 const struct dsec_test_suite_desc test_suite = {

@@ -49,6 +49,8 @@ enum {
     DSEC_TA_CMD_IH_CERT_LOAD_FROM_BUFFER,
     /*! Function ID of dsec_ta_ih_cert_get_sha256_sn */
     DSEC_TA_CMD_IH_CERT_GET_SHA256_SN,
+    /*! Function ID of dsec_ta_ih_cert_get_raw_sn */
+    DSEC_TA_CMD_IH_CERT_GET_RAW_SN,
     /*! Function ID of dsec_ta_ih_privkey_load */
     DSEC_TA_CMD_IH_PRIVKEY_LOAD,
     /*! Function ID of dsec_ta_ih_privkey_unload */

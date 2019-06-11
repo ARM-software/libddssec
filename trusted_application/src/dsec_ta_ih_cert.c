@@ -819,3 +819,55 @@ TEE_Result dsec_ta_ih_cert_get_sha256_sn(uint32_t parameters_type,
 
     return result;
 }
+
+TEE_Result dsec_ta_ih_cert_get_raw_sn(uint32_t parameters_type,
+                                      TEE_Param parameters[2])
+{
+    TEE_Result result = 0;
+    uint32_t index_ih = 0;
+    const struct identity_handle_t* ih = NULL;
+    const mbedtls_x509_buf* raw_sn = NULL;
+    unsigned char* output_p = NULL;
+    uint32_t output_p_length = 0;
+
+    const uint32_t expected_types =
+        TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_OUTPUT,
+                        TEE_PARAM_TYPE_VALUE_INPUT,
+                        TEE_PARAM_TYPE_NONE,
+                        TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+
+        index_ih = (int32_t)parameters[1].value.a;
+        ih = dsec_ta_get_identity_handle(index_ih);
+
+        if ((ih != NULL) && ih->cert_handle.initialized) {
+            output_p = parameters[0].memref.buffer;
+            output_p_length = parameters[0].memref.size;
+            raw_sn = &(ih->cert_handle.cert.subject_raw);
+
+            if (output_p_length >= (raw_sn->len + 1)) {
+                TEE_MemMove(output_p, raw_sn->p, raw_sn->len + 1);
+                parameters[0].memref.size = raw_sn->len + 1;
+                result = TEE_SUCCESS;
+            } else {
+                EMSG("Output buffer too small.\n");
+                parameters[0].memref.size = 0;
+                result = TEE_ERROR_SHORT_BUFFER;
+            }
+
+        } else {
+            EMSG("Index: 0x%x is invalid or certificate is not set.\n",
+                 index_ih);
+
+            parameters[0].memref.size = 0;
+            result = TEE_ERROR_NO_DATA;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
