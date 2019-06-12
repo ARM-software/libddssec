@@ -15,7 +15,7 @@
 
 static void test_case_load_ca_from_builtin(void)
 {
-    static const char ca[] = "cacert.pem";
+    static const char ca[] = "assets/cacert.pem";
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -48,7 +48,7 @@ static void test_case_load_ca_from_builtin(void)
 
 static void test_case_load_ca_invalid_then_valid(void)
 {
-    static const char ca[] = "cacert.pem";
+    static const char ca[] = "assets/cacert.pem";
     static const char ca_invalid[] = "invalid#.pem";
 
     int32_t handle = -1;
@@ -77,13 +77,13 @@ static void test_case_load_invalid_ca(void)
 {
     const char* test_invalid_ca[] = {
         /* Certificate missing a byte */
-        "invalid_cacert_missing_byte.pem",
+        "assets/invalid_cacert_missing_byte.pem",
         /* 0 byte file */
-        "invalid_cacert_empty.pem",
+        "assets/invalid_cacert_empty.pem",
         /* Private Key */
-        "invalid_cacert_mismatch1.pem",
+        "assets/invalid_cacert_mismatch1.pem",
         /* User certificate */
-        "invalid_cacert_mismatch2.pem",
+        "assets/invalid_cacert_mismatch2.pem",
     };
 
     int32_t handle = -1;
@@ -110,7 +110,7 @@ static void test_case_load_invalid_ca(void)
 
 static void test_case_get_attributes_ca(void)
 {
-    static const char ca[] = "cacert.pem";
+    static const char ca[] = "assets/cacert.pem";
 
     int32_t handle = -1;
     uint8_t output_sn[2048] = {0};
@@ -165,7 +165,7 @@ static void test_case_get_attributes_ca(void)
 
 static void test_case_get_attributes_ca_invalid(void)
 {
-    static const char ca[] = "cacert.pem";
+    static const char ca[] = "assets/cacert.pem";
 
     uint8_t output_sn[2048] = {0};
     uint32_t output_sn_size = DSEC_ARRAY_SIZE(output_sn);

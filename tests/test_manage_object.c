@@ -14,7 +14,7 @@
 
 static void test_case_load_builtin(void)
 {
-    static const char name[] = "cacert.pem";
+    static const char name[] = "assets/cacert.pem";
     size_t name_size = DSEC_ARRAY_SIZE(name);
     TEEC_Result result = 0;
 
@@ -41,7 +41,7 @@ static void test_case_load_builtin(void)
 
 static void test_case_load_builtin_overload(void)
 {
-    static const char name[] = "cacert.pem";
+    static const char name[] = "assets/cacert.pem";
     size_t name_size = DSEC_ARRAY_SIZE(name);
     TEEC_Result result = 0;
 
@@ -105,7 +105,7 @@ static void test_case_load_builtin_miss(void)
 
 static void test_case_unload_builtin(void)
 {
-    static const char name[] = "cacert.pem";
+    static const char name[] = "assets/cacert.pem";
     size_t name_size = DSEC_ARRAY_SIZE(name);
     TEEC_Result result = 0;
 

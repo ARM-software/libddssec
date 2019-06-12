@@ -77,7 +77,7 @@ function(dsec_embed_asset_files)
                 --output-file ${CMAKE_CURRENT_BINARY_DIR}/builtins/${OUTPUT_FILE}
                 data_builtin
                     --input-files ${ARG_BUILTIN_FILE_PATH}
-                    --filenames ${NAME_FILES}
+                    --filenames ${ARG_BUILTIN_FILE_PATH}
                     --variable-names ${VARIABLE_NAMES}
                 COMMENT
                     "Generating builtin for target ${ARG_BUILTIN_TARGET}."

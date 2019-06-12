@@ -17,9 +17,9 @@
 
 static void test_case_load_privkey(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert[] = "p1cert.pem";
-    static const char privkey[] = "p1privkey.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert[] = "assets/p1cert.pem";
+    static const char privkey[] = "assets/p1privkey.pem";
     static const char password[] = "";
     uint32_t password_size = 0;
 
@@ -108,9 +108,9 @@ static void test_case_load_privkey(void)
 
 static void test_case_unload_privkey(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert[] = "p1cert.pem";
-    static const char privkey[] = "p1privkey.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert[] = "assets/p1cert.pem";
+    static const char privkey[] = "assets/p1privkey.pem";
     static const char password[] = "";
     uint32_t password_size = 0;
 
@@ -167,9 +167,9 @@ static void test_case_unload_privkey(void)
 
 static void test_case_load_and_sign(void)
 {
-    static const char name_ca[] = "cacert.pem";
-    static const char name_li[] = "p1cert.pem";
-    static const char name_pk[] = "p1privkey.pem";
+    static const char name_ca[] = "assets/cacert.pem";
+    static const char name_li[] = "assets/p1cert.pem";
+    static const char name_pk[] = "assets/p1privkey.pem";
 
     int32_t lih = -1;
     int32_t result = 0;
@@ -226,9 +226,9 @@ static void test_case_load_and_sign(void)
 
 static void test_case_load_and_sign_invalid(void)
 {
-    static const char name_ca[] = "cacert.pem";
-    static const char name_li[] = "p1cert.pem";
-    static const char name_pk[] = "p1privkey.pem";
+    static const char name_ca[] = "assets/cacert.pem";
+    static const char name_li[] = "assets/p1cert.pem";
+    static const char name_pk[] = "assets/p1privkey.pem";
 
     int32_t lih = -1;
     int32_t result = 0;

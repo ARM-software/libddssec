@@ -17,8 +17,8 @@
 
 static void test_case_load_cert_from_builtin(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert[] = "assets/p1cert.pem";
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -52,7 +52,7 @@ static void test_case_load_cert_from_builtin(void)
 
 static void test_case_invalid_load_cert(void)
 {
-    static const char ca[] = "cacert.pem";
+    static const char ca[] = "assets/cacert.pem";
 
     struct invalid_cert {
         char* name;
@@ -61,15 +61,15 @@ static void test_case_invalid_load_cert(void)
 
     const struct invalid_cert cert_invalid[] = {
         /* This is a public key */
-        {"invalid_nosignature_cert.pem", DSEC_E_BAD_FORMAT},
+        {"assets/invalid_nosignature_cert.pem", DSEC_E_BAD_FORMAT},
         /* Certificate is signed by another CA */
-        {"invalid_signature_cert.pem", DSEC_E_SECURITY},
+        {"assets/invalid_signature_cert.pem", DSEC_E_SECURITY},
         /* Certificate signature expired */
-        {"invalid_p1_cert_shortterm_signed.pem", DSEC_E_SECURITY},
+        {"assets/invalid_p1_cert_shortterm_signed.pem", DSEC_E_SECURITY},
         /* Does not exist */
-        {"does_not_exist.pem", DSEC_E_NOT_FOUND},
+        {"assets/does_not_exist.pem", DSEC_E_NOT_FOUND},
         /* Mismatch type */
-        {"p1privkey.pem", DSEC_E_BAD_FORMAT},
+        {"assets/p1privkey.pem", DSEC_E_BAD_FORMAT},
     };
 
     static const char cert_valid[] = "p1cert.pem";
@@ -111,8 +111,8 @@ static void test_case_invalid_load_cert(void)
 
 static void test_case_get_loaded_cert(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_certificate[2048] = {0};
     uint32_t output_certificate_size = DSEC_ARRAY_SIZE(output_certificate);
@@ -159,8 +159,8 @@ static void test_case_get_loaded_cert(void)
 
 static void test_case_get_loaded_cert_invalid(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_certificate[2048] = {0};
     uint32_t output_certificate_size = DSEC_ARRAY_SIZE(output_certificate);
@@ -223,8 +223,8 @@ static void test_case_get_loaded_cert_invalid(void)
 
 static void test_case_get_subject_name(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     int32_t handle = -1;
     uint8_t output_sn[2048] = {0};
@@ -264,8 +264,8 @@ static void test_case_get_subject_name(void)
 
 static void test_case_get_signature(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     int32_t handle = -1;
 
@@ -309,8 +309,8 @@ static void test_case_get_signature(void)
 
 static void test_case_invalid_get_subject_name(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_sn[128] = {0};
     uint32_t output_sn_size = DSEC_ARRAY_SIZE(output_sn);
@@ -359,8 +359,8 @@ static void test_case_invalid_get_subject_name(void)
 
 static void test_case_invalid_get_signature(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_sign_algo[4] = {0};
     uint32_t output_sign_algo_size = DSEC_ARRAY_SIZE(output_sign_algo);
@@ -419,8 +419,8 @@ static void test_case_invalid_get_signature(void)
 
 static void test_case_load_get_store_cert(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert[] = "assets/p1cert.pem";
 
     uint8_t output_certificate[2048] = {0};
     uint32_t output_certificate_size = DSEC_ARRAY_SIZE(output_certificate);
@@ -491,8 +491,8 @@ static void test_case_load_get_store_cert(void)
 
 static void test_case_load_get_store_cert_invalid(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert[] = "assets/p1cert.pem";
 
     const uint8_t* const cert_invalid[] = {
         invalid_nosignature_cert_pem,
@@ -547,8 +547,8 @@ static void test_case_load_get_store_cert_invalid(void)
 
 static void test_case_verify_signature(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert[] = "assets/p1cert.pem";
 
     int32_t lih_id = -1;
 
@@ -648,8 +648,8 @@ static void test_case_verify_signature(void)
 
 static void test_case_get_sha256_sn(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_sha256_sn[128] = {0};
     uint32_t output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
@@ -697,8 +697,8 @@ static void test_case_get_sha256_sn(void)
 
 static void test_case_invalid_get_sha256_sn(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_sha256_sn[4] = {0};
     uint32_t output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
@@ -762,8 +762,8 @@ static void test_case_invalid_get_sha256_sn(void)
 
 static void test_case_get_raw_sn(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_raw_sn[128] = {0};
     uint32_t output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
@@ -815,8 +815,8 @@ static void test_case_get_raw_sn(void)
 
 static void test_case_invalid_get_raw_sn(void)
 {
-    static const char ca[] = "cacert.pem";
-    static const char cert_valid[] = "p1cert.pem";
+    static const char ca[] = "assets/cacert.pem";
+    static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_raw_sn[4] = {0};
     uint32_t output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
