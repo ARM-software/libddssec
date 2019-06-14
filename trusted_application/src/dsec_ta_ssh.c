@@ -8,6 +8,8 @@
 #include <dsec_ta_ssh.h>
 #include <dsec_ta_dh.h>
 #include <dsec_ta_hh.h>
+#include <dsec_util.h>
+#include <mbedtls/sha256.h>
 #include <tee_api.h>
 
 static struct shared_secret_handle_t store[DSEC_TA_MAX_SHARED_SECRET_HANDLE];
@@ -54,11 +56,14 @@ static TEE_Result ss_derive(const struct dh_pair_handle_t* dh_local_handle,
 {
     TEE_Attribute attribute = {0};
     TEE_OperationHandle operation = TEE_HANDLE_NULL;
-    TEE_ObjectInfo object_info = {0};
     TEE_Result result = 0;
+    TEE_ObjectHandle shared_key_object;
+
+    uint8_t shared_key[DSEC_TA_MAX_SHARED_KEY_SIZE];
+    uint32_t shared_key_size = DSEC_TA_MAX_SHARED_KEY_SIZE;
 
     shared_key_handle->initialized = false;
-    shared_key_handle->shared_key_size = 0;
+    shared_key_handle->data_size = 0;
 
     /*
      * Allocate operation for a Diffie Hellman key derivation of a shared
@@ -81,7 +86,7 @@ static TEE_Result ss_derive(const struct dh_pair_handle_t* dh_local_handle,
             result = TEE_AllocateTransientObject(
                 TEE_TYPE_GENERIC_SECRET,
                 DSEC_TA_DH_MAX_KEY_BITS,
-                &(shared_key_handle->shared_key));
+                &shared_key_object);
 
             if (result == TEE_SUCCESS) {
                 /* Set the remote node's public key as attribute. */
@@ -93,25 +98,32 @@ static TEE_Result ss_derive(const struct dh_pair_handle_t* dh_local_handle,
                 TEE_DeriveKey(operation,
                               &attribute,
                               1 /* number attributes */,
-                              shared_key_handle->shared_key);
+                              shared_key_object);
 
                 /*
                  * Find the key size of the generated secret. This function
                  * is also a check to see if the key was generated properly.
                  */
-                result = TEE_GetObjectInfo1(shared_key_handle->shared_key,
-                                            &object_info);
+                result = TEE_GetObjectBufferAttribute(
+                    shared_key_object,
+                    TEE_ATTR_SECRET_VALUE,
+                    shared_key,
+                    &shared_key_size);
 
                 if (result == TEE_SUCCESS) {
                     shared_key_handle->initialized = true;
-                    shared_key_handle->shared_key_size =
-                        object_info.maxObjectSize;
+                    shared_key_handle->data_size = 32 /* SHA256 is 32 bytes */;
+                    mbedtls_sha256(shared_key,
+                                   shared_key_size,
+                                   shared_key_handle->data,
+                                   0 /* is224 */);
 
                 } else {
                     EMSG("Could not get the shared secret key size.\n");
-                    TEE_FreeTransientObject(shared_key_handle->shared_key);
                     /* Return the result from TEE_GetObjectInfo1 */
                 }
+
+            TEE_FreeTransientObject(shared_key_object);
 
             } else {
                 EMSG("Could not allocate object for shared secret.\n");
@@ -207,9 +219,7 @@ TEE_Result dsec_ta_ssh_free(
 
     if ((shared_secret_handle != NULL) && shared_secret_handle->initialized) {
         shared_secret_handle->initialized = false;
-        TEE_FreeTransientObject(
-            shared_secret_handle->shared_key_handle.shared_key);
-
+        shared_secret_handle->shared_key_handle.initialized = false;
         shared_secret_handle->challenge1_handle.initialized = false;
         shared_secret_handle->challenge2_handle.initialized = false;
 
@@ -316,8 +326,8 @@ TEE_Result dsec_ta_ssh_get_data(uint32_t parameters_type,
 {
     TEE_Result result = 0;
     int32_t index = 0;
-    void* output_shared_key = NULL;
-    uint32_t shared_key_size = 0;
+    void* output_hash_shared_key = NULL;
+    uint32_t hash_shared_key_size = 0;
     void* output_challenge1 = NULL;
     uint32_t challenge1_size = 0;
     void* output_challenge2 = NULL;
@@ -340,47 +350,36 @@ TEE_Result dsec_ta_ssh_get_data(uint32_t parameters_type,
             ssh->challenge1_handle.initialized &&
             ssh->challenge2_handle.initialized) {
 
-            output_shared_key = parameters[0].memref.buffer;
-            shared_key_size = parameters[0].memref.size;
+            output_hash_shared_key = parameters[0].memref.buffer;
+            hash_shared_key_size = parameters[0].memref.size;
             output_challenge1 = parameters[1].memref.buffer;
             challenge1_size = parameters[1].memref.size;
             output_challenge2 = parameters[2].memref.buffer;
             challenge2_size = parameters[2].memref.size;
 
             if ((challenge1_size >= ssh->challenge1_handle.data_size) &&
-                (challenge2_size >= ssh->challenge2_handle.data_size)) {
+                (challenge2_size >= ssh->challenge2_handle.data_size) &&
+                (hash_shared_key_size >= ssh->shared_key_handle.data_size)) {
 
-              result = TEE_GetObjectBufferAttribute(
-                  ssh->shared_key_handle.shared_key,
-                  TEE_ATTR_SECRET_VALUE,
-                  output_shared_key,
-                  &shared_key_size);
+                TEE_MemMove(output_hash_shared_key,
+                            ssh->shared_key_handle.data,
+                            ssh->shared_key_handle.data_size);
 
-              if (result == TEE_SUCCESS) {
-                    parameters[0].memref.size = shared_key_size;
+                parameters[0].memref.size = ssh->shared_key_handle.data_size;
 
-                    TEE_MemMove(output_challenge1,
-                                ssh->challenge1_handle.data,
-                                ssh->challenge1_handle.data_size);
+                TEE_MemMove(output_challenge1,
+                            ssh->challenge1_handle.data,
+                            ssh->challenge1_handle.data_size);
 
-                    parameters[1].memref.size =
-                        ssh->challenge1_handle.data_size;
+                parameters[1].memref.size = ssh->challenge1_handle.data_size;
 
-                    TEE_MemMove(output_challenge2,
-                                ssh->challenge2_handle.data,
-                                ssh->challenge2_handle.data_size);
+                TEE_MemMove(output_challenge2,
+                            ssh->challenge2_handle.data,
+                            ssh->challenge2_handle.data_size);
 
-                    parameters[2].memref.size =
-                        ssh->challenge2_handle.data_size;
+                parameters[2].memref.size = ssh->challenge2_handle.data_size;
 
-                } else {
-                    EMSG("Unable to retrieve the Shared Secret.\n");
-                    parameters[0].memref.size = 0;
-                    parameters[1].memref.size = 0;
-                    parameters[2].memref.size = 0;
-
-                    /* Return the value of TEE_GetObjectBufferAttribute */
-                }
+                result = TEE_SUCCESS;
 
             } else {
                 EMSG("Given buffers are not big enough.\n");
@@ -390,6 +389,12 @@ TEE_Result dsec_ta_ssh_get_data(uint32_t parameters_type,
         } else {
             EMSG("Handle is invalid or has un-initialized fields.\n");
             result = TEE_ERROR_NO_DATA;
+        }
+
+        if (result != TEE_SUCCESS) {
+            parameters[0].memref.size = 0;
+            parameters[1].memref.size = 0;
+            parameters[2].memref.size = 0;
         }
 
     } else {

@@ -40,16 +40,26 @@
 #endif
 
 /*!
+ * \brief Maximum number of bytes for the shared secret.
+ */
+#define DSEC_TA_MAX_SHARED_KEY_SIZE (1024U)
+
+/*!
+ * \brief Maximum number of bytes for the hash of the shared secret.
+ */
+#define DSEC_TA_MAX_HASH_SHARED_KEY_SIZE (32U)
+
+/*!
  * \brief Shared Key Handle (SKH) structure.
  *     Contains the derived key secret.
  */
 struct shared_key_handle_t {
     /*! Initialized field if the structure has been set. */
     bool initialized;
-    /*! Size of the key. */
-    size_t shared_key_size;
-    /*! TEE_ structure representing the shared key. */
-    TEE_ObjectHandle shared_key;
+    /*! Size of the hashed key. */
+    size_t data_size;
+    /*! TEE_ structure representing the hashed shared key. */
+    uint8_t data[DSEC_TA_MAX_HASH_SHARED_KEY_SIZE];
 };
 
 /*!
