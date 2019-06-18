@@ -18,6 +18,9 @@
 #endif /* DSEC_TA_UUID */
 
 #if DSEC_TEST
+/*!
+ * \brief ID of callable TA functions
+ */
 enum {
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,
