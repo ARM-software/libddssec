@@ -111,6 +111,12 @@ dsec_add_test(
 )
 ```
 
+Note: There are multiple timers used for the tests:
+- For the each test cases. The timeout is set to 6 minutes.
+- For the test script in `tools/testbench.py`, the time to send, compile and run
+  the test is bounded to 25 minutes. For each expected output after a command is
+  started, the script will wait for 6 minutes before timeout.
+
 # Adding new builtin to the tests or TA.
 
 Builtin can be used in the tests or the TA. There are two different targets for
