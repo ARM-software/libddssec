@@ -176,7 +176,7 @@ enable_testing()
 add_custom_target(build_and_test
     ${CMAKE_CTEST_COMMAND}
         --verbose
-        --timeout 200
+        --timeout 360
 )
 add_dependencies(build_and_test test-ta)
 
