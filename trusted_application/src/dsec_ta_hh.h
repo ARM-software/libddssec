@@ -27,7 +27,7 @@
 /*!
  * \brief Maximum number of Handshake Handles that can be loaded concurrently
  */
-#define DSEC_TA_MAX_HANDSHAKE_HANDLE (4U)
+#define DSEC_TA_MAX_HANDSHAKE_HANDLE (128U)
 
 /*
  * Extra care is taken here to make sure the maximum size of the array storing

@@ -30,7 +30,7 @@
 /*!
  * \brief Maximum number of Identity Handles that can be loaded concurrently.
  */
-#define DSEC_TA_MAX_IDENTITY_HANDLE (4U)
+#define DSEC_TA_MAX_IDENTITY_HANDLE (64U)
 
 /*
  * Extra care is taken here to make sure the maximum size of the array storing

@@ -27,7 +27,7 @@
  * \brief Maximum number of Shared Secret Handles that can be loaded
  *     concurrently.
  */
-#define DSEC_TA_MAX_SHARED_SECRET_HANDLE (4U)
+#define DSEC_TA_MAX_SHARED_SECRET_HANDLE (256U)
 
 /*
  * Extra care is taken here to make sure the maximum size of the array storing
