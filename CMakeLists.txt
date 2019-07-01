@@ -127,7 +127,7 @@ set(TEST_COMPILE_DEFINITIONS ${COMPILE_DEFINITIONS})
 function(dsec_add_test)
     set(options)
     set(one_value_keywords NAME)
-    set(multi_value_keywords SOURCE WRAP)
+    set(multi_value_keywords SOURCE WRAP DEPENDENCIES)
     cmake_parse_arguments(
         ARG_TEST
         "${options}"
@@ -172,6 +172,11 @@ function(dsec_add_test)
             ${TEST_INCLUDES}
     )
     add_test(${ARG_TEST_NAME} ${ARG_TEST_NAME})
+
+    if(DEFINED ARG_TEST_DEPENDENCIES)
+        add_dependencies(${ARG_TEST_NAME} ${ARG_TEST_DEPENDENCIES})
+    endif()
+
     add_dependencies(build_and_test ${ARG_TEST_NAME})
 endfunction()
 
@@ -184,7 +189,10 @@ add_custom_target(build_and_test
 add_dependencies(build_and_test test-ta)
 
 set(TEST_SOURCES dsec_test.c dsec_test_ta.c dsec_test_canary.c)
-set(TEST_INCLUDES ${INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+set(TEST_INCLUDES
+    ${INCLUDES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    ${CMAKE_CURRENT_BINARY_DIR}/tests)
 set(DSEC_TA_LOCATION_DIR "${CMAKE_CURRENT_BINARY_DIR}/trusted_application")
 set(DSEC_TA_LOCATION "${DSEC_TA_LOCATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
 set(DSEC_TA_DESTINATION_DIR "/lib/optee_armtz")
