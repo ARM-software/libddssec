@@ -5,6 +5,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+if(${PROJECT_NAME} STREQUAL "Project")
+    message(FATAL_ERROR "Error: Do not use this CMakeLists.txt directly"
+                        "Use the top-level CMakeLists.txt instead.")
+endif()
+
 add_subdirectory(builtins)
 
 dsec_add_test(NAME canary SOURCE test_canary.c)
