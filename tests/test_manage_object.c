@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,13 +9,12 @@
 #include <dsec_test.h>
 #include <dsec_test_ta.h>
 #include <dsec_test_canary.h>
-#include <dsec_util.h>
 #include <string.h>
 
 static void test_case_load_builtin(void)
 {
     static const char name[] = "assets/cacert.pem";
-    size_t name_size = DSEC_ARRAY_SIZE(name);
+    size_t name_size = sizeof(name)/sizeof(name[0]);
     TEEC_Result result = 0;
 
     TEEC_Session session;
@@ -42,7 +41,7 @@ static void test_case_load_builtin(void)
 static void test_case_load_builtin_overload(void)
 {
     static const char name[] = "assets/cacert.pem";
-    size_t name_size = DSEC_ARRAY_SIZE(name);
+    size_t name_size = sizeof(name)/sizeof(name[0]);
     TEEC_Result result = 0;
 
     TEEC_Session session;
@@ -79,7 +78,7 @@ static void test_case_load_builtin_overload(void)
 static void test_case_load_builtin_miss(void)
 {
     static const char name[] = "carrot";
-    size_t name_size = DSEC_ARRAY_SIZE(name);
+    size_t name_size = sizeof(name)/sizeof(name[0]);
     TEEC_Result result = 0;
 
     TEEC_Session session;
@@ -106,7 +105,7 @@ static void test_case_load_builtin_miss(void)
 static void test_case_unload_builtin(void)
 {
     static const char name[] = "assets/cacert.pem";
-    size_t name_size = DSEC_ARRAY_SIZE(name);
+    size_t name_size = sizeof(name)/sizeof(name[0]);
     TEEC_Result result = 0;
 
     TEEC_Session session;
@@ -148,7 +147,7 @@ static const struct dsec_test_case_desc test_case_table[] = {
 
 const struct dsec_test_suite_desc test_suite = {
     .name = "Manage secure objects",
-    .test_case_count = DSEC_ARRAY_SIZE(test_case_table),
+    .test_case_count = sizeof(test_case_table)/sizeof(test_case_table[0]),
     .test_case_table = test_case_table,
     .test_suite_setup = dsec_test_ta_setup,
     .test_suite_teardown = dsec_test_ta_teardown,

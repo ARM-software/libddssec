@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # DDS Security library
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -59,6 +59,11 @@ IGNORED_TYPES = [
                          # and more
     'BRACES',  # Ignore braces warning for {} on single line 'if', 'else',
                # 'while',..
+    'ARRAY_SIZE',  # ARRAY_SIZE is a macro defined in a Linux header which is
+    # preferred for kernel development. libddssec formerly had a similar macro
+    # but its implementation requires language extensions and didn't work for
+    # dynamically defined arrays. For this reason, we stick with the relative
+    # size between the array and its first index.
 ]
 
 error_count = 0

@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,7 +23,6 @@
  * \{
  */
 
-#include <dsec_util.h>
 #include <stdlib.h>
 
 /*! MODP_2048_256 Prime value. See [RFC5114] section 2.3 */
@@ -53,7 +52,8 @@ static const uint8_t DH_MODP_2048_256_PRIME[] = {
 };
 
 /*! Size of the DH_MODP_2048_256_PRIME_SIZE array */
-#define DH_MODP_2048_256_PRIME_SIZE DSEC_ARRAY_SIZE(DH_MODP_2048_256_PRIME)
+#define DH_MODP_2048_256_PRIME_SIZE (sizeof(DH_MODP_2048_256_PRIME)/ \
+                                      sizeof(DH_MODP_2048_256_PRIME[0]))
 
 /*! MODP_2048_256 Generator value. See [RFC5114] section 2.3 */
 static const uint8_t DH_MODP_2048_256_GENERATOR[] = {
@@ -83,7 +83,7 @@ static const uint8_t DH_MODP_2048_256_GENERATOR[] = {
 
 /*! Size of the DH_MODP_2048_256_GENERATOR array */
 #define DH_MODP_2048_256_GENERATOR_SIZE \
-    DSEC_ARRAY_SIZE(DH_MODP_2048_256_GENERATOR)
+    (sizeof(DH_MODP_2048_256_GENERATOR)/sizeof(DH_MODP_2048_256_GENERATOR[0]))
 
 /*! MODP_2048_256 SubPrime value. See [RFC5114] section 2.3 */
 static const uint8_t DH_MODP_2048_256_SUBPRIME[] = {
@@ -94,7 +94,7 @@ static const uint8_t DH_MODP_2048_256_SUBPRIME[] = {
 
 /*! Size of the DH_MODP_2048_256_SUBPRIME_SIZE array */
 #define DH_MODP_2048_256_SUBPRIME_SIZE \
-    DSEC_ARRAY_SIZE(DH_MODP_2048_256_SUBPRIME)
+    (sizeof(DH_MODP_2048_256_SUBPRIME)/sizeof(DH_MODP_2048_256_SUBPRIME[0]))
 
 /*!
  * \}

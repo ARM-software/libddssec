@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +12,6 @@
 #include <dsec_errno.h>
 #include <dsec_test.h>
 #include <dsec_test_ta.h>
-#include <dsec_util.h>
 #include <string.h>
 
 static void test_case_ssh_derive(void)
@@ -26,16 +25,17 @@ static void test_case_ssh_derive(void)
     int32_t old_ss_h = -1;
 
     uint8_t dh_public[256];
-    uint32_t dh_public_size = DSEC_ARRAY_SIZE(dh_public);
+    uint32_t dh_public_size = sizeof(dh_public)/sizeof(dh_public[0]);
 
     uint8_t shared_key[256];
-    uint32_t shared_key_size = DSEC_ARRAY_SIZE(shared_key);
+    uint32_t shared_key_size = sizeof(shared_key)/sizeof(shared_key[0]);
     uint8_t challenge1[256];
-    uint32_t challenge1_size = DSEC_ARRAY_SIZE(challenge1);
+    uint32_t challenge1_size = sizeof(challenge1)/sizeof(challenge1[0]);
     uint8_t challenge2[256];
-    uint32_t challenge2_size = DSEC_ARRAY_SIZE(challenge2);
+    uint32_t challenge2_size = sizeof(challenge2)/sizeof(challenge2[0]);
     uint8_t challenge2_out[256];
-    uint32_t challenge2_out_size = DSEC_ARRAY_SIZE(challenge2_out);
+    uint32_t challenge2_out_size = sizeof(challenge2_out)/
+                                   sizeof(challenge2_out[0]);
 
     for (uint32_t i = 0; i < challenge2_size; i++) {
         challenge2[i] = i;
@@ -121,14 +121,14 @@ static void test_case_ssh_failure_get_data(void)
     int32_t ss_h = -1;
 
     uint8_t dh_public[256];
-    uint32_t dh_public_size = DSEC_ARRAY_SIZE(dh_public);
+    uint32_t dh_public_size = sizeof(dh_public)/sizeof(dh_public[0]);
 
     uint8_t shared_key[256];
-    uint32_t shared_key_size = DSEC_ARRAY_SIZE(shared_key);
+    uint32_t shared_key_size = sizeof(shared_key)/sizeof(shared_key[0]);
     uint8_t challenge1[256];
-    uint32_t challenge1_size = DSEC_ARRAY_SIZE(challenge1);
+    uint32_t challenge1_size = sizeof(challenge1)/sizeof(challenge1[0]);
     uint8_t challenge2[256];
-    uint32_t challenge2_size = DSEC_ARRAY_SIZE(challenge2);
+    uint32_t challenge2_size = sizeof(challenge2)/sizeof(challenge2[0]);
 
     struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
 
@@ -163,8 +163,8 @@ static void test_case_ssh_failure_get_data(void)
     DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
 
     /* Reset challenge size */
-    challenge1_size = DSEC_ARRAY_SIZE(challenge1);
-    challenge2_size = DSEC_ARRAY_SIZE(challenge2);
+    challenge1_size = sizeof(challenge1)/sizeof(challenge1[0]);
+    challenge2_size = sizeof(challenge2)/sizeof(challenge2[0]);
 
     result = dsec_hh_challenge_generate(&instance, hh_h, challenge1_size, 1);
     DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
@@ -182,8 +182,8 @@ static void test_case_ssh_failure_get_data(void)
 
     /* Short Buffer Shared Secret */
     shared_key_size = 4;
-    challenge1_size = DSEC_ARRAY_SIZE(challenge1);
-    challenge2_size = DSEC_ARRAY_SIZE(challenge2);
+    challenge1_size = sizeof(challenge1)/sizeof(challenge1[0]);
+    challenge2_size = sizeof(challenge2)/sizeof(challenge2[0]);
     result = dsec_ssh_get_data(shared_key,
                                &shared_key_size,
                                challenge1,
@@ -199,9 +199,9 @@ static void test_case_ssh_failure_get_data(void)
     DSEC_TEST_ASSERT(shared_key_size == 0);
 
     /* Short Buffer Challenge 1 */
-    shared_key_size = DSEC_ARRAY_SIZE(shared_key);
+    shared_key_size = sizeof(shared_key)/sizeof(shared_key[0]);
     challenge1_size = 4;
-    challenge2_size = DSEC_ARRAY_SIZE(challenge2);
+    challenge2_size = sizeof(challenge2)/sizeof(challenge2[0]);
     result = dsec_ssh_get_data(shared_key,
                                &shared_key_size,
                                challenge1,
@@ -217,8 +217,8 @@ static void test_case_ssh_failure_get_data(void)
     DSEC_TEST_ASSERT(shared_key_size == 0);
 
     /* Short Buffer Challenge 2 */
-    shared_key_size = DSEC_ARRAY_SIZE(shared_key);
-    challenge1_size = DSEC_ARRAY_SIZE(challenge1);
+    shared_key_size = sizeof(shared_key)/sizeof(shared_key[0]);
+    challenge1_size = sizeof(challenge1)/sizeof(challenge1[0]);
     challenge2_size = 4;
     result = dsec_ssh_get_data(shared_key,
                                &shared_key_size,
@@ -265,30 +265,30 @@ static void test_case_full_process(void)
     int32_t ss_h_p2 = -1;
 
     uint8_t dh_p1[256];
-    uint32_t dh_p1_size = DSEC_ARRAY_SIZE(dh_p1);
+    uint32_t dh_p1_size = sizeof(dh_p1)/sizeof(dh_p1[0]);
     uint8_t dh_p2[256];
-    uint32_t dh_p2_size = DSEC_ARRAY_SIZE(dh_p2);
+    uint32_t dh_p2_size = sizeof(dh_p2)/sizeof(dh_p2[0]);
 
     uint8_t c_p1[256];
-    uint32_t c_p1_size = DSEC_ARRAY_SIZE(c_p1);
+    uint32_t c_p1_size = sizeof(c_p1)/sizeof(c_p1[0]);
     uint8_t c_p2[256];
-    uint32_t c_p2_size = DSEC_ARRAY_SIZE(c_p2);
+    uint32_t c_p2_size = sizeof(c_p2)/sizeof(c_p2[0]);
 
     /* Extracted data from Participant 1 */
     uint8_t sk_p1[256];
-    uint32_t sk_p1_size = DSEC_ARRAY_SIZE(sk_p1);
+    uint32_t sk_p1_size = sizeof(sk_p1)/sizeof(sk_p1[0]);
     uint8_t c1_p1[256];
-    uint32_t c1_p1_size = DSEC_ARRAY_SIZE(c1_p1);
+    uint32_t c1_p1_size = sizeof(c1_p1)/sizeof(c1_p1[0]);
     uint8_t c2_p1[256];
-    uint32_t c2_p1_size = DSEC_ARRAY_SIZE(c2_p1);
+    uint32_t c2_p1_size = sizeof(c2_p1)/sizeof(c2_p1[0]);
 
     /* Extracted data from Participant 2 */
     uint8_t sk_p2[256];
-    uint32_t sk_p2_size = DSEC_ARRAY_SIZE(sk_p2);
+    uint32_t sk_p2_size = sizeof(sk_p2)/sizeof(sk_p2[0]);
     uint8_t c1_p2[256];
-    uint32_t c1_p2_size = DSEC_ARRAY_SIZE(c1_p2);
+    uint32_t c1_p2_size = sizeof(c1_p2)/sizeof(c1_p2[0]);
     uint8_t c2_p2[256];
-    uint32_t c2_p2_size = DSEC_ARRAY_SIZE(c2_p2);
+    uint32_t c2_p2_size = sizeof(c2_p2)/sizeof(c2_p2[0]);
 
     struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
     DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
@@ -381,10 +381,10 @@ static void test_case_failure_unload(void)
     int32_t ss_h = -1;
 
     uint8_t dh[256];
-    uint32_t dh_size = DSEC_ARRAY_SIZE(dh);
+    uint32_t dh_size = sizeof(dh)/sizeof(dh[0]);
 
     uint8_t c[256];
-    uint32_t c_size = DSEC_ARRAY_SIZE(c);
+    uint32_t c_size = sizeof(c)/sizeof(c[0]);
 
     struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
     DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
@@ -430,10 +430,10 @@ static void test_case_get_info(void)
     int32_t ss_h = -1;
 
     uint8_t dh[256];
-    uint32_t dh_size = DSEC_ARRAY_SIZE(dh);
+    uint32_t dh_size = sizeof(dh)/sizeof(dh[0]);
 
     uint8_t c[256];
-    uint32_t c_size = DSEC_ARRAY_SIZE(c);
+    uint32_t c_size = sizeof(c)/sizeof(c[0]);
 
     struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
     DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
@@ -493,7 +493,7 @@ static const struct dsec_test_case_desc test_case_table[] = {
 
 const struct dsec_test_suite_desc test_suite = {
     .name = "Shared Secret Handle test suite",
-    .test_case_count = DSEC_ARRAY_SIZE(test_case_table),
+    .test_case_count = sizeof(test_case_table)/sizeof(test_case_table[0]),
     .test_case_table = test_case_table,
     .test_suite_setup = dsec_test_ta_setup,
     .test_suite_teardown = dsec_test_ta_teardown,

@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,6 @@
 #include <dsec_ta_dh.h>
 #include <dsec_ta_hh.h>
 #include <dsec_errno.h>
-#include <dsec_util.h>
 #include <tee_api.h>
 
 static struct shared_secret_handle_t store[DSEC_TA_MAX_SHARED_SECRET_HANDLE];

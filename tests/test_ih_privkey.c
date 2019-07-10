@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,6 @@
 #include <dsec_ih_privkey.h>
 #include <dsec_test.h>
 #include <dsec_test_ta.h>
-#include <dsec_util.h>
 #include <dsec_errno.h>
 #include <string.h>
 
@@ -175,9 +174,9 @@ static void test_case_load_and_sign(void)
     int32_t result = 0;
 
     uint8_t buffer[1024];
-    uint32_t buffer_size = DSEC_ARRAY_SIZE(buffer);
+    uint32_t buffer_size = sizeof(buffer)/sizeof(buffer[0]);
     uint8_t signature[128];
-    uint32_t signature_size = DSEC_ARRAY_SIZE(signature);
+    uint32_t signature_size = sizeof(signature)/sizeof(signature[0]);
 
     TEEC_Session session;
     TEEC_Context context;
@@ -234,9 +233,9 @@ static void test_case_load_and_sign_invalid(void)
     int32_t result = 0;
 
     uint8_t buffer[1024];
-    uint32_t buffer_size = DSEC_ARRAY_SIZE(buffer);
+    uint32_t buffer_size = sizeof(buffer)/sizeof(buffer[0]);
     uint8_t signature[128];
-    uint32_t signature_size = DSEC_ARRAY_SIZE(signature);
+    uint32_t signature_size = sizeof(signature)/sizeof(signature[0]);
 
     TEEC_Session session;
     TEEC_Context context;
@@ -271,7 +270,7 @@ static void test_case_load_and_sign_invalid(void)
 
     /* Try to sign with a signature buffer too small. */
     signature_size = 8;
-    buffer_size = DSEC_ARRAY_SIZE(buffer);
+    buffer_size = sizeof(buffer)/sizeof(buffer[0]);
     result = dsec_ih_privkey_sign(signature,
                                   &signature_size,
                                   &inst,
@@ -297,7 +296,7 @@ static const struct dsec_test_case_desc test_case_table[] = {
 
 const struct dsec_test_suite_desc test_suite = {
     .name = "Private Key API Tests",
-    .test_case_count = DSEC_ARRAY_SIZE(test_case_table),
+    .test_case_count = sizeof(test_case_table)/sizeof(test_case_table[0]),
     .test_case_table = test_case_table,
     .test_suite_setup = dsec_test_ta_setup,
     .test_suite_teardown = dsec_test_ta_teardown,

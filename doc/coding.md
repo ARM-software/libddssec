@@ -71,7 +71,6 @@ OPTEE-Client library and includes by loading the script
 #include <dsec_filename.h>  /* File API that will be tested. */
 #include <dsec_test.h>      /* For the test API and DSEC_TEST_ASSERT */
 #include <dsec_test_ta.h>   /* Optional if the TA is not tested */
-#include <dsec_util.h>      /* For DSEC_ARRAY_SIZE */
 
 static void test_case_example(void)
 {
@@ -84,7 +83,7 @@ static const struct dsec_test_case_desc test_case_table[] = {
 
 const struct dsec_test_suite_desc test_suite = {
     .name = "Example Test Suite",
-    .test_case_count = DSEC_ARRAY_SIZE(test_case_table),
+    .test_case_count = sizeof(test_case_table)/sizeof(test_case_table[0]),
     .test_case_table = test_case_table,
     .test_suite_setup = dsec_test_ta_setup, /* Only if the TA not needed. */
     .test_suite_teardown = dsec_test_ta_teardown, /* Optional, see above. */

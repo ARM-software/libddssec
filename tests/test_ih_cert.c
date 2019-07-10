@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,6 @@
 #include <dsec_ih_cert.h>
 #include <dsec_test.h>
 #include <dsec_test_ta.h>
-#include <dsec_util.h>
 #include <dsec_errno.h>
 #include <string.h>
 
@@ -88,7 +87,7 @@ static void test_case_invalid_load_cert(void)
     result = dsec_ih_ca_load(&instance, handle, ca);
     DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
 
-    for (size_t i = 0U; i < DSEC_ARRAY_SIZE(cert_invalid); i++) {
+    for (size_t i = 0U; i < sizeof(cert_invalid)/sizeof(cert_invalid[0]); i++) {
         result = dsec_ih_cert_load(&instance,
                                    handle,
                                    cert_invalid[i].name);
@@ -115,7 +114,8 @@ static void test_case_get_loaded_cert(void)
     static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_certificate[2048] = {0};
-    uint32_t output_certificate_size = DSEC_ARRAY_SIZE(output_certificate);
+    uint32_t output_certificate_size = sizeof(output_certificate)/
+                                       sizeof(output_certificate[0]);
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -163,10 +163,11 @@ static void test_case_get_loaded_cert_invalid(void)
     static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_certificate[2048] = {0};
-    uint32_t output_certificate_size = DSEC_ARRAY_SIZE(output_certificate);
+    uint32_t output_certificate_size = sizeof(output_certificate)/
+                                       sizeof(output_certificate[0]);
 
     uint8_t output_short[8] = {0};
-    uint32_t output_short_size = DSEC_ARRAY_SIZE(output_short);
+    uint32_t output_short_size = sizeof(output_short)/sizeof(output_short[0]);
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -228,12 +229,12 @@ static void test_case_get_subject_name(void)
 
     int32_t handle = -1;
     uint8_t output_sn[2048] = {0};
-    uint32_t output_sn_size = DSEC_ARRAY_SIZE(output_sn);
+    uint32_t output_sn_size = sizeof(output_sn)/sizeof(output_sn[0]);
     static const char expected_sn[] = "C=UK, ST=CB, O=Arm, "
                                       "CN=libddssecApplication, "
                                       "emailAddress=application@arm.com";
 
-    uint32_t expected_sn_size = DSEC_ARRAY_SIZE(expected_sn);
+    uint32_t expected_sn_size = sizeof(expected_sn)/sizeof(expected_sn[0]);
     int32_t result = 0;
 
     TEEC_Session session;
@@ -270,9 +271,11 @@ static void test_case_get_signature(void)
     int32_t handle = -1;
 
     uint8_t output_sign_algo[128] = {0};
-    uint32_t output_sign_algo_size = DSEC_ARRAY_SIZE(output_sign_algo);
+    uint32_t output_sign_algo_size = sizeof(output_sign_algo)/
+                                     sizeof(output_sign_algo[0]);
     static const char expected_sign_algo[] = "ECDSA with SHA256";
-    uint32_t expected_sign_algo_size = DSEC_ARRAY_SIZE(expected_sign_algo);
+    uint32_t expected_sign_algo_size = sizeof(expected_sign_algo)/
+                                       sizeof(expected_sign_algo[0]);
 
     int32_t result = 0;
 
@@ -313,7 +316,7 @@ static void test_case_invalid_get_subject_name(void)
     static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_sn[128] = {0};
-    uint32_t output_sn_size = DSEC_ARRAY_SIZE(output_sn);
+    uint32_t output_sn_size = sizeof(output_sn)/sizeof(output_sn[0]);
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -347,7 +350,7 @@ static void test_case_invalid_get_subject_name(void)
     DSEC_TEST_ASSERT(dsec_ih_cert_unload(&instance, handle) == DSEC_SUCCESS);
 
     /* Certificate is not loaded anymore. */
-    output_sn_size = DSEC_ARRAY_SIZE(output_sn);
+    output_sn_size = sizeof(output_sn)/sizeof(output_sn[0]);
     result = dsec_ih_cert_get_sn(output_sn, &output_sn_size, &instance, handle);
     DSEC_TEST_ASSERT(result == DSEC_E_DATA);
     DSEC_TEST_ASSERT(output_sn_size == 0U);
@@ -363,7 +366,8 @@ static void test_case_invalid_get_signature(void)
     static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_sign_algo[4] = {0};
-    uint32_t output_sign_algo_size = DSEC_ARRAY_SIZE(output_sign_algo);
+    uint32_t output_sign_algo_size = sizeof(output_sign_algo)/
+                                     sizeof(output_sign_algo[0]);
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -403,7 +407,9 @@ static void test_case_invalid_get_signature(void)
     DSEC_TEST_ASSERT(dsec_ih_cert_unload(&instance, handle) == DSEC_SUCCESS);
 
     /* Certificate is not loaded anymore. */
-    output_sign_algo_size = DSEC_ARRAY_SIZE(output_sign_algo);
+    output_sign_algo_size = sizeof(output_sign_algo)/
+                            sizeof(output_sign_algo[0]);
+
     result = dsec_ih_cert_get_signature_algorithm(output_sign_algo,
                                                   &output_sign_algo_size,
                                                   &instance,
@@ -423,10 +429,12 @@ static void test_case_load_get_store_cert(void)
     static const char cert[] = "assets/p1cert.pem";
 
     uint8_t output_certificate[2048] = {0};
-    uint32_t output_certificate_size = DSEC_ARRAY_SIZE(output_certificate);
+    uint32_t output_certificate_size = sizeof(output_certificate)/
+                                       sizeof(output_certificate[0]);
 
     uint8_t output_certificate2[2048] = {0};
-    uint32_t output_certificate2_size = DSEC_ARRAY_SIZE(output_certificate2);
+    uint32_t output_certificate2_size = sizeof(output_certificate2)/
+                                        sizeof(output_certificate2[0]);
 
     int32_t lih = -1;
     int32_t rih = -1;
@@ -519,7 +527,7 @@ static void test_case_load_get_store_cert_invalid(void)
     DSEC_TEST_ASSERT(result == TEEC_SUCCESS);
     DSEC_TEST_ASSERT(dsec_ih_create(&rih, &instance) == DSEC_SUCCESS);
 
-    for (size_t i = 0U; i < DSEC_ARRAY_SIZE(cert_invalid); i++) {
+    for (size_t i = 0U; i < sizeof(cert_invalid)/sizeof(cert_invalid[0]); i++) {
         result = dsec_ih_cert_load_from_buffer(
             &instance,
             rih,
@@ -555,7 +563,7 @@ static void test_case_verify_signature(void)
     static const uint8_t input_buffer[] = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
         20, 21, 22, 23, 24};
-    uint32_t input_size = DSEC_ARRAY_SIZE(input_buffer);
+    uint32_t input_size = sizeof(input_buffer)/sizeof(input_buffer[0]);
 
     /* Precomputed signature for input_buffer */
     static const uint8_t signature[] = {
@@ -565,13 +573,14 @@ static void test_case_verify_signature(void)
         0x7d, 0x2, 0x20, 0x20, 0xae, 0x5e, 0xa7, 0x5c, 0x8e, 0x70, 0xd2, 0xbb,
         0x26, 0x47, 0xba, 0x77, 0xa2, 0x2f, 0xaa, 0x10, 0x12, 0xa8, 0xd7, 0x47,
         0x50, 0xb3, 0x80, 0x1f, 0x4b, 0xea, 0x4b, 0x66, 0x75, 0x4c, 0x27};
-    uint32_t signature_size = DSEC_ARRAY_SIZE(signature);
+    uint32_t signature_size = sizeof(signature)/sizeof(signature[0]);
 
     /* Buffer with different data that should not produce the same signature */
     static const uint8_t invalid_buffer[] = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
         20, 21, 22, 23, 25};
-    uint32_t invalid_buffer_size = DSEC_ARRAY_SIZE(invalid_buffer);
+    uint32_t invalid_buffer_size = sizeof(invalid_buffer)/
+                                   sizeof(invalid_buffer[0]);
 
     /* Modified signature that is invalid for input_buffer */
     static const uint8_t invalid_signature[] = {
@@ -581,10 +590,12 @@ static void test_case_verify_signature(void)
         0x7d, 0x2, 0x20, 0x20, 0xae, 0x5e, 0xa7, 0x5c, 0x8e, 0x70, 0xd2, 0xbb,
         0x26, 0x47, 0xba, 0x77, 0xa2, 0x2f, 0xaa, 0x10, 0x12, 0xa8, 0xd7, 0x47,
         0x50, 0xb3, 0x80, 0x1f, 0x4b, 0xea, 0x4b, 0x66, 0x75, 0x4c, 0x27};
-    uint32_t invalid_signature_size = DSEC_ARRAY_SIZE(invalid_signature);
+    uint32_t invalid_signature_size = sizeof(invalid_signature)/
+                                      sizeof(invalid_signature[0]);
 
     static const uint8_t big_signature[1024] = {1};
-    uint32_t big_signature_size = DSEC_ARRAY_SIZE(big_signature);
+    uint32_t big_signature_size = sizeof(big_signature)/
+                                  sizeof(big_signature[0]);
 
     int32_t result = 0;
 
@@ -652,7 +663,8 @@ static void test_case_get_sha256_sn(void)
     static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_sha256_sn[128] = {0};
-    uint32_t output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
+    uint32_t output_sha256_sn_size = sizeof(output_sha256_sn)/
+                                     sizeof(output_sha256_sn[0]);
     /*
      * This array is the expected SHA256 of the Subject Name of the p1cert.pem
      * certificate.
@@ -661,7 +673,8 @@ static void test_case_get_sha256_sn(void)
         0x92, 0x87, 0x1b, 0xbe, 0x72, 0x95, 0x18, 0x32, 0x52, 0x40, 0x30, 0x15,
         0xae, 0x6f, 0x86, 0x21, 0xe, 0x73, 0x71, 0x4d, 0x31, 0x67, 0xa, 0x7f,
         0x6f, 0x9b, 0x2a, 0x90, 0x2, 0x9e, 0x54, 0xeb};
-    uint32_t expected_sha256_sn_size = DSEC_ARRAY_SIZE(expected_sha256_sn);
+    uint32_t expected_sha256_sn_size = sizeof(expected_sha256_sn)/
+                                       sizeof(expected_sha256_sn[0]);
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -701,7 +714,8 @@ static void test_case_invalid_get_sha256_sn(void)
     static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_sha256_sn[4] = {0};
-    uint32_t output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
+    uint32_t output_sha256_sn_size = sizeof(output_sha256_sn)/
+                                     sizeof(output_sha256_sn[0]);
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -735,7 +749,8 @@ static void test_case_invalid_get_sha256_sn(void)
     result = dsec_ih_cert_load(&instance, handle, cert_valid);
     DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
 
-    output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
+    output_sha256_sn_size = sizeof(output_sha256_sn)/
+                            sizeof(output_sha256_sn[0]);
     result = dsec_ih_cert_get_sha256_sn(output_sha256_sn,
                                         &output_sha256_sn_size,
                                         &instance,
@@ -747,7 +762,8 @@ static void test_case_invalid_get_sha256_sn(void)
     DSEC_TEST_ASSERT(dsec_ih_cert_unload(&instance, handle) == DSEC_SUCCESS);
 
     /* Certificate is not loaded anymore. */
-    output_sha256_sn_size = DSEC_ARRAY_SIZE(output_sha256_sn);
+    output_sha256_sn_size = sizeof(output_sha256_sn)/
+                            sizeof(output_sha256_sn[0]);
     result = dsec_ih_cert_get_sha256_sn(output_sha256_sn,
                                         &output_sha256_sn_size,
                                         &instance,
@@ -766,7 +782,8 @@ static void test_case_get_raw_sn(void)
     static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_raw_sn[128] = {0};
-    uint32_t output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
+    uint32_t output_raw_sn_size = sizeof(output_raw_sn)/
+                                  sizeof(output_raw_sn[0]);
     /* Data extracted from test/assets/p1cert.pem using mbedTLS. */
     static const char expected_raw_sn[] = {
         0x30, 0x6b, 0x31, 0xb, 0x30, 0x9, 0x6, 0x3, 0x55, 0x4, 0x6, 0x13, 0x2,
@@ -778,7 +795,8 @@ static void test_case_get_raw_sn(void)
         0x20, 0x6, 0x9, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0xd, 0x1, 0x9, 0x1, 0x16,
         0x13, 0x61, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
         0x40, 0x61, 0x72, 0x6d, 0x2e, 0x63, 0x6f, 0x6d, 0x30};
-    uint32_t expected_raw_sn_size = DSEC_ARRAY_SIZE(expected_raw_sn);
+    uint32_t expected_raw_sn_size = sizeof(expected_raw_sn)/
+                                    sizeof(expected_raw_sn[0]);
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -819,7 +837,8 @@ static void test_case_invalid_get_raw_sn(void)
     static const char cert_valid[] = "assets/p1cert.pem";
 
     uint8_t output_raw_sn[4] = {0};
-    uint32_t output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
+    uint32_t output_raw_sn_size = sizeof(output_raw_sn)/
+                                  sizeof(output_raw_sn[0]);
 
     int32_t handle = -1;
     int32_t result = 0;
@@ -840,7 +859,7 @@ static void test_case_invalid_get_raw_sn(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
     DSEC_TEST_ASSERT(dsec_ih_create(&handle, &instance) == DSEC_SUCCESS);
 
-    output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
+    output_raw_sn_size = sizeof(output_raw_sn)/sizeof(output_raw_sn[0]);
     result = dsec_ih_cert_get_raw_sn(output_raw_sn,
                                      &output_raw_sn_size,
                                      &instance,
@@ -867,7 +886,7 @@ static void test_case_invalid_get_raw_sn(void)
     DSEC_TEST_ASSERT(dsec_ih_cert_unload(&instance, handle) == DSEC_SUCCESS);
 
     /* Certificate is not loaded anymore. */
-    output_raw_sn_size = DSEC_ARRAY_SIZE(output_raw_sn);
+    output_raw_sn_size = sizeof(output_raw_sn)/sizeof(output_raw_sn[0]);
     result = dsec_ih_cert_get_raw_sn(output_raw_sn,
                                      &output_raw_sn_size,
                                      &instance,
@@ -901,7 +920,7 @@ static const struct dsec_test_case_desc test_case_table[] = {
 
 const struct dsec_test_suite_desc test_suite = {
     .name = "Certificate API Tests",
-    .test_case_count = DSEC_ARRAY_SIZE(test_case_table),
+    .test_case_count = sizeof(test_case_table)/sizeof(test_case_table[0]),
     .test_case_table = test_case_table,
     .test_suite_setup = dsec_test_ta_setup,
     .test_suite_teardown = dsec_test_ta_teardown,

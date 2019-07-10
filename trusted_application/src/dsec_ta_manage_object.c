@@ -1,13 +1,12 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "../builtins/builtins_list.h"
 #include <dsec_ta_manage_object.h>
-#include <dsec_util.h>
 #include <user_ta_header_defines.h>
 #include <tee_internal_api.h>
 #include <stdbool.h>
@@ -51,7 +50,7 @@ void dsec_ta_unload_object_memory(void)
     /* Return value is always &(object_memory.data), so is unused */
     (void) memset((void*)&(object_memory.data),
                            0x0,
-                           DSEC_ARRAY_SIZE(object_memory.data));
+                           sizeof(object_memory.data));
 
     DMSG("Clearing object memory");
     object_memory.is_set = false;
@@ -66,7 +65,7 @@ TEE_Result dsec_ta_load_builtin(void** buffer,
     bool set = false;
 
     /* Declared in <builtins/builtins.h>. Generated at build-time */
-    size_t num_builtin = DSEC_ARRAY_SIZE(builtin_objects);
+    size_t num_builtin = sizeof(builtin_objects)/sizeof(builtin_objects[0]);
 
     if ((buffer != NULL) && (size != NULL)) {
         for (size_t i = 0; i < num_builtin; i++) {

@@ -1,13 +1,13 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <dsec_errno.h>
 #include <dsec_test_canary.h>
-#include <dsec_util.h>
+#include <assert.h>
 #include <stdalign.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -49,7 +49,7 @@ static const uint8_t canary[] = { 0xD, 0xE, 0xA, 0xD, 0xB, 0xE, 0xE, 0xF,
                                   0xD, 0xE, 0xA, 0xD, 0xB, 0xE, 0xE, 0xF,
                                   0xD, 0xE, 0xA, 0xD, 0xB, 0xE, 0xE, 0xF };
 
-static const size_t canary_size = DSEC_ARRAY_SIZE(canary);
+static const size_t canary_size = sizeof(canary);
 
 #define ALIGN_NEXT(VALUE, INTERVAL) \
     ((((VALUE) + (INTERVAL) - 1) / (INTERVAL)) * (INTERVAL))

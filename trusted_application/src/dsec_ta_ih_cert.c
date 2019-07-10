@@ -10,7 +10,6 @@
 #include <dsec_ta_ih.h>
 #include <dsec_ta_manage_object.h>
 #include <dsec_errno.h>
-#include <dsec_util.h>
 #include <mbedtls/base64.h>
 
 /*
@@ -332,10 +331,15 @@ TEE_Result dsec_ta_ih_cert_get(uint32_t parameters_type,
     const char prefix[] = {'-', '-', '-', '-', '-', 'B', 'E', 'G', 'I', 'N',
                            ' ', 'C', 'E', 'R', 'T', 'I', 'F', 'I', 'C', 'A',
                            'T', 'E', '-', '-', '-', '-', '-', '\n'};
+
+    const size_t prefix_len = (sizeof(prefix)/sizeof(prefix[0]));
+
     /* Array containing the header "\n-----END CERTIFICATE-----\0" */
     const char suffix[] = {'\n', '-', '-', '-', '-', '-', 'E', 'N', 'D',
                            ' ',  'C', 'E', 'R', 'T', 'I', 'F', 'I', 'C',
                            'A',  'T', 'E', '-', '-', '-', '-', '-', '\0'};
+
+    const size_t suffix_len = (sizeof(suffix)/sizeof(suffix[0]));
 
     size_t base64_length = 0;
 
@@ -359,15 +363,18 @@ TEE_Result dsec_ta_ih_cert_get(uint32_t parameters_type,
                 /* Output size of base64 for N bytes is ceil(4*N / 3) */
                 base64_length = ((4U * cert->raw.len / 3U) + 3U) & (~3U);
 
-                minimal_output_buffer_length = DSEC_ARRAY_SIZE(prefix) +
+                minimal_output_buffer_length = prefix_len +
                                                base64_length +
-                                               DSEC_ARRAY_SIZE(suffix);
+                                               suffix_len;
 
                 if (output_length >= minimal_output_buffer_length) {
                     output_buffer = (unsigned char*)parameters[0].memref.buffer;
                     /* Set size of output buffer to 0 */
                     parameters[0].memref.size = 0;
-                    for (uint32_t i = 0; i < DSEC_ARRAY_SIZE(prefix); i++) {
+                    for (uint32_t i = 0;
+                         i < prefix_len;
+                         i++) {
+
                         output_buffer[written_bytes] = prefix[i];
                         written_bytes++;
                     }
@@ -380,7 +387,10 @@ TEE_Result dsec_ta_ih_cert_get(uint32_t parameters_type,
                                               cert->raw.len);
 
                     written_bytes = written_bytes + output_buffer_length;
-                    for (uint32_t i = 0; i < DSEC_ARRAY_SIZE(suffix); i++) {
+                    for (uint32_t i = 0;
+                         i < suffix_len;
+                         i++) {
+
                         output_buffer[written_bytes] = suffix[i];
                         written_bytes++;
                     }

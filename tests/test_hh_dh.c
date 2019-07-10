@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,6 @@
 #include <dsec_hh_dh.h>
 #include <dsec_test.h>
 #include <dsec_test_ta.h>
-#include <dsec_util.h>
 
 static void test_case_dh_generate_get_public(void)
 {
@@ -21,8 +20,8 @@ static void test_case_dh_generate_get_public(void)
     int32_t result = 0;
 
     uint8_t dh_pair[1024];
-    uint32_t buffer_size = DSEC_ARRAY_SIZE(dh_pair);
-    uint32_t output_size = DSEC_ARRAY_SIZE(dh_pair);
+    uint32_t buffer_size = sizeof(dh_pair)/sizeof(dh_pair[0]);
+    uint32_t output_size = sizeof(dh_pair)/sizeof(dh_pair[0]);
 
     struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
 
@@ -67,10 +66,11 @@ static void test_case_dh_set_public(void)
     int32_t result = 0;
 
     uint8_t dh_public[256];
-    uint32_t dh_public_size = DSEC_ARRAY_SIZE(dh_public);
+    uint32_t dh_public_size = sizeof(dh_public)/sizeof(dh_public[0]);
 
     uint8_t dh_public_too_big[2048];
-    uint32_t dh_public_too_big_size = DSEC_ARRAY_SIZE(dh_public_too_big);
+    uint32_t dh_public_too_big_size = sizeof(dh_public_too_big)/
+                                      sizeof(dh_public_too_big[0]);
 
     struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
 
@@ -113,7 +113,7 @@ static const struct dsec_test_case_desc test_case_table[] = {
 
 const struct dsec_test_suite_desc test_suite = {
     .name = "Diffie Hellman test suite",
-    .test_case_count = DSEC_ARRAY_SIZE(test_case_table),
+    .test_case_count = sizeof(test_case_table)/sizeof(test_case_table[0]),
     .test_case_table = test_case_table,
     .test_suite_setup = dsec_test_ta_setup,
     .test_suite_teardown = dsec_test_ta_teardown,

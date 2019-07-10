@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,6 @@
 #include <dsec_hh_challenge.h>
 #include <dsec_test.h>
 #include <dsec_test_ta.h>
-#include <dsec_util.h>
 
 static void test_case_challenge_generate_get(void)
 {
@@ -21,7 +20,7 @@ static void test_case_challenge_generate_get(void)
     int32_t result = 0;
 
     uint8_t challenge_local[1024];
-    uint32_t output_size = DSEC_ARRAY_SIZE(challenge_local);
+    uint32_t output_size = sizeof(challenge_local)/sizeof(challenge_local[0]);
 
     struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
 
@@ -54,7 +53,7 @@ static void test_case_challenge_generate_get(void)
     result = dsec_hh_challenge_generate(&instance, hh_h, 512, 1);
     DSEC_TEST_ASSERT(result == DSEC_E_DATA);
 
-    output_size = DSEC_ARRAY_SIZE(challenge_local);
+    output_size = sizeof(challenge_local)/sizeof(challenge_local[0]);
     result = dsec_hh_challenge_get(challenge_local,
                                    &output_size,
                                    &instance,
@@ -83,7 +82,7 @@ static const struct dsec_test_case_desc test_case_table[] = {
 
 const struct dsec_test_suite_desc test_suite = {
     .name = "Challenge test suite",
-    .test_case_count = DSEC_ARRAY_SIZE(test_case_table),
+    .test_case_count = sizeof(test_case_table)/sizeof(test_case_table[0]),
     .test_case_table = test_case_table,
     .test_suite_setup = dsec_test_ta_setup,
     .test_suite_teardown = dsec_test_ta_teardown,
