@@ -59,11 +59,15 @@ class TestBenchBase:
         for x in expect:
             while True:
                 # Wait for an expected output
-                index = self.terminal.expect(list(x) + unexpect)
-                if index >= 0 and index < len(unexpect) + 1:
+                match_list = [x] + unexpect
+                index = self.terminal.expect(match_list)
+                if index == 0:
                     # The return index value is one of the given index of the
                     # specified list while calling the expect function
                     break
+                elif index != 0:
+                    # trigger error and break
+                    raise self.Error(output=match_list[index])
 
         self.terminal.expect_exact(self.prompt)
         self._get_exit_code(command)
@@ -130,7 +134,9 @@ class TestBenchBase:
                 do('make test-ta', expect=['Building trusted application',
                                            'Built target test-ta'])
                 do('make build_and_test',
-                   expect=['Built target build_and_test'])
+                   expect=['Built target build_and_test'],
+                   unexpect=['recipe for target \'build_and_test\' failed'])
+
         except (pexpect.exceptions.TIMEOUT, pexpect.exceptions.EOF):
             # If there was an error within the connection (TIMEOUT or EOF) it
             # might be because the ssh session or telnet was not opened
@@ -150,7 +156,7 @@ class TestBenchBase:
         self._do('rm -rf {}'.format(self.test_directory))
 
     class Error(Exception):
-        def __init__(self, code, command=None, output=None):
+        def __init__(self, code=1, command=None, output=None):
             print('Error:')
             if command:
                 print('Command:\n{}'.format(command))
