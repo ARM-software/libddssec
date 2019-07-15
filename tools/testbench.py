@@ -76,10 +76,10 @@ class TestBenchBase:
         # \r needed so that it will match all of a multi-digit exit code.
         # N.B. Telnet uses Windows-style line-endings
         self.terminal.sendline('echo $?')
-        self.terminal.expect('\n[0-9]{1,3}(.*)\n')
+        self.terminal.expect('\n+[0-9]{1,3}\r*\n')
 
         # So much for duck-typing
-        self.exit_code = int(self.terminal.after.decode('utf8').strip())
+        self.exit_code = int(self.terminal.after.decode('utf8'))
 
         self.terminal.logfile = old_logfile
 
