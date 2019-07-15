@@ -19,7 +19,7 @@
  */
 static TEEC_Result check_parameters(const TEEC_Operation* operation)
 {
-    int32_t result = 0;
+    TEEC_Result result = TEEC_ERROR_BAD_PARAMETERS;
 
     if (operation != NULL) {
         result = TEEC_SUCCESS;
@@ -229,11 +229,11 @@ TEEC_Result dsec_ca_invoke(const struct dsec_instance* instance,
                            uint32_t* origin)
 {
 
-    TEEC_Result result = check_instance(instance, true /* is open */);
+    int32_t result = check_instance(instance, true /* is open */);
     if (result == DSEC_SUCCESS) {
         /* Passing invalid memory as a parameter will crash the program */
-        result = check_parameters(operation);
-        if (result == DSEC_SUCCESS) {
+        TEEC_Result teec_result = check_parameters(operation);
+        if (teec_result == TEEC_SUCCESS) {
             result = TEEC_InvokeCommand(instance->session,
                                         (uint32_t)command_id,
                                         operation,
