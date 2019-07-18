@@ -2,6 +2,8 @@
 
 Copyright (c) 2018-2019, Arm Limited. All rights reserved.
 
+[How to use libddssec in your project](@ref UsingLibddssec)
+
 ## Introduction
 
 In an autonomous future where machines are continually interacting with humans,
