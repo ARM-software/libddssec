@@ -1,8 +1,10 @@
-# Readme
+# Readme                                                             {#mainpage}
 
 Copyright (c) 2018-2019, Arm Limited. All rights reserved.
 
 [How to use libddssec in your project](@ref UsingLibddssec)
+
+[The motivation for libddssec and how it works](@ref AboutLibddssec)
 
 ## Introduction
 
