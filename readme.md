@@ -41,7 +41,7 @@ The following libraries are required:
 - Pexpect: Used by validate.py to interact with remote devices
 
 For the dependencies to build the trusted application, please consult the
-[OPTEE-OS](https://github.com/OP-TEE/optee_os) documentation.
+[OP-TEE OS](https://github.com/OP-TEE/optee_os) documentation.
 
 ## Building the library and trusted application
 
@@ -66,7 +66,7 @@ To build the library, use ```make```:
     $> make
 
 To build the trusted application, use the target ```ta```. Ensure the
-TA_DEV_KIT_DIR environment variable points to the OPTEE-OS build targeting your
+TA_DEV_KIT_DIR environment variable points to the OP-TEE OS build targeting your
 platform. You may also set CROSS_COMPILE according to your development
 environment. Example:
 
@@ -78,8 +78,8 @@ To clean the trusted application build, use the target ```ta-clean```:
 
     $> make ta-clean
 
-For more details on the OPTEE-OS environment variables, consult the
-[OPTEE Examples](https://github.com/linaro-swg/optee_examples/blob/master/docs/TA_basics.md)
+For more details on the OP-TEE OS environment variables, consult the
+[OP-TEE Examples](https://github.com/linaro-swg/optee_examples/blob/master/docs/TA_basics.md)
 documentation.
 
 ## Verification
