@@ -21,6 +21,15 @@ implementation of the security operations using Arm's [TrustZone IP][2]. This
 implementation uses [OP-TEE][3] to isolate secure operations and assets under a
 Trusted Execution Environment.
 
+## Supported platforms
+
+libddssec is developed and tested using Ubuntu 16.04.6 LTS on 64-bit Arm-based
+systems (aarch64) with TrustZone support and OP-TEE enabled. The tests are run
+using the [Armv8-A Base Platform FVP][4] using the [Arm Development Platforms
+stack][5], both of which available free-of-charge.
+
+While 32-bit builds may work, they should be considered untested.
+
 ## Prerequisites
 
 To build __libddssec__, the following tools are required:
@@ -105,9 +114,7 @@ invasiveness of the tests mean it is undesirable to run them natively. The
 tools offers two possibilities to solve this:
 
  - Using ssh by specifying the IP address of the remote device
- - Using an FVP:
-   - validate.py uses the publicly available [Armv8-A Base Platform FVP](https://developer.arm.com/products/system-design/fixed-virtual-platforms/)
-   - The software stack used is the [Arm Development Platforms stack](https://community.arm.com/dev-platforms/) with OP-TEE enabled
+ - Using the [Armv8-A Base Platform FVP][4]
 
 Whichever is chosen, the tool will tear-down any created files. For use in
 systematic testing, however, a filesystem that is read-only or that is reset
@@ -164,6 +171,8 @@ The software is provided under the [BSD-3-Clause license](https://spdx.org/licen
 [1]: https://www.omg.org/spec/DDS/About-DDS/
 [2]: https://developer.arm.com/technologies/trustzone
 [3]: https://www.op-tee.org/
+[4]: https://developer.arm.com/products/system-design/fixed-virtual-platforms/
+[5]: https://community.arm.com/dev-platforms/
 
 ## Feedback and Support
 
