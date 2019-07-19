@@ -15,10 +15,10 @@ intended. Rogue items can be detected, and any data generated from these devices
 can be discounted as untrusted.
 
 The DDS Security library (__libddssec__) is an open source software library that
-provides security services for implementations of the Data Distribution Service
-(DDS) specification [1]. The main goal of the _libddssec_ is to offer a common
-implementation of the security operations using Arm's TrustZone IP [2]. This
-implementation uses OP-TEE [3] to isolate secure operations and assets under a
+provides security services for implementations of the [Data Distribution Service
+(DDS) specification][1]. The main goal of the _libddssec_ is to offer a common
+implementation of the security operations using Arm's [TrustZone IP][2]. This
+implementation uses [OP-TEE][3] to isolate secure operations and assets under a
 Trusted Execution Environment.
 
 ## Prerequisites
@@ -161,9 +161,9 @@ The software is provided under the [BSD-3-Clause license](https://spdx.org/licen
 
 ## References
 
-* [1] https://www.omg.org/spec/DDS/About-DDS/
-* [2] https://developer.arm.com/technologies/trustzone
-* [3] https://www.op-tee.org/
+[1]: https://www.omg.org/spec/DDS/About-DDS/
+[2]: https://developer.arm.com/technologies/trustzone
+[3]: https://www.op-tee.org/
 
 ## Feedback and Support
 
