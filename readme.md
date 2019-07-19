@@ -87,10 +87,6 @@ To clean the trusted application build, use the target ```ta-clean```:
 
     $> make ta-clean
 
-For more details on the OP-TEE OS environment variables, consult the
-[OP-TEE Examples](https://github.com/linaro-swg/optee_examples/blob/master/docs/TA_basics.md)
-documentation.
-
 ## Verification
 
 To build and run the unit tests on an Arm device:
