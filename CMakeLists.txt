@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 project("libddssec" VERSION 0.1.0 LANGUAGES C)
-set(${PROJECT_NAME}_DESCRIPTION_SUMMARY "DDS Security library")
+set(${PROJECT_NAME}_DESCRIPTION_SUMMARY "libddssec")
 
 set(DSEC_CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules
     CACHE INTERNAL "")
