@@ -7,6 +7,7 @@
 
 #include <dsec_macros.h>
 #include <dsec_ta.h>
+#include <dsec_ta_digest.h>
 #include <dsec_ta_hh.h>
 #include <dsec_ta_ih.h>
 #include <dsec_ta_ih_ca.h>
@@ -164,6 +165,9 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
         result = dsec_ta_ssh_get_info(parameters_type, parameters);
         break;
 #if DSEC_TEST
+    case DSEC_TA_CMD_SHA256:
+        result = dsec_ta_test_sha256(parameters_type, parameters);
+        break;
     case DSEC_TA_CMD_LOAD_OBJECT_BUILTIN:
         result = dsec_ta_test_load_object_builtin(parameters_type, parameters);
         break;

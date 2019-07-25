@@ -5,11 +5,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <dsec_ta_digest.h>
 #include <dsec_ta_ssh.h>
 #include <dsec_ta_dh.h>
 #include <dsec_ta_hh.h>
+#include <dsec_errno.h>
 #include <dsec_util.h>
-#include <mbedtls/sha256.h>
 #include <tee_api.h>
 
 static struct shared_secret_handle_t store[DSEC_TA_MAX_SHARED_SECRET_HANDLE];
@@ -111,13 +112,21 @@ static TEE_Result ss_derive(const struct dh_pair_handle_t* dh_local_handle,
                     &shared_key_size);
 
                 if (result == TEE_SUCCESS) {
+                    int32_t result_sha256 = 0;
                     shared_key_handle->initialized = true;
                     shared_key_handle->data_size = 32 /* SHA256 is 32 bytes */;
-                    mbedtls_sha256(shared_key,
-                                   shared_key_size,
-                                   shared_key_handle->data,
-                                   0 /* is224 */);
 
+                    result_sha256 = dsec_ta_digest_sha256(
+                        shared_key_handle->data,
+                        shared_key,
+                        shared_key_size);
+
+                    if (result_sha256 != DSEC_SUCCESS) {
+                        EMSG("Could not perform the digest for the shared "
+                             "secret key.\n");
+
+                        result = TEE_ERROR_SECURITY;
+                    }
                 } else {
                     EMSG("Could not get the shared secret key size.\n");
                     /* Return the result from TEE_GetObjectBufferAttribute */

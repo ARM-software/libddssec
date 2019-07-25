@@ -13,6 +13,7 @@ global-incdirs-y += \
 # Source files to build the TA
 srcs-y += \
     dsec_ta.c \
+    dsec_ta_digest.c \
     dsec_ta_manage_object.c \
     dsec_ta_ih.c \
     dsec_ta_ih_ca.c \

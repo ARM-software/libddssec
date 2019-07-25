@@ -90,6 +90,8 @@ enum {
     /*! Function ID of dsec_ta_ssh_get_info */
     DSEC_TA_CMD_SSH_INFO,
 #if DSEC_TEST
+    /*! Function ID of dsec_ta_test_sha256 */
+    DSEC_TA_CMD_SHA256,
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,
     /*! Function ID for dsec_ta_test_unload_object */

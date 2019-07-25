@@ -143,6 +143,14 @@ dsec_add_test(
         test_ih.c
 )
 dsec_add_test(
+    NAME digest
+    SOURCE
+        ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
+        dsec_digest_ca.c
+        dsec_test_ta.c
+        test_digest.c
+)
+dsec_add_test(
     NAME identity_handle_ca
     SOURCE
         ${CMAKE_SOURCE_DIR}/src/dsec_ca.c

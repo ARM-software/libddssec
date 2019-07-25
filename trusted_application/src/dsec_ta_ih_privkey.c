@@ -5,14 +5,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <dsec_ta_digest.h>
 #include <dsec_ta_ih_privkey.h>
 #include <dsec_ta_ih.h>
 #include <dsec_ta_manage_object.h>
+#include <dsec_errno.h>
 #include <dsec_macros.h>
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/entropy.h>
-
-#define SHA256_DATA_SIZE (32U)
 
 /*
  * Callback function to generate random numbers for mbedTLS using TEE function.
@@ -103,32 +103,41 @@ static TEE_Result privkey_sign(const mbedtls_ecp_keypair* ecp_privkey,
 
     mbedtls_ecdsa_context ecdsa_privkey;
     /* Contains the SHA256 of the incoming buffer to be signed */
-    unsigned char data_sha256[SHA256_DATA_SIZE] = {0};
+    uint8_t data_sha256[DSEC_TA_SHA256_SIZE] = {0};
     size_t output_signature_size = 0;
 
     mbedtls_ecdsa_init(&ecdsa_privkey);
     result_mbedtls = mbedtls_ecdsa_from_keypair(&ecdsa_privkey, ecp_privkey);
 
     if (result_mbedtls == 0) {
+        int32_t result_sha256 = 0;
+
         /* Generate a SHA256 of the message */
-        mbedtls_sha256(input, input_size, data_sha256, 0 /* is224 */);
+        result_sha256 = dsec_ta_digest_sha256(data_sha256, input, input_size);
 
-        result_mbedtls = mbedtls_ecdsa_write_signature(&ecdsa_privkey,
-                                                       MBEDTLS_MD_SHA256,
-                                                       data_sha256,
-                                                       SHA256_DATA_SIZE,
-                                                       signature,
-                                                       &output_signature_size,
-                                                       optee_ctr_drbg_random,
-                                                       NULL /* p_rng */);
+        if (result_sha256 == DSEC_SUCCESS) {
+            result_mbedtls =
+                mbedtls_ecdsa_write_signature(&ecdsa_privkey,
+                                              MBEDTLS_MD_SHA256,
+                                              data_sha256,
+                                              DSEC_TA_SHA256_SIZE,
+                                              signature,
+                                              &output_signature_size,
+                                              optee_ctr_drbg_random,
+                                              NULL /* p_rng */);
 
-        if (result_mbedtls == 0) {
-            result = TEE_SUCCESS;
-            *signature_size = output_signature_size;
+            if (result_mbedtls == 0) {
+                result = TEE_SUCCESS;
+                *signature_size = output_signature_size;
+            } else {
+                EMSG("Could not generate signature: 0x%x.\n", result_mbedtls);
+                result = TEE_ERROR_SECURITY;
+            }
         } else {
-            EMSG("Could not generate signature: 0x%x.\n", result_mbedtls);
+            EMSG("Could not generate sha256 for signature: %d.\n",
+                 result_sha256);
+
             result = TEE_ERROR_SECURITY;
-            *signature_size = 0;
         }
 
         mbedtls_ecdsa_free(&ecdsa_privkey);
@@ -136,6 +145,10 @@ static TEE_Result privkey_sign(const mbedtls_ecp_keypair* ecp_privkey,
     } else {
         EMSG("Could not extract private key: 0x%x.\n", result_mbedtls);
         result = TEE_ERROR_BAD_FORMAT;
+    }
+
+    if (result != TEE_SUCCESS) {
+        *signature_size = 0;
     }
 
     return result;

@@ -5,14 +5,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <dsec_ta_digest.h>
 #include <dsec_ta_ih_cert.h>
 #include <dsec_ta_ih.h>
 #include <dsec_ta_manage_object.h>
+#include <dsec_errno.h>
 #include <dsec_util.h>
 #include <mbedtls/base64.h>
-#include <mbedtls/sha256.h>
-
-#define SHA256_DATA_SIZE (32U)
 
 /*
  * This function checks the given inputs to make sure they are valid and can be
@@ -42,7 +41,7 @@ static TEE_Result cert_signature_verify_check_input(
              *     SEC1 Elliptic Curve Cryptography, section 4.1.4, step 3.
              */
             bitlength = curve_info->bit_size;
-            if (bitlength <= (SHA256_DATA_SIZE * 8)) {
+            if (bitlength <= (DSEC_TA_SHA256_SIZE * 8)) {
                 /*
                  * The given signature buffer should have a size of 2 times
                  * the size of the curve used, plus 9.
@@ -93,7 +92,7 @@ static TEE_Result cert_signature_verify(const mbedtls_pk_context* public_key,
 
     TEE_Result result = 0;
     int result_mbedtls = 0;
-    unsigned char sha256_data[SHA256_DATA_SIZE] = {0};
+    uint8_t sha256_data[DSEC_TA_SHA256_SIZE] = {0};
     mbedtls_ecdsa_context ecdsa_public_context;
 
     mbedtls_ecdsa_init(&ecdsa_public_context);
@@ -102,31 +101,32 @@ static TEE_Result cert_signature_verify(const mbedtls_pk_context* public_key,
 
     if (result_mbedtls == 0) {
 
-        /*
-         * Note: mbedtls_sha256 is depreciated but OPTEE-OS
-         * internal library still uses an old mbedtls
-         * version.
-         */
-        mbedtls_sha256(input, input_size, sha256_data, 0 /* is224 */);
+        int32_t result_sha256 = dsec_ta_digest_sha256(sha256_data,
+                                                      input,
+                                                      input_size);
 
-        /*
-         * Check if the sha256 of the given data `input` and
-         * the given signature match the computed signature
-         * with the key specified.
-         */
-        result_mbedtls = mbedtls_ecdsa_read_signature(&ecdsa_public_context,
-                                                      sha256_data,
-                                                      SHA256_DATA_SIZE,
-                                                      signature,
-                                                      signature_size);
+        if (result_sha256 == DSEC_SUCCESS) {
+            /*
+             * Check if the sha256 of the given data `input` and
+             * the given signature match the computed signature
+             * with the key specified.
+             */
+            result_mbedtls = mbedtls_ecdsa_read_signature(&ecdsa_public_context,
+                                                          sha256_data,
+                                                          DSEC_TA_SHA256_SIZE,
+                                                          signature,
+                                                          signature_size);
 
-        if (result_mbedtls == 0) {
-            result = TEE_SUCCESS;
+            if (result_mbedtls == 0) {
+                result = TEE_SUCCESS;
+            } else {
+                EMSG("Signature is invalid: 0x%x.\n", result_mbedtls);
+                result = TEE_ERROR_SECURITY;
+            }
         } else {
-            EMSG("Signature is invalid: 0x%x.\n", result_mbedtls);
+            EMSG("Could not perform the digest for signing the certificate.\n");
             result = TEE_ERROR_SECURITY;
         }
-
         mbedtls_ecdsa_free(&ecdsa_public_context);
     }
 
@@ -769,7 +769,7 @@ TEE_Result dsec_ta_ih_cert_get_sha256_sn(uint32_t parameters_type,
     mbedtls_x509_buf raw_sn;
     /* Size of the output buffer that was allocated */
     size_t output_length = 0;
-    unsigned char* output_buffer = NULL;
+    uint8_t* output_buffer = NULL;
 
     const uint32_t expected_types =
         TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_OUTPUT,
@@ -787,16 +787,25 @@ TEE_Result dsec_ta_ih_cert_get_sha256_sn(uint32_t parameters_type,
             output_length = parameters[0].memref.size;
 
             parameters[0].memref.size = 0;
-            if (output_length >= 32) {
+            if (output_length >= DSEC_TA_SHA256_SIZE) {
+                int32_t result_sha256 = 0;
+
                 cert = &(ih->cert_handle.cert);
-
                 raw_sn = cert->subject_raw;
-                mbedtls_sha256(raw_sn.p,
-                               raw_sn.len,
-                               output_buffer,
-                               0 /* is224 */);
+                result_sha256 = dsec_ta_digest_sha256(output_buffer,
+                                                      raw_sn.p,
+                                                      raw_sn.len);
 
-                parameters[0].memref.size = 32;
+                if (result_sha256 == DSEC_SUCCESS) {
+                    parameters[0].memref.size = DSEC_TA_SHA256_SIZE;
+                    result = TEE_SUCCESS;
+                } else {
+                    parameters[0].memref.size = -1;
+                    EMSG("Could not perform the digest for the subject"
+                         " name.\n");
+
+                    result = TEE_ERROR_SECURITY;
+                }
 
             } else {
                 EMSG("Output buffer is too small.\n");
