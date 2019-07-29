@@ -25,6 +25,50 @@ implementation of the security operations using Arm's [TrustZone IP][2]. This
 implementation uses [OP-TEE][3] to isolate secure operations and assets under a
 Trusted Execution Environment.
 
+![The DDS implementation, starting in the Non-Trusted Environment, uses security plugins to call the libddssec API, existing in a domain called the libddssec CA.  libddssec's TEEC_API functions backend sends these requests to the OP-TEE Client Library (TEEC), which passes it on the the TEE Kernel Driver over ioctl. The TEE Kernel Driver uses ioctl to communicate with the tee-supplicant, used to load information from the filesystem including the encrypted data in /data/tee and the TA binary in /lib/optee_armtz. The TEE Kernel Driver also communicates with TF-A over Secure Monitor Call (SMC), entering the Trusted Environment. TF-A uses another SMC to communicate with OP-TEE OS (running in the Trusted Environment) which contains mbedTLS, libtomcrypt, and Secure Storage libraries. OP-TEE OS communicates with libddssec's dsec TA to access the assets needed for the DDS security plugins safely and without exposing them to the Non-Trusted Environment. Both environments can use shared memory, but this is not used in libddssec](doc/media/Big_picture.svg)
+
+## Libddssec project goals
+
+The goal of libddssec is to improve security implementations of DDS plugins for
+Arm-based systems using the TrustZone IP. libddssec is a reference
+implementation of the DSS specification's security plugins that uses the Trusted
+Execution Environment (TEE) to store secure assets, aiming to keep them secure
+even in a system where the normal world is compromised. This library is intended
+to be used by DDS implementations as a way to integrate TEE based security into
+their own library.
+
+The following critical assets are intended to be stored in TrustZone
+
+ - Private Keys: asymmetric key. Unique for a participant and injected before
+   launching the application. In the final version of the library, private keys
+   should be generated and a certificate signing request should be exported out
+   to be signed by a CA and re-injected.
+
+ - Session Keys: Generated after authentication and used for message exchange.
+   Those keys are generated during run-time.
+
+To prevent tampering of data, some non-critical assets are also stored in
+TrustZone. These are public assets and are not considered as sensitive data
+
+ - The public certificate of the Certificate Authority (CA): used to
+   authenticate the different remote participant certificates signed previously.
+   This certificate is not sent through the DDS protocol and only stays locally
+   in the node for verifying a participant certificate (local and remote).
+   Tampering will cause the participant (local/remote) to be unauthenticated as
+   the CA certificate won’t authenticate the participant certificates.
+
+ - The public certificate of the local participant: used to authenticate a
+   participant. If this certificate is tampered with, the private key won't
+   match, and the node won't communicate as it won't be able to sign a message
+   using the private key.
+
+ - Certificate revocation list (CRL): Stored within the CA Certificate to remove
+   old or formerly trusted signed certificates which are no longer trusted (so
+   have been revoked).
+
+Apart from tampering, storing those certificates in a central location in the
+TEE helps to avoid mixing libraries with incompatible formats.
+
 ## Supported platforms
 
 libddssec is developed and tested using Ubuntu 16.04.6 LTS on 64-bit Arm-based
