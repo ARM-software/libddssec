@@ -21,12 +21,12 @@ static int optee_ctr_drbg_random(void* p_rng,
                                  unsigned char* output,
                                  size_t output_len)
 {
+    int result = 0;
     /*
      * Unused pseudo random generator context as we use TEE_GenerateRandom for
      * the generation.
      */
     DSEC_UNUSED(p_rng);
-    int result = 0;
 
     if (output == NULL) {
         result = 1;
