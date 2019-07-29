@@ -1,0 +1,98 @@
+#
+# DDS Security library
+# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+
+FROM ubuntu:bionic
+
+RUN echo 'Etc/UTC' > /etc/timezone && \
+    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+    apt-get update && apt-get install -q -y tzdata && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && \
+    apt-get install -y \
+    fuseext2 \
+    expect \
+    openjdk-8-jdk \
+    dh-autoreconf \
+    g++ \
+    device-tree-compiler \
+    bison \
+    flex \
+    gcc \
+    libssl-dev \
+    xterm \
+    python-crypto \
+    git \
+    python-wand \
+    uuid-dev \
+    bc \
+    cpio \
+    wget \
+    python3-apt && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN git config --global user.name "no-email" && \
+    git config --global user.email "no-email@email.com" && \
+    git config --global color.diff "auto"
+
+WORKDIR /shared_folder
+
+RUN wget -O arm_platform_setup.py \
+    https://community.arm.com/cfs-file/__key/communityserver-wikis-components-files/00-00-00-00-10/5518.armplat_5F00_1901.py
+
+# The command bellow will select the following configuration:
+##
+## 2) Fixed Virtual Platforms (FVPs)
+## 2) Armv8 architecture
+## 1) Armv8-A Base Platform
+## 1) Armv8-A Base Platform with 64-bit software stack
+## 1) Build from source
+## 1) Linux kernel & userspace filesystem
+## 2) Linaro/ArmLT Latest Stable Kernel
+## 2) OpenEmbedded
+## 2) OpenEmbedded Minimal
+## 1) Yes
+##
+## +---------------+----------------------------------------------------------+
+## | Workspace     | /shared_folder/                                          |
+## | Platform      | Armv8-A Base Platform with 64-bit software stack         |
+## | Type          | Use prebuilt configuration                               |
+## | Configuration | Linaro/ArmLT Latest Stable Kernel + OpenEmbedded Minimal |
+## +---------------+----------------------------------------------------------+
+##
+## The following software components are included:
+##
+## +-----------------------------------+
+## | Trusted Firmware-A                |
+## | OP-TEE                            |
+## | U-Boot                            |
+## | Linaro/ArmLT Latest Stable Kernel |
+## | OpenEmbedded Minimal              |
+## +-----------------------------------+
+
+RUN bash -c 'echo -e "2\n2\n1\n1\n1\n1\n2\n2\n2\n1\n" | \
+    python3 arm_platform_setup.py -v'
+
+# Update OP-TEE OS and OP-TEE Client.
+RUN cd optee/optee_os && \
+    git fetch --all && \
+    git checkout tags/3.3.0 && \
+    cd ..
+
+RUN cd optee/optee_client && \
+    git fetch --all && \
+    git checkout tags/3.3.0 && \
+    cd ..
+
+RUN cd arm-tf && \
+    git fetch --all && \
+    git checkout tags/v1.5 && \
+    cd ..
+
+RUN chmod a+x ./build-scripts/build-all.sh
+RUN ARM_TF_BUILD_FLAGS=FVP_USE_GIC_DRIVER=FVP_GICV3_LEGACY \
+    ./build-scripts/build-all.sh all

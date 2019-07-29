@@ -36,6 +36,7 @@ FILE_TYPES = [
     '**CMakeLists.txt',
     '**Makefile'
     '*.cmake',
+    '*Dockerfile*'
 ]
 
 #

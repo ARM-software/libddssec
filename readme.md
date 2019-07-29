@@ -137,6 +137,10 @@ This path must include:
 - Ramdisk: 'ramdisk.img'
 - Filesystem: 'ubuntu.img'
 
+Please follow the steps from
+[how_to_get_fvp_binaries](./doc/how_to_get_fvp_binaries.md) for details on how
+to get the binaries necessary for the tests using FVP.
+
 The tool also allows users to supply libddssec already pre-built speeding-up the
 tests as the build will be skipped on the remote (see the options
 ``--prebuild-path``).

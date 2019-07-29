@@ -1,5 +1,5 @@
 # Build directories
-build*/
+*build*/
 
 # CMake
 CMakeCache.txt
@@ -61,3 +61,6 @@ env/
 
 # Allow Makefile in the trusted application
 !trusted_application/src/Makefile
+
+# Any images
+*.img
