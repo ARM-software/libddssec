@@ -141,8 +141,23 @@ Please follow the steps from
 [how_to_get_fvp_binaries](./doc/how_to_get_fvp_binaries.md) for details on how
 to get the binaries necessary for the tests using FVP.
 
+In order to build and test libddssec and its trusted application natively, the
+validation.py tool requires the target file system to have:
+
+- OP-TEE Client installed (library and tee-supplicant) as well as a copy of the
+source code in `$HOME/optee_client` which will be used to build and link
+libddssec.
+- A copy of the OP-TEE TA development kit in the `$HOME/ta_dev_kit directory`
+which will be used to build libddssec's trusted application.
+
+The test framework will copy all the sources and build scripts and compile
+natively on the target platform. It will copy the Trusted Application to the
+test platform and backup the old one, if it exists. Then, it will start
+`tee-supplicant` and run the tests. During the tear-down process, the daemon
+`tee-supplicant` is killed and all backed-up files are restored.
+
 The tool also allows users to supply libddssec already pre-built speeding-up the
-tests as the build will be skipped on the remote (see the options
+tests as the build will be skipped on the target (see the options
 ``--prebuild-path``).
 
 ## Documentation
