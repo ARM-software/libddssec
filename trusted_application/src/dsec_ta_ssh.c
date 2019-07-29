@@ -24,9 +24,9 @@ static int32_t find_free_element(void)
     int32_t index = 0;
 
     index = TEE_ERROR_NO_DATA;
-    for (int32_t id = 0; id < DSEC_TA_MAX_SHARED_SECRET_HANDLE; id++) {
+    for (uint32_t id = 0; id < DSEC_TA_MAX_SHARED_SECRET_HANDLE; id++) {
         if (!store[id].initialized) {
-            index = id;
+            index = (int32_t)id;
             break;
         }
     }
@@ -41,7 +41,7 @@ static int32_t find_free_element(void)
 static bool ssh_is_valid(int32_t index)
 {
     return (index >= 0) &&
-           (index < DSEC_TA_MAX_SHARED_SECRET_HANDLE) &&
+           ((uint32_t)index < DSEC_TA_MAX_SHARED_SECRET_HANDLE) &&
            store[index].initialized;
 }
 
