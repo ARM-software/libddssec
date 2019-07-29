@@ -138,8 +138,8 @@ This path must include:
 - Filesystem: 'ubuntu.img'
 
 Please follow the steps from
-[how_to_get_fvp_binaries](./doc/how_to_get_fvp_binaries.md) for details on how
-to get the binaries necessary for the tests using FVP.
+[how_to_get_fvp_binaries](@ref HowToGetFVPBinaries) for details on how to get
+the binaries necessary for the tests using FVP.
 
 In order to build and test libddssec and its trusted application natively, the
 validation.py tool requires the target file system to have:

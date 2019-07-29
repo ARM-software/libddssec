@@ -124,6 +124,7 @@ endif()
 # Documentation
 #
 if(BUILD_DOC)
+    set(README ${CMAKE_CURRENT_SOURCE_DIR}/readme.md)
     add_subdirectory(doc)
 endif()
 

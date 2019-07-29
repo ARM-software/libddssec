@@ -23,6 +23,8 @@ if(BUILD_DOCUMENTATION)
     set(DOC_INCLUDES
         ${PROJECT_INCLUDES}
         ${TEST_INCLUDES}
+        ${README}
+        ${CMAKE_CURRENT_SOURCE_DIR}/how_to_get_fvp_binaries.md
     )
     # Space separated list of include directories
     string(REPLACE ";" " " INCLUDES_INPUT "${DOC_INCLUDES}")
