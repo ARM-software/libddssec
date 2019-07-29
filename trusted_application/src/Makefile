@@ -16,7 +16,26 @@ CPPFLAGS += -DCFG_TEE_TA_LOG_LEVEL=$(CFG_TEE_TA_LOG_LEVEL) \
     -DDSEC_TA_UUID="$(DSEC_TA_UUID)" \
     -DDSEC_TA_UUID_STRING=$(DSEC_TA_UUID_STRING) \
     -DDSEC_TEST=$(DSEC_TEST) \
-    -fstack-protector-all
+    -Wall \
+    -Wextra \
+    -Werror \
+    -Wno-missing-field-initializers \
+    -Wno-unused-parameter \
+    -Wfloat-equal \
+    -Wformat-security \
+    -Wformat-nonliteral \
+    -Wformat-y2k \
+    -Wmissing-declarations \
+    -Wmissing-include-dirs \
+    -Wmissing-noreturn \
+    -Wnested-externs \
+    -Wshadow \
+    -Wstrict-prototypes \
+    -Wswitch-default \
+    -pedantic \
+    -pedantic-errors \
+    -fstack-protector-all \
+    -fpie
 
 # The UUID for the trusted application (must match DSEC_TA_UUID)
 BINARY=$(DSEC_TA_UUID_STRING)
