@@ -362,7 +362,7 @@ class AssetsImage():
         self.path = os.path.abspath(self.name)
 
         print('Creating libddssec image')
-        result = subprocess.call('dd of={} count=4096 if=/dev/zero'.format(
+        result = subprocess.call('dd of={} count=8192 if=/dev/zero'.format(
             self.path), shell=True)
 
         if result != 0:
