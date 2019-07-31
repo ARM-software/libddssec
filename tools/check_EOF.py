@@ -33,8 +33,8 @@ FILE_TYPES = [
     '*.c',
     '*.h',
     '*.in',
-    '*.md'
-    '*.mk'
+    '*.md',
+    '*.mk',
     '*.py',
     '.clang-format',
 ]

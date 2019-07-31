@@ -34,7 +34,7 @@ FILE_TYPES = [
     '*.py',
     '.clang-format',
     '**CMakeLists.txt',
-    '**Makefile'
+    '**Makefile',
     '*.cmake',
     '*Dockerfile*'
 ]
