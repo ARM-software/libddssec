@@ -58,9 +58,8 @@ class TestBenchBase:
         # prompt.
         for x in expect:
             while True:
-                # Wait for an expected output or exit using the timeout if the
-                # expected values are not found.
-                index = self.terminal.expect(list(x) + unexpect, timeout=360)
+                # Wait for an expected output
+                index = self.terminal.expect(list(x) + unexpect)
                 if index >= 0 and index < len(unexpect) + 1:
                     # The return index value is one of the given index of the
                     # specified list while calling the expect function
@@ -229,10 +228,9 @@ class TestBenchFVP(TestBenchBase):
         print('Using port {}'.format(self.telnet_port))
 
     def __enter__(self):
-        # Timeout set to 20 minutes, this would be an unusually long test suite
         self.terminal = pexpect.spawn(
             'telnet localhost {}'.format(self.telnet_port),
-            timeout=1200,
+            timeout=1200,  # Set default timemout for expect()
             logfile=sys.stdout.buffer,
             maxread=self.maxread_buffer_size,
             searchwindowsize=self.searchwindow_size,
@@ -288,10 +286,9 @@ class TestBenchSSH(TestBenchBase):
         if self.ssh_port:
             ssh_command += ' -p {}'.format(self.ssh_port)
 
-        # Timeout set to 10 minutes, this would be an unusually long test suite
         self.terminal = pexpect.spawn(
             ssh_command,
-            timeout=600,
+            timeout=600,  # Set default timemout for expect()
             logfile=sys.stdout.buffer,
             maxread=self.maxread_buffer_size,
             searchwindowsize=self.searchwindow_size,
