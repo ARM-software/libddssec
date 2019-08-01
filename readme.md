@@ -80,25 +80,27 @@ While 32-bit builds may work, they should be considered untested.
 
 ## Prerequisites
 
-To build __libddssec__, the following tools are required:
+To build __libddssec__, the following dependencies are required:
 
 - CMake (3.5 or later)
 - Gnu Make (4.1 or later)
 - GCC (5.6 or later)
 - Python (3.5 or later)
+- [OP-TEE Client](https://github.com/OP-TEE/optee_client) (3.3 or later)
 
-In addition, the following tools are recommended:
+To build the trusted application, the following dependencies are required:
 
-- Doxygen (1.8.11 or later): Required to build supporting documentation
-- Dot (Graphviz 2.38 or later): Required to add diagrams in the documentation
+- [OP-TEE OS](https://github.com/OP-TEE/optee_os) (3.3 or later).
+
+In addition, the following dependencies are recommended for validation:
+
+- Doxygen (1.8.11 or later): Required to build supporting documentation.
+- Dot (Graphviz 2.38 or later): Required to add diagrams in the documentation.
 - checkpatch.pl (4.9 or later): Required by check_style.py.
 - cmakelint (1.4 or later): Required by check_style_cmake.py.
-
-The following libraries are required:
-- Pexpect: Used by validate.py to interact with remote devices
-
-For the dependencies to build the trusted application, please consult the
-[OP-TEE OS](https://github.com/OP-TEE/optee_os) documentation.
+- Pexpect: Used by validate.py to interact with remote devices.
+- pycodestyle: Used by validate.py to check python script coding style.
+- git
 
 ## Building the library and trusted application
 
@@ -111,12 +113,14 @@ Enter the build directory and run ```cmake```:
     $> cd build
 
     $> # Native compilation
-    $> cmake ..
+    $> cmake -DOPTEECLIENT_DIR=<path to OP-TEE Client> ..
 
     $> # Cross compilation
     $> export TARGET_ARCH=<aarch64 | arm>
     $> export CROSS_COMPILE=<cross-compiler path and prefix>
-    $> cmake -DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake ..
+    $> cmake -DOPTEECLIENT_DIR=<path to OP-TEE Client> \
+             -DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake \
+             ..
 
 To build the library, use ```make```:
 
