@@ -233,14 +233,6 @@ The documentation can then be found in _build_/doc/html/.
 
 The software is provided under the [BSD-3-Clause license](https://spdx.org/licenses/BSD-3-Clause.html).
 
-## References
-
-[1]: https://www.omg.org/spec/DDS/About-DDS/
-[2]: https://developer.arm.com/technologies/trustzone
-[3]: https://www.op-tee.org/
-[4]: https://developer.arm.com/products/system-design/fixed-virtual-platforms/
-[5]: https://community.arm.com/dev-platforms/
-
 ## Feedback and Support
 
 Arm welcomes any feedback on the DDS Security library.
@@ -248,3 +240,9 @@ Arm welcomes any feedback on the DDS Security library.
 To provide feedback or to request support please contact Arm by email at
 support@arm.com. Arm licensees may also contact Arm via their partner
 managers.
+
+[1]: https://www.omg.org/spec/DDS/About-DDS/
+[2]: https://developer.arm.com/technologies/trustzone
+[3]: https://www.op-tee.org/
+[4]: https://developer.arm.com/products/system-design/fixed-virtual-platforms/
+[5]: https://community.arm.com/dev-platforms/
