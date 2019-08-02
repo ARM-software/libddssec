@@ -1,4 +1,4 @@
-# About libddssec                                              {#AboutLibddssec}
+# About libddssec
 
 ## High-level architecture
 

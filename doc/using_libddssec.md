@@ -1,4 +1,4 @@
-# Using libddssec                                              {#UsingLibddssec}
+# Using libddssec
 
 ## Integrating libddssec into other projects
 

@@ -1,4 +1,4 @@
-# Fast-Model                                              {#HowToGetFVPBinaries}
+# Fast-Model
 This document provides guidelines to setup a virtual platform for testing
 libddssec.
 

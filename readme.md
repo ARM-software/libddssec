@@ -1,10 +1,8 @@
-# Readme                                                             {#mainpage}
+# Readme
 
 Copyright (c) 2018-2019, Arm Limited. All rights reserved.
 
-[How to use libddssec in your project](@ref UsingLibddssec)
 
-[The motivation for libddssec and how it works](@ref AboutLibddssec)
 
 ## Introduction
 
@@ -69,6 +67,9 @@ TrustZone. These are public assets and are not considered as sensitive data
 Apart from tampering, storing those certificates in a central location in the
 TEE helps to avoid mixing libraries with incompatible formats.
 
+For more details on the motivation for libddssec and how it works, read the
+[About libddssec](doc/about_libddssec.md).
+
 ## Supported platforms
 
 libddssec is developed and tested using Ubuntu 16.04.6 LTS on 64-bit Arm-based
@@ -103,6 +104,10 @@ In addition, the following dependencies are recommended for validation:
 - git
 
 ## Building the library and trusted application
+
+The next steps show an overview on how to build libddssec. For more details on
+how to integrate it in your project, please refer to the
+[Using libddssec](doc/using_libddssec.md) documentation.
 
 Create a directory for the build output:
 
@@ -189,9 +194,9 @@ This path must include:
 - Ramdisk: 'ramdisk.img'
 - Filesystem: 'ubuntu.img'
 
-Please follow the steps from
-[how_to_get_fvp_binaries](@ref HowToGetFVPBinaries) for details on how to get
-the binaries necessary for the tests using FVP.
+Please follow the steps from [How to Get the FVP
+Binaries](doc/how_to_get_fvp_binaries.md) for details on how to get the binaries
+necessary for the tests using FVP.
 
 In order to build and test libddssec and its trusted application natively, the
 validation.py tool requires the target file system to have:
