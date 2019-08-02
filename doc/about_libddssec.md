@@ -16,6 +16,8 @@ which this document will cover:
  - Public Key infrastructure (certificates, authentication).
  - Shared Secret generation (Diffie-Hellman).
 
+![Detailed big picture](./media/Big_picture_detailed.svg)
+
 # DDS
 
 DDS is the acronym for Data Distribution Service. It is used to implement
