@@ -209,6 +209,12 @@ dsec_add_test(
         ${CMAKE_SOURCE_DIR}/src/dsec_hh_challenge.c
         test_ssh.c
 )
+dsec_add_test(
+    NAME hmac_internal
+    SOURCE
+        ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
+        test_hmac.c
+)
 
 dsec_embed_asset_test_files(
     FILE_PATH

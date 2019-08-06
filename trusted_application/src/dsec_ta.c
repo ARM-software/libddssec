@@ -12,14 +12,18 @@
 #include <dsec_ta_ih_ca.h>
 #include <dsec_ta_ih_cert.h>
 #include <dsec_ta_ih_privkey.h>
+#include <dsec_ta_hmac.h>
 #include <dsec_ta_manage_object.h>
 #include <tee_ta_api.h>
 #include <trace.h>
 
 TEE_Result TA_CreateEntryPoint(void)
 {
+    TEE_Result result = TEE_SUCCESS;
+
     DMSG("Creating libddssec's TA");
-    return TEE_SUCCESS;
+    result = dsec_ta_hmac_256_init();
+    return result;
 }
 
 void TA_DestroyEntryPoint(void)
@@ -165,6 +169,9 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
         break;
     case DSEC_TA_CMD_UNLOAD_OBJECT:
         result = dsec_ta_test_unload_object();
+        break;
+    case DSEC_TA_CMD_HMAC_TESTS:
+        result = dsec_ta_hmac_256_test(parameters_type, parameters);
         break;
 #endif /* DSEC_TEST */
     default:
