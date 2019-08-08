@@ -7,7 +7,7 @@
 
 FROM multiarch/alpine:aarch64-latest-stable AS bootstrap
 
-FROM arm64v8/ubuntu:xenial AS sysroot
+FROM arm64v8/ubuntu:bionic AS sysroot
 
 COPY --from=bootstrap /usr/bin/qemu-aarch64-static /usr/bin/
 
@@ -30,32 +30,18 @@ RUN echo "127.0.0.1   localhost" > /etc/hosts && \
 # Get packages for compilation/tests
 RUN apt-get update && apt-get install -y \
     cmake \
+    lcov \
+    libssl-dev \
     make \
     gcc \
     python \
+    python3 \
     python-crypto \
-    lcov && \
+    systemd && \
     rm -rf /var/lib/apt/lists/*
 
 # Update tty
-RUN echo $'[Unit]\n\
-Description=getty on ${TTY_NAME_CONSOLE} if dbus and logind are not available\n\
-ConditionPathExists=/dev/${TTY_NAME_CONSOLE}\n\
-ConditionPathExists=!/lib/systemd/system/dbus.service\n\
-\n\
-[Service]\n\
-Type=oneshot\n\
-ExecStart=/bin/systemctl --no-block start getty@${TTY_NAME_CONSOLE}.service\n\
-RemainAfterExit=true'\
-> /lib/systemd/system/getty.target.wants/getty-static.service
-
-RUN ln -s /lib/systemd/system/getty@.service \
-      /etc/systemd/system/getty.target.wants/getty@${TTY_NAME_CONSOLE}.service
-
-RUN sed -i -e "s/DefaultInstance=tty1/DefaultInstance=${TTY_NAME_CONSOLE}/g" \
-      /lib/systemd/system/getty@.service \
-      /var/lib/dpkg/info/systemd.postinst \
-      /var/lib/dpkg/info/systemd.postrm
+RUN systemctl enable getty@${TTY_NAME_CONSOLE}
 
 # Enable root to log on the corresponding tty
 RUN echo "${TTY_NAME_CONSOLE}" > /etc/securetty
