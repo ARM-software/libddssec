@@ -89,6 +89,18 @@ enum {
     DSEC_TA_CMD_SSH_DELETE,
     /*! Function ID of dsec_ta_ssh_get_info */
     DSEC_TA_CMD_SSH_INFO,
+    /*! Function ID of dsec_ta_key_material_create */
+    DSEC_TA_CMD_KM_CREATE,
+    /*! Function ID of dsec_ta_key_material_copy */
+    DSEC_TA_CMD_KM_COPY,
+    /*! Function ID of dsec_ta_key_material_register */
+    DSEC_TA_CMD_KM_REGISTER,
+    /*! Function ID of dsec_ta_key_material_generate */
+    DSEC_TA_CMD_KM_GENERATE,
+    /*! Function ID of dsec_ta_key_material_return */
+    DSEC_TA_CMD_KM_RETURN,
+    /*! Function ID of dsec_ta_key_material_delete */
+    DSEC_TA_CMD_KM_DELETE,
 #if DSEC_TEST
     /*! Function ID of dsec_ta_test_sha256 */
     DSEC_TA_CMD_SHA256,

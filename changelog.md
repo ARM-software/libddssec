@@ -2,6 +2,13 @@
 
 Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
 
+# Key Material support - known limitation
+
+To facilitate incrementally adding cryptography support, key material is
+generated inside the TA then returned outside. When support is added for all
+operations which need key material, this will be an unnecessary asset leak which
+should be removed.
+
 # libddssec - version 0.1
 
 This is the initial release of libddssec. The library is still under development

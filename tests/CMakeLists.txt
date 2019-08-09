@@ -223,6 +223,17 @@ dsec_add_test(
         ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
         test_hmac.c
 )
+dsec_add_test(
+    NAME key_material
+    SOURCE
+        ${CMAKE_SOURCE_DIR}/src/dsec_ca.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_key_material.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_ssh.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_hh.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_hh_dh.c
+        ${CMAKE_SOURCE_DIR}/src/dsec_hh_challenge.c
+        test_key_material.c
+)
 
 dsec_embed_asset_test_files(
     FILE_PATH
