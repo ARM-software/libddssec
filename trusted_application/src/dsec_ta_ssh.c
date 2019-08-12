@@ -306,14 +306,7 @@ TEE_Result dsec_ta_ssh_unload(uint32_t parameters_type,
     if (parameters_type == expected_types) {
         index = (int32_t)parameters[0].value.a;
         ssh = dsec_ta_ssh_get(index);
-
-        if (ssh != NULL) {
-            result = dsec_ta_ssh_free(ssh);
-        } else {
-            EMSG("Shared Secret Handle is invalid.\n");
-            result = TEE_ERROR_BAD_PARAMETERS;
-        }
-
+        result = dsec_ta_ssh_free(ssh);
     } else {
         EMSG("Bad parameters types: 0x%x\n", parameters_type);
         result = TEE_ERROR_BAD_PARAMETERS;

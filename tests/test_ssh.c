@@ -23,6 +23,7 @@ static void test_case_ssh_derive(void)
     int32_t hh_h = -1;
     int32_t result = 0;
     int32_t ss_h = -1;
+    int32_t old_ss_h = -1;
 
     uint8_t dh_public[256];
     uint32_t dh_public_size = DSEC_ARRAY_SIZE(dh_public);
@@ -101,9 +102,12 @@ static void test_case_ssh_derive(void)
     DSEC_TEST_ASSERT(result == 0);
 
     /* Cannot derive a second time. */
+    old_ss_h = ss_h;
     DSEC_TEST_ASSERT(dsec_ssh_derive(&ss_h, &instance, hh_h) == DSEC_E_DATA);
 
     DSEC_TEST_ASSERT(dsec_hh_delete(&instance, hh_h) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, old_ss_h) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, ss_h) == DSEC_E_DATA);
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
@@ -243,6 +247,7 @@ static void test_case_ssh_failure_get_data(void)
     DSEC_TEST_ASSERT(result == DSEC_E_PARAM);
 
     DSEC_TEST_ASSERT(dsec_hh_delete(&instance, hh_h) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, ss_h) == DSEC_SUCCESS);
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
@@ -360,6 +365,120 @@ static void test_case_full_process(void)
 
     DSEC_TEST_ASSERT(dsec_hh_delete(&instance, hh_h_p1) == DSEC_SUCCESS);
     DSEC_TEST_ASSERT(dsec_hh_delete(&instance, hh_h_p2) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, ss_h_p1) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, ss_h_p2) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
+static void test_case_failure_unload(void)
+{
+    TEEC_Session session;
+    TEEC_Context context;
+
+    int32_t result = 0;
+
+    int32_t hh_h = -1;
+    int32_t ss_h = -1;
+
+    uint8_t dh[256];
+    uint32_t dh_size = DSEC_ARRAY_SIZE(dh);
+
+    uint8_t c[256];
+    uint32_t c_size = DSEC_ARRAY_SIZE(c);
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+
+    /* Handle not created */
+    DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, -1) == DSEC_E_DATA);
+    DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, 0) == DSEC_E_DATA);
+
+    DSEC_TEST_ASSERT(dsec_hh_create(&hh_h, &instance) == DSEC_SUCCESS);
+    /* Generate the challenge */
+    result = dsec_hh_challenge_generate(&instance, hh_h, c_size, 1);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    /* Set challenge */
+    result = dsec_hh_challenge_set(&instance, hh_h, c, c_size, 2);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    /* Set public key */
+    result = dsec_hh_dh_set_public(&instance, hh_h, dh, dh_size);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    /* Generate DH key pair */
+    DSEC_TEST_ASSERT(dsec_hh_dh_generate(&instance, hh_h) == DSEC_SUCCESS);
+    /* Derive the secrets */
+    DSEC_TEST_ASSERT(dsec_ssh_derive(&ss_h, &instance, hh_h) == DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_hh_delete(&instance, hh_h) == DSEC_SUCCESS);
+
+    /* Double free */
+    DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, ss_h) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, ss_h) == DSEC_E_DATA);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
+}
+
+static void test_case_get_info(void)
+{
+    TEEC_Session session;
+    TEEC_Context context;
+
+    int32_t result = 0;
+
+    struct ssh_info_t ssh_info = {.max_handle = 0, .allocated_handle = 0};
+
+    int32_t hh_h = -1;
+    int32_t ss_h = -1;
+
+    uint8_t dh[256];
+    uint32_t dh_size = DSEC_ARRAY_SIZE(dh);
+
+    uint8_t c[256];
+    uint32_t c_size = DSEC_ARRAY_SIZE(c);
+
+    struct dsec_instance instance = dsec_ca_instance_create(&session, &context);
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&instance) == DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_ssh_get_info(NULL, &instance) == DSEC_E_PARAM);
+    DSEC_TEST_ASSERT(dsec_ssh_get_info(NULL, NULL) == DSEC_E_PARAM);
+
+    DSEC_TEST_ASSERT(dsec_ssh_get_info(&ssh_info, &instance) == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(ssh_info.max_handle > 0);
+    DSEC_TEST_ASSERT(ssh_info.max_handle < INT32_MAX);
+    DSEC_TEST_ASSERT(ssh_info.allocated_handle == 0);
+
+    for (uint32_t i = 0; i < ssh_info.max_handle; i++) {
+        DSEC_TEST_ASSERT(dsec_hh_create(&hh_h, &instance) == DSEC_SUCCESS);
+        /* Generate the challenge */
+        result = dsec_hh_challenge_generate(&instance, hh_h, c_size, 1);
+        DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+        /* Set challenge */
+        result = dsec_hh_challenge_set(&instance, hh_h, c, c_size, 2);
+        DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+        /* Set public key */
+        result = dsec_hh_dh_set_public(&instance, hh_h, dh, dh_size);
+        DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+        /* Generate DH key pair */
+        DSEC_TEST_ASSERT(dsec_hh_dh_generate(&instance, hh_h) == DSEC_SUCCESS);
+        /* Derive the secrets */
+        result = dsec_ssh_derive(&ss_h, &instance, hh_h);
+
+        DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+        DSEC_TEST_ASSERT(ss_h == (int32_t)i);
+        result = dsec_ssh_get_info(&ssh_info, &instance);
+        DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+        DSEC_TEST_ASSERT(ssh_info.allocated_handle == (i+1));
+        DSEC_TEST_ASSERT(dsec_hh_delete(&instance, hh_h) == DSEC_SUCCESS);
+    }
+
+    for (uint32_t i = 0; i < ssh_info.max_handle; i++) {
+        DSEC_TEST_ASSERT(dsec_ssh_delete(&instance, i) == DSEC_SUCCESS);
+
+        result = dsec_ssh_get_info(&ssh_info, &instance);
+        DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+        uint32_t allocated_handles = ssh_info.max_handle - (i+1);
+        DSEC_TEST_ASSERT(ssh_info.allocated_handle == allocated_handles);
+    }
 
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
@@ -368,6 +487,8 @@ static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_ssh_derive),
     DSEC_TEST_CASE(test_case_ssh_failure_get_data),
     DSEC_TEST_CASE(test_case_full_process),
+    DSEC_TEST_CASE(test_case_failure_unload),
+    DSEC_TEST_CASE(test_case_get_info),
 };
 
 const struct dsec_test_suite_desc test_suite = {

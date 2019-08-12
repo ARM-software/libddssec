@@ -108,3 +108,70 @@ int32_t dsec_ssh_get_data(void* shared_key,
 
     return result;
 }
+
+int32_t dsec_ssh_delete(const struct dsec_instance* instance, int32_t ssh_id)
+{
+    int32_t result = 0;
+    TEEC_Result teec_result = 0;
+    uint32_t return_origin = 0;
+    TEEC_Operation operation = {0};
+
+    operation.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT,
+                                            TEEC_NONE,
+                                            TEEC_NONE,
+                                            TEEC_NONE);
+
+    operation.params[0].value.a = (uint32_t)ssh_id;
+
+    teec_result = dsec_ca_invoke(instance,
+                                 DSEC_TA_CMD_SSH_DELETE,
+                                 &operation,
+                                 &return_origin);
+
+    result = dsec_ca_convert_teec_result(teec_result);
+    if (result != DSEC_SUCCESS) {
+        (void)dsec_print("An error occurred: TEEC_Result=0x%x, DSEC_E=0x%x\n",
+                         teec_result,
+                         result);
+    }
+
+    return result;
+}
+
+int32_t dsec_ssh_get_info(struct ssh_info_t* ssh_info,
+                          const struct dsec_instance* instance)
+{
+    int32_t result = 0;
+    TEEC_Result teec_result = 0;
+    uint32_t return_origin = 0;
+    TEEC_Operation operation = {0};
+
+    if (ssh_info != NULL) {
+        operation.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_OUTPUT,
+                                                TEEC_NONE,
+                                                TEEC_NONE,
+                                                TEEC_NONE);
+
+        teec_result = dsec_ca_invoke(instance,
+                                     DSEC_TA_CMD_SSH_INFO,
+                                     &operation,
+                                     &return_origin);
+
+        result = dsec_ca_convert_teec_result(teec_result);
+        if (result == DSEC_SUCCESS) {
+            ssh_info->max_handle = operation.params[0].value.a;
+            ssh_info->allocated_handle = operation.params[0].value.b;
+        } else {
+            (void)dsec_print("An error occurred: TEEC_Result=0x%x, "
+                             "DSEC_E=0x%x\n",
+                             teec_result,
+                             result);
+        }
+
+    } else {
+        (void)dsec_print("Given parameter is NULL.\n");
+        result = DSEC_E_PARAM;
+    }
+
+    return result;
+}

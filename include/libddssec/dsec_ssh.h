@@ -27,6 +27,17 @@ extern "C" {
 #include <stdint.h>
 
 /*!
+ * Structure containing all the information that can be extracted from a shared
+ * secret handle.
+ */
+struct ssh_info_t {
+    /*! Maximum number of handles that can be allocated. */
+    uint32_t max_handle;
+    /*! Current number of handles allocated. */
+    uint32_t allocated_handle;
+};
+
+/*!
  * \brief Derive a shared secret
  *
  * \details Calls the Trusted Application to derive a shared secret from the
@@ -77,6 +88,38 @@ int32_t dsec_ssh_get_data(void* shared_key,
                           uint32_t* challenge2_size,
                           const struct dsec_instance* instance,
                           int32_t ssh_id);
+
+/*!
+ * \brief Delete a Shared Secret Handle
+ *
+ * \details Calls the Trusted Application to delete an allocated Shared Secret
+ *     Handle ID.
+ *
+ * \param instance Initialized instance to access the Trusted Application
+ * \param ssh_id Initialized Shared Secret Handle ID.
+ *
+ * \retval ::DSEC_SUCCESS Shared Secret Handle has been deleted.
+ * \retval ::DSEC_E_PARAM Given parameters are invalid.
+ */
+int32_t dsec_ssh_delete(const struct dsec_instance* instance, int32_t ssh_id);
+
+/*!
+ * \brief Get information on the Trusted Application Shared Secret Handles
+ *
+ * \details Calls the Trusted Application to request information about the
+ *     current status of the Shared Secret Handles: how many are allocated and
+ *     how many can be allocated.
+ *
+ * \param [out] ssh_info pointer to a ssh_info_t structure where all the
+ *      parameters are filled.
+ *
+ * \param instance Initialized instance to access the Trusted Application.
+ *
+ * \retval ::DSEC_SUCCESS Asked values are returned and valid.
+ * \retval ::DSEC_E_PARAM Given parameters are invalid.
+ */
+int32_t dsec_ssh_get_info(struct ssh_info_t* ssh_info,
+                          const struct dsec_instance* instance);
 
 /*!
  * \}
