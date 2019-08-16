@@ -1,6 +1,6 @@
 #
 # DDS Security library
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -56,6 +56,7 @@ macro(dsec_build_ta)
         COMMAND make O=${CMAKE_CURRENT_BINARY_DIR}/build
             PROJECT_VERSION=${PROJECT_VERSION}
             PROJECT_DESCRIPTION_SUMMARY=${${PROJECT_NAME}_DESCRIPTION_SUMMARY}
+            CFG_TEE_TA_LOG_LEVEL=0
             DSEC_TEST=${BUILD_TEST}
             DSEC_TA_UUID=${DSEC_TA_UUID_STRUCTURE}
             DSEC_TA_UUID_STRING=${ARGS_TA_UUID_STRING}
