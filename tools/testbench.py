@@ -253,7 +253,7 @@ class TestBenchFVP(TestBenchBase):
     def __enter__(self):
         self.terminal = pexpect.spawn(
             'telnet localhost {}'.format(self.telnet_port),
-            timeout=1200,  # Set default timemout for expect()
+            timeout=3200,  # Set default timemout for expect()
             logfile=sys.stdout.buffer,
             maxread=self.maxread_buffer_size,
             searchwindowsize=self.searchwindow_size,
