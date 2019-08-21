@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -291,6 +291,89 @@ int32_t dsec_key_material_delete(const struct dsec_instance* instance,
         (void)dsec_print("An error occurred: TEEC_Result=0x%x, DSEC_E=0x%x\n",
                          teec_result,
                          result);
+    }
+
+    return result;
+}
+
+int32_t dsec_key_material_serialize(uint8_t* output,
+                                    uint32_t* output_size,
+                                    const struct dsec_instance* instance,
+                                    int32_t km_handle_id)
+{
+    int32_t result = 0;
+    TEEC_Result teec_result = 0;
+    uint32_t return_origin = 0;
+    TEEC_Operation operation = {0};
+
+    if ((output != NULL) && (output_size != NULL)) {
+        operation.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_OUTPUT,
+                                                TEEC_VALUE_INPUT,
+                                                TEEC_NONE,
+                                                TEEC_NONE);
+
+        operation.params[0].tmpref.buffer = output;
+        operation.params[0].tmpref.size = *output_size;
+
+        operation.params[1].value.a = (uint32_t)km_handle_id;
+
+        teec_result = dsec_ca_invoke(instance,
+                                     DSEC_TA_CMD_KM_SERIALIZE,
+                                     &operation,
+                                     &return_origin);
+
+        result = dsec_ca_convert_teec_result(teec_result);
+        *output_size = operation.params[0].tmpref.size;
+
+        if (result != DSEC_SUCCESS) {
+            (void)dsec_print(
+                "An error occurred: TEEC_Result=0x%x, DSEC_E=0x%x\n",
+                teec_result,
+                result);
+        }
+    } else {
+        (void)dsec_print("At least one of given input is NULL\n");
+        result = DSEC_E_PARAM;
+    }
+
+    return result;
+}
+
+int32_t dsec_key_material_deserialize(int32_t* km_handle_id,
+                                      const struct dsec_instance* instance,
+                                      uint8_t* input,
+                                      uint32_t input_size)
+{
+    int32_t result = 0;
+    TEEC_Result teec_result = 0;
+    uint32_t return_origin = 0;
+    TEEC_Operation operation = {0};
+
+    if ((km_handle_id != NULL) && (input != NULL)) {
+        operation.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_OUTPUT,
+                                                TEEC_MEMREF_TEMP_INPUT,
+                                                TEEC_NONE,
+                                                TEEC_NONE);
+
+        operation.params[1].tmpref.buffer = input;
+        operation.params[1].tmpref.size = input_size;
+
+        teec_result = dsec_ca_invoke(instance,
+                                     DSEC_TA_CMD_KM_DESERIALIZE,
+                                     &operation,
+                                     &return_origin);
+
+        result = dsec_ca_convert_teec_result(teec_result);
+        *km_handle_id = operation.params[0].value.a;
+        if (result != DSEC_SUCCESS) {
+            (void)dsec_print(
+                "An error occurred: TEEC_Result=0x%x, DSEC_E=0x%x\n",
+                teec_result,
+                result);
+        }
+    } else {
+        (void)dsec_print("At least one of given input is NULL\n");
+        result = DSEC_E_PARAM;
     }
 
     return result;

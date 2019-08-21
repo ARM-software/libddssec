@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -182,6 +182,12 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
         break;
     case DSEC_TA_CMD_KM_DELETE:
         result = dsec_ta_key_material_delete(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_KM_SERIALIZE:
+        result = dsec_ta_key_material_serialize(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_KM_DESERIALIZE:
+        result = dsec_ta_key_material_deserialize(parameters_type, parameters);
         break;
 #if DSEC_TEST
     case DSEC_TA_CMD_SHA256:

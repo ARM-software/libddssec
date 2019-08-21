@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -410,6 +410,256 @@ static TEE_Result key_material_register(int32_t* km_handle_id,
     return result;
 }
 
+static TEE_Result key_material_serialize(uint8_t* output,
+                                         uint32_t* output_size,
+                                         int32_t in_km_handle_id)
+{
+    TEE_Result result = 0;
+    struct key_material_t* in_key_material = NULL;
+    uint8_t* output_tmp = NULL;
+    uint8_t kind = 0;
+    uint8_t key_len = 0;
+    uint8_t has_specific_key = 0;
+
+    if ((output != NULL) && (output_size != NULL)) {
+
+        if (km_is_valid(in_km_handle_id)) {
+            in_key_material = &(store[in_km_handle_id].key_material);
+
+            output_tmp = output;
+            *output_size = 0;
+
+            memcpy(output,
+                   in_key_material->transformation_kind,
+                   TRANSFORMATION_KIND_SIZE);
+
+            output_tmp += TRANSFORMATION_KIND_SIZE;
+            *output_size += TRANSFORMATION_KIND_SIZE;
+
+            kind = in_key_material->transformation_kind[3];
+            if (kind == 0) {
+                /*
+                 * transformation_kind = {0, 0, 0, 0}: (NONE)
+                 * Need to set:
+                 *  - master_salt {0, 0, 0, 0}
+                 *  - sender_key_id {0, 0, 0, 0}
+                 *  - master_sender_key {0, 0, 0, 0}
+                 *  - receiver_specific_key_id {0, 0, 0, 0}
+                 *  - master_receiver_specific_key {0, 0, 0, 0}
+                 *
+                 * Which is 40 bytes to 0
+                 */
+                memset(output_tmp, 0, 40);
+                *output_size += 40;
+
+            } else {
+                /*
+                 * AES128 for kinds 1 and 2: 16 bytes
+                 * AES256 for kinds 3 and 4: 32 bytes
+                 */
+                key_len = (kind <= 2) ? 16 : 32;
+
+                /*
+                 * Copy {0 0 0 key_len}
+                 */
+                memset(output_tmp, 0, 3);
+                output_tmp += 3;
+                *output_tmp = key_len;
+                output_tmp += 1;
+                *output_size += 4;
+
+                memcpy(output_tmp,
+                       in_key_material->master_salt,
+                       key_len);
+
+                output_tmp += key_len;
+                *output_size += key_len;
+
+                memcpy(output_tmp,
+                       in_key_material->sender_key_id,
+                       SENDER_KEY_ID_SIZE);
+
+                output_tmp += SENDER_KEY_ID_SIZE;
+                *output_size += SENDER_KEY_ID_SIZE;
+
+                /*
+                 * Copy {0 0 0 key_len}
+                 */
+                memset(output_tmp, 0, 3);
+                output_tmp += 3;
+                *output_tmp = key_len;
+                output_tmp += 1;
+
+                memcpy(output_tmp,
+                       in_key_material->master_sender_key,
+                       key_len);
+
+                output_tmp += key_len;
+                *output_size += key_len;
+
+                has_specific_key = 0;
+                for (uint32_t i = 0; i < RECEIVER_SPECIFIC_KEY_ID_SIZE; i++) {
+                    output_tmp[0] =
+                        in_key_material->receiver_specific_key_id[i];
+
+                    has_specific_key |= output_tmp[0];
+                    output_tmp++;
+                }
+
+                *output_size += RECEIVER_SPECIFIC_KEY_ID_SIZE;
+
+                if (has_specific_key == 0) {
+                    memset(output_tmp, 0, 4);
+                    output_tmp += 4;
+                    *output_size += 4;
+                } else {
+                    /*
+                     * Copy {0 0 0 key_len}
+                     */
+                    memset(output_tmp, 0, 3);
+                    output_tmp += 3;
+                    *output_tmp = key_len;
+                    output_tmp += 1;
+                    *output_size += 4;
+
+                    memcpy(output_tmp,
+                           in_key_material->master_receiver_specific_key,
+                           key_len);
+
+                    *output_size += key_len;
+                }
+
+                result = TEE_SUCCESS;
+            }
+
+        } else {
+            result = TEE_ERROR_BAD_PARAMETERS;
+        }
+
+    } else {
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+static TEE_Result key_material_deserialize(int32_t* km_handle_id,
+                                           const uint8_t* input,
+                                           uint32_t input_size)
+{
+    TEE_Result result = 0;
+    int32_t km_handle_id_tmp = 0;
+    struct key_material_t* out_key_material = NULL;
+    uint8_t kind = 0;
+    uint32_t position = 0;
+    uint8_t key_len = 0;
+    uint8_t has_specific_key = 0;
+
+    if (km_handle_id != NULL) {
+        km_handle_id_tmp = find_free_km_element();
+
+        if (km_handle_id_tmp >= 0) {
+            out_key_material = &(store[km_handle_id_tmp].key_material);
+            store[km_handle_id_tmp].initialized = true;
+            *km_handle_id = km_handle_id_tmp;
+
+            result = TEE_SUCCESS;
+
+            kind = input[3];
+            out_key_material->transformation_kind[0] = input[0];
+            out_key_material->transformation_kind[1] = input[1];
+            out_key_material->transformation_kind[2] = input[2];
+            out_key_material->transformation_kind[3] = kind;
+            if (kind == 0) {
+                memset(out_key_material->sender_key_id, 0, SENDER_KEY_ID_SIZE);
+                memset(out_key_material->receiver_specific_key_id,
+                       0,
+                       RECEIVER_SPECIFIC_KEY_ID_SIZE);
+
+                memset(out_key_material->master_salt, 0, MASTER_SALT_SIZE);
+                memset(out_key_material->master_sender_key,
+                       0,
+                       MASTER_SENDER_KEY_SIZE);
+
+                memset(out_key_material->master_receiver_specific_key,
+                       0,
+                       MASTER_RECEIVER_SPECIFIC_KEY_SIZE);
+
+            } else {
+                /* Get key length. */
+                position = 4 /* {0, 0, 0, 0} */ + 3 /* {0, 0, 0} */;
+                key_len = input[position];
+                position += 1;
+
+                /* Make sure key length is valid. */
+                if ((key_len == 16) || (key_len == 32)) {
+                    memcpy(out_key_material->master_salt,
+                           &input[position],
+                           key_len);
+
+                    position += key_len;
+
+                    memcpy(out_key_material->sender_key_id,
+                           &input[position],
+                           SENDER_KEY_ID_SIZE);
+
+                    position += SENDER_KEY_ID_SIZE;
+
+                    position += 3 /* {0, 0, 0} */;
+                    key_len = input[position];
+                    position += 1;
+                    if ((key_len == 16) || (key_len == 32)) {
+                        memcpy(out_key_material->master_sender_key,
+                               &input[position],
+                               key_len);
+
+                        position += key_len;
+
+                        has_specific_key = 0;
+                        for (uint8_t i = 0;
+                             i < RECEIVER_SPECIFIC_KEY_ID_SIZE;
+                             i++) {
+
+                            out_key_material->receiver_specific_key_id[i] =
+                                input[position];
+
+                            has_specific_key |= input[position];
+                            position += 1;
+                        }
+
+                        if (has_specific_key != 0) {
+                            position += 3 /* {0, 0, 0} */;
+                            key_len = input[position];
+                            if ((key_len == 16) || (key_len == 32)) {
+                                position += 1;
+
+                                memcpy(
+                                out_key_material->master_receiver_specific_key,
+                                &input[position],
+                                key_len);
+
+                            } else {
+                                result = TEE_ERROR_BAD_PARAMETERS;
+                            }
+                        }
+
+                    } else {
+                        result = TEE_ERROR_BAD_PARAMETERS;
+                    }
+                } else {
+                    result = TEE_ERROR_BAD_PARAMETERS;
+                }
+            }
+        } else {
+            result = TEE_ERROR_BAD_PARAMETERS;
+        }
+    } else {
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
 TEE_Result dsec_ta_key_material_create(uint32_t parameters_type,
                                        TEE_Param parameters[2])
 {
@@ -652,6 +902,80 @@ TEE_Result dsec_ta_key_material_delete(uint32_t parameters_type,
 
             result = TEE_ERROR_BAD_PARAMETERS;
         }
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_key_material_serialize(uint32_t parameters_type,
+                                          TEE_Param parameters[2])
+{
+    TEE_Result result = TEE_SUCCESS;
+
+    int32_t km_handle_id = 0;
+    uint8_t* output = 0;
+    uint32_t output_size = 0;
+
+    const uint32_t expected_types = TEE_PARAM_TYPES(
+        TEE_PARAM_TYPE_MEMREF_OUTPUT,
+        TEE_PARAM_TYPE_VALUE_INPUT,
+        TEE_PARAM_TYPE_NONE,
+        TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+        km_handle_id = (int32_t)parameters[1].value.a;
+        output = parameters[0].memref.buffer;
+        output_size = parameters[0].memref.size;
+
+        result = key_material_serialize(output,
+                                        &output_size,
+                                        km_handle_id);
+
+        if (result == TEE_SUCCESS) {
+            parameters[0].memref.size = output_size;
+        } else {
+            parameters[0].memref.size = 0;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_key_material_deserialize(uint32_t parameters_type,
+                                            TEE_Param parameters[2])
+{
+    TEE_Result result = TEE_SUCCESS;
+
+    int32_t km_handle_id = 0;
+    uint8_t* input = 0;
+    uint32_t input_size = 0;
+
+    const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_OUTPUT,
+                                                    TEE_PARAM_TYPE_MEMREF_INPUT,
+                                                    TEE_PARAM_TYPE_NONE,
+                                                    TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+        input = parameters[1].memref.buffer;
+        input_size = parameters[1].memref.size;
+
+        result = key_material_deserialize(&km_handle_id,
+                                          input,
+                                          input_size);
+
+        if (result == TEE_SUCCESS) {
+            parameters[0].value.a = km_handle_id;
+        } else {
+            parameters[0].value.a = -1;
+        }
+
     } else {
         EMSG("Bad parameters types: 0x%x\n", parameters_type);
         result = TEE_ERROR_BAD_PARAMETERS;

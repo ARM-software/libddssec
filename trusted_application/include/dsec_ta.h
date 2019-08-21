@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -101,6 +101,10 @@ enum {
     DSEC_TA_CMD_KM_RETURN,
     /*! Function ID of dsec_ta_key_material_delete */
     DSEC_TA_CMD_KM_DELETE,
+    /*! Function ID of dsec_ta_key_material_serialize */
+    DSEC_TA_CMD_KM_SERIALIZE,
+    /*! Function ID of dsec_ta_key_material_deserialize */
+    DSEC_TA_CMD_KM_DESERIALIZE,
 #if DSEC_TEST
     /*! Function ID of dsec_ta_test_sha256 */
     DSEC_TA_CMD_SHA256,

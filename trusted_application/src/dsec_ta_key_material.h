@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -244,4 +244,55 @@ TEE_Result dsec_ta_key_material_return(uint32_t parameters_type,
  */
 TEE_Result dsec_ta_key_material_delete(uint32_t parameters_type,
                                        TEE_Param parameters[1]);
+
+/*!
+ * \brief Serialize a key material handle to a buffer
+ *
+ * \details From a valid key material handle, extract the fields and generate
+ *     a buffer.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_MEMREF_OUTPUT
+ *        - TEE_PARAM_TYPE_VALUE_INPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param[out] parameters[0].memref.buffer Output buffer.
+ * \param[out] parameters[0].memref.size Input size of the output buffer.
+ *     Updated with the number of bytes written.
+ *
+ * \param parameters_type The types of each of the parameters in parameters as
+ *     described above.
+ * \param parameters[1].value.a ID of the handle to use for the copy.
+ *
+ * \retval ::TEE_SUCCESS Key Material Handle has been serialized.
+ * \retval ::TEE_ERROR_NO_DATA The handle ID leads to an invalid Handle.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set.
+ */
+TEE_Result dsec_ta_key_material_serialize(uint32_t parameters_type,
+                                         TEE_Param parameters[2]);
+
+/*!
+ * \brief Deserialize a buffer to create a key material handle
+ *
+ * \details From a valid valid buffer, extract the fields and generate a key
+ *     material handle.
+ *     The TEE_Param expected are:
+ *        - TEE_PARAM_TYPE_VALUE_OUTPUT
+ *        - TEE_PARAM_TYPE_MEMREF_INPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param[out] parameters[0].value.a Handle ID allocated.
+ *
+ * \param parameters_type The types of each of the parameters in parameters as
+ *     described above.
+ * \param parameters[1].memref.buffer Input buffer.
+ * \param parameters[1].memref.size Input size of the buffer.
+ *
+ * \retval ::TEE_SUCCESS Key Material Handle has been deserialized.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set.
+ */
+TEE_Result dsec_ta_key_material_deserialize(uint32_t parameters_type,
+                                            TEE_Param parameters[2]);
+
 #endif /* DSEC_TA_KEY_MATERIAL_H */

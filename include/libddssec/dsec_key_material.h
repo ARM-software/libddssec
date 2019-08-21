@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -171,6 +171,45 @@ int32_t dsec_key_material_register(int32_t* out_km_handle_id,
  */
 int32_t dsec_key_material_delete(const struct dsec_instance* instance,
                                  int32_t km_handle_id);
+
+
+/*!
+ * \brief Serialize a key material handle to produce a data buffer
+ *
+ * \details Calls the Trusted Application
+ *
+ * \param[out] output Output buffer
+ * \param[out] output_size Size of output buffer
+ * \param km_handle_id Handle ID of the key material handle.
+ * \param instance Initialized instance to access the Trusted Application
+ *
+ * \retval ::DSEC_SUCCESS Data has been returned
+ * \retval ::DSEC_E_PARAM Parameter types are not properly set or identifier
+ *     specified leads to an invalid handle.
+ */
+int32_t dsec_key_material_serialize(uint8_t* output,
+                                    uint32_t* output_size,
+                                    const struct dsec_instance* instance,
+                                    int32_t km_handle_id);
+
+/*!
+ * \brief Deserialize a data buffer to create a key material handle
+ *
+ * \details Calls the Trusted Application
+ *
+ * \param[out] km_handle_id Handle ID of the key material handle.
+ * \param instance Initialized instance to access the Trusted Application
+ * \param input Input buffer
+ * \param input_size Size of input buffer
+ *
+ * \retval ::DSEC_SUCCESS Data has been returned
+ * \retval ::DSEC_E_PARAM Parameter types are not properly set.
+ */
+int32_t dsec_key_material_deserialize(int32_t* km_handle_id,
+                                      const struct dsec_instance* instance,
+                                      uint8_t* input,
+                                      uint32_t input_size);
+
 /*!
  * \}
  */
