@@ -16,6 +16,7 @@
 #include <dsec_ta_hmac.h>
 #include <dsec_ta_key_material.h>
 #include <dsec_ta_manage_object.h>
+#include <dsec_ta_session_key.h>
 #include <tee_ta_api.h>
 #include <trace.h>
 
@@ -188,6 +189,11 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
         break;
     case DSEC_TA_CMD_KM_DESERIALIZE:
         result = dsec_ta_key_material_deserialize(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_SESSION_KEY_CREATE_AND_GET:
+        result = dsec_ta_session_key_create_and_get(parameters_type,
+                                                    parameters);
+
         break;
 #if DSEC_TEST
     case DSEC_TA_CMD_SHA256:

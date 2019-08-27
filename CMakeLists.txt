@@ -1,6 +1,6 @@
 #
 # DDS Security library
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -95,6 +95,7 @@ set(PROJECT_SOURCE
     src/dsec_ssh.c
     src/dsec_hh_challenge.c
     src/dsec_key_material.c
+    src/dsec_session_key.c
 )
 
 set(DSEC_TA_UUID_STRING

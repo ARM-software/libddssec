@@ -105,6 +105,8 @@ enum {
     DSEC_TA_CMD_KM_SERIALIZE,
     /*! Function ID of dsec_ta_key_material_deserialize */
     DSEC_TA_CMD_KM_DESERIALIZE,
+    /*! Function ID of dsec_ta_session_key_create_and_get */
+    DSEC_TA_CMD_SESSION_KEY_CREATE_AND_GET,
 #if DSEC_TEST
     /*! Function ID of dsec_ta_test_sha256 */
     DSEC_TA_CMD_SHA256,
