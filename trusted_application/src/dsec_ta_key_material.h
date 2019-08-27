@@ -295,4 +295,13 @@ TEE_Result dsec_ta_key_material_serialize(uint32_t parameters_type,
 TEE_Result dsec_ta_key_material_deserialize(uint32_t parameters_type,
                                             TEE_Param parameters[2]);
 
+/*!
+ * \brief Return a key material from a given ID.
+ *
+ * \param km_handle_id ID of the key material handle. Must be valid
+ * \return A pointer to the key material.
+ * \return NULL if the ID leads to an invalid or un-initialized handle.
+ */
+struct key_material_t* key_material_get(int32_t km_handle_id);
+
 #endif /* DSEC_TA_KEY_MATERIAL_H */

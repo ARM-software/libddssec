@@ -983,3 +983,15 @@ TEE_Result dsec_ta_key_material_deserialize(uint32_t parameters_type,
 
     return result;
 }
+
+struct key_material_t* key_material_get(int32_t km_handle_id)
+{
+    struct key_material_t* km = NULL;
+
+    if (km_is_valid(km_handle_id)) {
+        store[km_handle_id].initialized = true;
+        km = &(store[km_handle_id].key_material);
+    }
+
+    return km;
+}
