@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,11 @@
  */
 
 #include <dsec_ta_hmac.h>
+#include <mbedtls/md.h>
+
+#define DSEC_HMAC_DATA_SIZE (32U)
+#define DSEC_KEY_DATA_SIZE_SMALL (16U)
+#define DSEC_KEY_DATA_SIZE_LARGE (32U)
 
 TEE_OperationHandle operation = TEE_HANDLE_NULL;
 
@@ -42,60 +47,74 @@ TEE_Result dsec_ta_hmac_256(uint8_t* hmac_data,
                             const uint8_t* data_in,
                             uint32_t data_in_size)
 {
-    TEE_Attribute attribute;
-    TEE_ObjectHandle key_object;
     TEE_Result result = 0;
+    mbedtls_md_context_t ctx;
+    int mbedtls_result = 0;
 
     if ((hmac_data != NULL) &&
         (hmac_data_size != NULL) &&
-        (*hmac_data_size >= 32U) &&
+        (*hmac_data_size >= DSEC_HMAC_DATA_SIZE) &&
         (data_in != NULL) &&
-        ((key_data_size == 16U) || (key_data_size == 32U))) {
+        ((key_data_size == DSEC_KEY_DATA_SIZE_SMALL) ||
+        (key_data_size == DSEC_KEY_DATA_SIZE_LARGE))) {
 
-        result = TEE_AllocateTransientObject(
-            TEE_TYPE_HMAC_SHA256,
-            key_data_size*8 /* argument is in bits */,
-            &key_object);
+            const mbedtls_md_info_t* md_info =
+                mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
 
-        if (result == TEE_SUCCESS) {
-            TEE_InitRefAttribute(&attribute,
-                                 TEE_ATTR_SECRET_VALUE,
-                                 key_data,
-                                 key_data_size);
+            if (md_info != NULL) {
 
-            result = TEE_PopulateTransientObject(key_object,
-                                                 &attribute,
-                                                 1 /* attribute size*/);
+                mbedtls_md_init(&ctx);
 
-            if (result == TEE_SUCCESS) {
-                result = TEE_SetOperationKey(operation, key_object);
-                if (result == TEE_SUCCESS) {
-                    TEE_MACInit(operation, NULL, 0);
-                    TEE_MACUpdate(operation, data_in, data_in_size);
-                    result = TEE_MACComputeFinal(operation,
-                                                 NULL /* message */,
-                                                 0 /* message size */,
-                                                 hmac_data,
-                                                 hmac_data_size);
+                mbedtls_result = mbedtls_md_setup(&ctx, md_info, 1);
+                if (mbedtls_result == 0) {
+                    mbedtls_result =
+                        mbedtls_md_hmac_starts(&ctx,
+                                               (const unsigned char*)key_data,
+                                               key_data_size);
 
-                    if (result != TEE_SUCCESS) {
-                        EMSG("An error occurred during HMAC computation.\n");
+                    if (mbedtls_result == 0) {
+                        mbedtls_result =
+                            mbedtls_md_hmac_update(&ctx,
+                                                   (const unsigned char*)
+                                                   data_in,
+                                                   data_in_size);
+
+                        if (mbedtls_result == 0) {
+                            mbedtls_result =
+                                mbedtls_md_hmac_finish(&ctx, hmac_data);
+
+                            if (mbedtls_result == 0) {
+                                result = TEE_SUCCESS;
+                                *hmac_data_size = DSEC_HMAC_DATA_SIZE;
+                            } else {
+                                EMSG("Cannot finish the HMAC operation %d.",
+                                     mbedtls_result);
+
+                                result = TEE_ERROR_BAD_PARAMETERS;
+                            }
+                        } else {
+                            EMSG("Cannot update the HMAC operation %d.",
+                                 mbedtls_result);
+
+                            result = TEE_ERROR_BAD_PARAMETERS;
+                        }
+                    } else {
+                        EMSG("Cannot start the HMAC operation %d.",
+                             mbedtls_result);
+
+                        result = TEE_ERROR_BAD_PARAMETERS;
                     }
-
                 } else {
-                    EMSG("Cannot set the key for HMAC operation.\n");
+                    EMSG("Cannot setup the HMAC operation %d.",
+                         mbedtls_result);
+
+                    result = TEE_ERROR_BAD_STATE;
                 }
-
+                mbedtls_md_free(&ctx);
             } else {
-                EMSG("Cannot initialize the HMAC key.\n");
+                EMSG("Could not get message digest information");
+                result = TEE_ERROR_BAD_STATE;
             }
-
-            TEE_FreeTransientObject(key_object);
-
-        } else {
-            EMSG("Cannot allocate HMAC key object.\n");
-        }
-
     } else {
         EMSG("Parameters are invalid.\n");
         result = TEE_ERROR_BAD_PARAMETERS;
