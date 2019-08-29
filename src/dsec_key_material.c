@@ -108,76 +108,89 @@ int32_t dsec_key_material_return(uint8_t transformation_kind[4],
     uint32_t return_origin = 0;
     TEEC_Operation operation = {0};
 
-    const uint32_t transformation_kind_size = 4;
-    const uint32_t master_salt_size = 32;
-    const uint32_t sender_key_id_size = 4;
-    const uint32_t master_sender_key_size = 32;
-    const uint32_t receiver_specific_key_id_size = 4;
-    const uint32_t master_receiver_specific_key_size = 32;
+    uint32_t transformation_kind_size = 4;
+    uint32_t master_salt_size = 32;
+    uint32_t sender_key_id_size = 4;
+    uint32_t master_sender_key_size = 32;
+    uint32_t receiver_specific_key_id_size = 4;
+    uint32_t master_receiver_specific_key_size = 32;
 
-    if ((transformation_kind != NULL) &&
-        (master_salt != NULL) &&
-        (sender_key_id != NULL) &&
-        (master_sender_key != NULL) &&
-        (receiver_specific_key_id != NULL) &&
-        (master_receiver_specific_key != NULL)) {
+    if (transformation_kind == NULL) {
+        transformation_kind_size = 0;
+    }
 
-        operation.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_OUTPUT,
-                                                TEEC_MEMREF_TEMP_OUTPUT,
-                                                TEEC_VALUE_INPUT,
-                                                TEEC_VALUE_INPUT);
+    if (master_salt == NULL) {
+        master_salt_size = 0;
+    }
 
-        operation.params[2].value.a = (uint32_t)km_handle;
-        operation.params[3].value.a = 0;
+    if (sender_key_id == NULL) {
+        sender_key_id_size = 0;
+    }
 
-        operation.params[0].tmpref.buffer = transformation_kind;
-        operation.params[0].tmpref.size = transformation_kind_size;
-        operation.params[1].tmpref.buffer = master_salt;
-        operation.params[1].tmpref.size = master_salt_size;
+    if (master_sender_key == NULL) {
+        master_sender_key_size = 0;
+    }
 
-        teec_result_1 = dsec_ca_invoke(instance,
-                                       DSEC_TA_CMD_KM_RETURN,
-                                       &operation,
-                                       &return_origin);
+    if (receiver_specific_key_id == NULL) {
+        receiver_specific_key_id_size = 0;
+    }
 
-        operation.params[0].tmpref.buffer = sender_key_id;
-        operation.params[0].tmpref.size = sender_key_id_size;
-        operation.params[1].tmpref.buffer = master_sender_key;
-        operation.params[1].tmpref.size = master_sender_key_size;
-        operation.params[3].value.a = 1;
+    if (master_receiver_specific_key == NULL) {
+        master_receiver_specific_key_size = 0;
+    }
 
-        teec_result_2 = dsec_ca_invoke(instance,
-                                       DSEC_TA_CMD_KM_RETURN,
-                                       &operation,
-                                       &return_origin);
+    operation.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_OUTPUT,
+                                            TEEC_MEMREF_TEMP_OUTPUT,
+                                            TEEC_VALUE_INPUT,
+                                            TEEC_VALUE_INPUT);
 
-        operation.params[0].tmpref.buffer = receiver_specific_key_id;
-        operation.params[0].tmpref.size = receiver_specific_key_id_size;
-        operation.params[1].tmpref.buffer = master_receiver_specific_key;
-        operation.params[1].tmpref.size = master_receiver_specific_key_size;
-        operation.params[3].value.a = 2;
+    operation.params[2].value.a = (uint32_t)km_handle;
+    operation.params[3].value.a = 0;
 
-        teec_result_3 = dsec_ca_invoke(instance,
-                                       DSEC_TA_CMD_KM_RETURN,
-                                       &operation,
-                                       &return_origin);
+    operation.params[0].tmpref.buffer = transformation_kind;
+    operation.params[0].tmpref.size = transformation_kind_size;
+    operation.params[1].tmpref.buffer = master_salt;
+    operation.params[1].tmpref.size = master_salt_size;
 
-        if ((teec_result_1 == TEEC_SUCCESS) &&
-            (teec_result_2 == TEEC_SUCCESS) &&
-            (teec_result_3 == TEEC_SUCCESS)) {
+    teec_result_1 = dsec_ca_invoke(instance,
+                                   DSEC_TA_CMD_KM_RETURN,
+                                   &operation,
+                                   &return_origin);
 
-            result = DSEC_SUCCESS;
-        } else {
-            result = DSEC_E_TEE;
-            (void)dsec_print("An error occurred: 0x%x - 0x%x - 0x%x - 0x%x\n",
-                             result,
-                             teec_result_1,
-                             teec_result_2,
-                             teec_result_3);
-        }
+    operation.params[0].tmpref.buffer = sender_key_id;
+    operation.params[0].tmpref.size = sender_key_id_size;
+    operation.params[1].tmpref.buffer = master_sender_key;
+    operation.params[1].tmpref.size = master_sender_key_size;
+    operation.params[3].value.a = 1;
+
+    teec_result_2 = dsec_ca_invoke(instance,
+                                   DSEC_TA_CMD_KM_RETURN,
+                                   &operation,
+                                   &return_origin);
+
+    operation.params[0].tmpref.buffer = receiver_specific_key_id;
+    operation.params[0].tmpref.size = receiver_specific_key_id_size;
+    operation.params[1].tmpref.buffer = master_receiver_specific_key;
+    operation.params[1].tmpref.size = master_receiver_specific_key_size;
+    operation.params[3].value.a = 2;
+
+    teec_result_3 = dsec_ca_invoke(instance,
+                                   DSEC_TA_CMD_KM_RETURN,
+                                   &operation,
+                                   &return_origin);
+
+    if ((teec_result_1 == TEEC_SUCCESS) &&
+        (teec_result_2 == TEEC_SUCCESS) &&
+        (teec_result_3 == TEEC_SUCCESS)) {
+
+        result = DSEC_SUCCESS;
     } else {
-        result = DSEC_E_PARAM;
-        (void)dsec_print("Given parameters are NULL.\n");
+        result = DSEC_E_TEE;
+        (void)dsec_print("An error occurred: 0x%x - 0x%x - 0x%x - 0x%x\n",
+                         result,
+                         teec_result_1,
+                         teec_result_2,
+                         teec_result_3);
     }
 
     return result;

@@ -370,11 +370,10 @@ static TEE_Result key_material_register(int32_t* km_handle_id,
                                     in_key_material->receiver_specific_key_id,
                                     RECEIVER_SPECIFIC_KEY_ID_SIZE);
 
-                        TEE_MemMove(out_key_material
-                                        ->master_receiver_specific_key,
-                                    in_key_material
-                                        ->master_receiver_specific_key,
-                                    MASTER_RECEIVER_SPECIFIC_KEY_SIZE);
+                        TEE_MemMove(
+                            out_key_material->master_receiver_specific_key,
+                            in_key_material->master_receiver_specific_key,
+                            MASTER_RECEIVER_SPECIFIC_KEY_SIZE);
                      }
                 } else {
                     TEE_MemMove(out_key_material->receiver_specific_key_id,
@@ -794,57 +793,56 @@ TEE_Result dsec_ta_key_material_return(uint32_t parameters_type,
             result = TEE_SUCCESS;
             switch (key_material_part) {
             case 0:
-                if ((output_buffer1 >= TRANSFORMATION_KIND_SIZE) &&
-                    (output_buffer2 >= MASTER_SALT_SIZE)) {
-
+                if (output_buffer1 >= TRANSFORMATION_KIND_SIZE) {
                     TEE_MemMove(parameters[0].memref.buffer,
                                 key_material->transformation_kind,
                                 TRANSFORMATION_KIND_SIZE);
 
                     parameters[0].memref.size = TRANSFORMATION_KIND_SIZE;
 
+                }
+
+                if (output_buffer2 >= MASTER_SALT_SIZE) {
                     TEE_MemMove(parameters[1].memref.buffer,
                                 key_material->master_salt,
                                 MASTER_SALT_SIZE);
 
                     parameters[1].memref.size = MASTER_SALT_SIZE;
-                } else {
-                    result = TEE_ERROR_SHORT_BUFFER;
                 }
 
                 break;
 
             case 1:
-                if ((output_buffer1 >= SENDER_KEY_ID_SIZE) &&
-                    (output_buffer2 >= MASTER_SENDER_KEY_SIZE)) {
-
+                if (output_buffer1 >= SENDER_KEY_ID_SIZE) {
                     TEE_MemMove(parameters[0].memref.buffer,
                                 key_material->sender_key_id,
                                 SENDER_KEY_ID_SIZE);
 
                     parameters[0].memref.size = SENDER_KEY_ID_SIZE;
 
+                }
+
+                if (output_buffer2 >= MASTER_SENDER_KEY_SIZE) {
                     TEE_MemMove(parameters[1].memref.buffer,
                                 key_material->master_sender_key,
                                 MASTER_SENDER_KEY_SIZE);
 
                     parameters[1].memref.size = MASTER_SENDER_KEY_SIZE;
-                } else {
-                    result = TEE_ERROR_SHORT_BUFFER;
                 }
 
                 break;
 
             case 2:
-                if ((output_buffer1 >= RECEIVER_SPECIFIC_KEY_ID_SIZE) &&
-                    (output_buffer2 >= MASTER_RECEIVER_SPECIFIC_KEY_SIZE)) {
+                if (output_buffer1 >= RECEIVER_SPECIFIC_KEY_ID_SIZE) {
 
                     TEE_MemMove(parameters[0].memref.buffer,
                                 key_material->receiver_specific_key_id,
                                 RECEIVER_SPECIFIC_KEY_ID_SIZE);
 
                     parameters[0].memref.size = RECEIVER_SPECIFIC_KEY_ID_SIZE;
+                }
 
+                if (output_buffer2 >= MASTER_RECEIVER_SPECIFIC_KEY_SIZE) {
                     TEE_MemMove(parameters[1].memref.buffer,
                                 key_material->master_receiver_specific_key,
                                 MASTER_RECEIVER_SPECIFIC_KEY_SIZE);

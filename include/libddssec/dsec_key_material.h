@@ -75,8 +75,7 @@ int32_t dsec_key_material_generate(int32_t* out_km_handle_id,
  * \brief Get the data stored by key material
  *
  * \details Calls the Trusted Application to get the data from key material
- *     handle. The given buffers must have the appropriate size to get the
- *     values.
+ *     handle. If a buffer is too small, the value is not returned.
  *
  * Note: the following outputs follow the OMG specification for the key material
  *     structure. Please look at the documentation for more details. The same
@@ -95,7 +94,6 @@ int32_t dsec_key_material_generate(int32_t* out_km_handle_id,
  * \retval ::DSEC_E_PARAM Parameter types are not properly set or identifier
  *     specified leads to an invalid handle.
  * \retval ::DSEC_E_DATA At least one requested field is not initialized.
- * \retval ::DSEC_E_SHORT_BUFFER One of the buffer is not big enough.
  */
 int32_t dsec_key_material_return(uint8_t transformation_kind[4],
                                  uint8_t master_salt[32],
