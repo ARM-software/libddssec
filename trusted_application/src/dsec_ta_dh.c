@@ -193,7 +193,6 @@ TEE_Result dsec_ta_hh_dh_unload(uint32_t parameters_type,
 
         if (hh != NULL) {
             (void)dsec_ta_hh_dh_free_keypair(&(hh->dh_pair_handle));
-            (void)dsec_ta_hh_dh_free_keypair(&(hh->dh_pair_handle));
             hh->dh_public_handle.initialized = false;
             result = TEE_SUCCESS;
         } else {
