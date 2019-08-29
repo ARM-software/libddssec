@@ -120,7 +120,7 @@ static TEE_Result ss_derive(const struct dh_pair_handle_t* dh_local_handle,
 
                 } else {
                     EMSG("Could not get the shared secret key size.\n");
-                    /* Return the result from TEE_GetObjectInfo1 */
+                    /* Return the result from TEE_GetObjectBufferAttribute */
                 }
 
             TEE_FreeTransientObject(shared_key_object);
