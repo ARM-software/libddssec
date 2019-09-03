@@ -10,6 +10,7 @@
 #include <dsec_errno.h>
 #include <dsec_print.h>
 #include <dsec_ta.h>
+#include <string.h>
 
 int32_t dsec_session_key_create_and_get(uint8_t* session_key,
                                         const struct dsec_instance* instance,
@@ -54,3 +55,4 @@ int32_t dsec_session_key_create_and_get(uint8_t* session_key,
 
     return result;
 }
+

@@ -8,6 +8,7 @@
 #include <dsec_ta_session_key.h>
 #include <dsec_ta_hmac.h>
 #include <dsec_ta_key_material.h>
+#include <dsec_ta_aes.h>
 #include <string.h>
 
 #define DSEC_KEY_LENGTH_SHORT (32U)
@@ -147,4 +148,3 @@ TEE_Result dsec_ta_session_key_create_and_get(uint32_t parameters_type,
 
     return result;
 }
-

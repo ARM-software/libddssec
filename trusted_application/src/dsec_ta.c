@@ -17,6 +17,7 @@
 #include <dsec_ta_key_material.h>
 #include <dsec_ta_manage_object.h>
 #include <dsec_ta_session_key.h>
+#include <dsec_ta_aes.h>
 #include <tee_ta_api.h>
 #include <trace.h>
 
@@ -26,6 +27,10 @@ TEE_Result TA_CreateEntryPoint(void)
 
     DMSG("Creating libddssec's TA");
     result = dsec_ta_hmac_256_init();
+    if (result == TEE_SUCCESS) {
+        result = dsec_ta_aes_init();
+    }
+
     return result;
 }
 
@@ -195,6 +200,10 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
                                                     parameters);
 
         break;
+    case DSEC_TA_CMD_AES_ENCRYPT:
+        result = dsec_ta_aes_encrypt(parameters_type, parameters);
+        break;
+
 #if DSEC_TEST
     case DSEC_TA_CMD_SHA256:
         result = dsec_ta_test_sha256(parameters_type, parameters);

@@ -25,4 +25,5 @@ srcs-y += \
     dsec_ta_challenge.c \
     dsec_ta_hmac.c \
     dsec_ta_key_material.c \
-    dsec_ta_session_key.c
+    dsec_ta_session_key.c \
+    dsec_ta_aes.c

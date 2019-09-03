@@ -96,6 +96,7 @@ set(PROJECT_SOURCE
     src/dsec_hh_challenge.c
     src/dsec_key_material.c
     src/dsec_session_key.c
+    src/dsec_aes.c
 )
 
 set(DSEC_TA_UUID_STRING
