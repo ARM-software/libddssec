@@ -23,7 +23,7 @@ set(LIBDDSSEC_TA_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
 macro(dsec_build_ta)
 
     set(OPTIONS BUILD_TEST_TA)
-    set(ONE_VALUE_KEYWORDS TARGET_NAME OUTPUT_DIR TA_UUID)
+    set(ONE_VALUE_KEYWORDS TARGET_NAME OUTPUT_DIR TA_UUID_STRING)
     set(MULTI_VALUE_KEYWORDS FILE_PATH)
     cmake_parse_arguments(ARGS
         "${OPTIONS}"
@@ -43,12 +43,12 @@ macro(dsec_build_ta)
     endif()
 
     if(NOT DEFINED ARGS_TARGET_NAME OR
-       NOT DEFINED ARGS_TA_UUID)
+       NOT DEFINED ARGS_TA_UUID_STRING)
 
         message(FATAL_ERROR "TARGET_NAME or TA_UUID undefined")
     endif()
 
-    dsec_get_string_uuid(${ARGS_TA_UUID} TA_UUID_STRING)
+    dsec_get_uuid_structure(${ARGS_TA_UUID_STRING} DSEC_TA_UUID_STRUCTURE)
 
     add_custom_target(
         ${ARGS_TARGET_NAME}
@@ -57,11 +57,12 @@ macro(dsec_build_ta)
             PROJECT_VERSION=${PROJECT_VERSION}
             PROJECT_DESCRIPTION_SUMMARY=${${PROJECT_NAME}_DESCRIPTION_SUMMARY}
             DSEC_TEST=${BUILD_TEST}
-            DSEC_TA_UUID=${ARGS_TA_UUID}
-            DSEC_TA_UUID_STRING=${TA_UUID_STRING}
+            DSEC_TA_UUID=${DSEC_TA_UUID_STRUCTURE}
+            DSEC_TA_UUID_STRING=${ARGS_TA_UUID_STRING}
 
         WORKING_DIRECTORY ${LIBDDSSEC_TA_SOURCE_DIR}/src
         COMMENT "Building trusted application target: ${ARGS_TARGET_NAME}"
+
         VERBATIM)
 
 
@@ -77,7 +78,7 @@ macro(dsec_build_ta)
                 ${CMAKE_COMMAND} -E make_directory ${ARGS_OUTPUT_DIR}
             COMMAND
                 ${CMAKE_COMMAND} -E copy
-                  ${CMAKE_CURRENT_BINARY_DIR}/build/${TA_UUID_STRING}.ta
+                  ${CMAKE_CURRENT_BINARY_DIR}/build/${ARGS_TA_UUID_STRING}.ta
                   ${ARGS_OUTPUT_DIR}
         )
     endif()
@@ -96,8 +97,8 @@ dsec_build_ta(
         ta
     OUTPUT_DIR
         ${LIBDDSSEC_TA_BINARY_DIR}
-    TA_UUID
-        ${DSEC_TA_UUID}
+    TA_UUID_STRING
+        ${DSEC_TA_UUID_STRING}
     FILE_PATH
         ""
 )

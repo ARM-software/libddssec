@@ -5,48 +5,69 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-#
-# Convert a UUID to a string UUID
-#
-# TA_UUID <uuid> - Input TA_UUID (can be generated using `uuidgen`).
-# TA_UUID_STRING <uuid_string> - Output string generated.
-function(dsec_get_string_uuid TA_UUID TA_UUID_STRING)
+# Convert an UUID string from its canonical textual representation into a
+# C-structure string representation. Example:
+#  input: "ccb8ddbd-6884-4b65-bb21-db6177153858"
+#  output: {0xccb8ddbd,0x6884,0x4b65,{0xbb,0x21,0xdb,0x61,0x77,0x15,0x38,0x58}}
+function(dsec_get_uuid_structure UUID RESULT_VARIABLE_NAME)
 
-    if(NOT DEFINED TA_UUID)
-        message(FATAL_ERROR "TA_UUID must be defined")
+    if(NOT DEFINED UUID OR NOT DEFINED RESULT_VARIABLE_NAME)
+        message(FATAL_ERROR "UUID and RESULT_VARIABLE_NAME must be defined")
     endif()
 
-
-    set(TA_UUID_STRING_TMP "")
-
-    string(REPLACE "{" "" TA_UUID_STRING_TMP ${TA_UUID})
-    string(REPLACE "}" "" TA_UUID_STRING_TMP ${TA_UUID_STRING_TMP})
-    string(REPLACE "0x" "" TA_UUID_STRING_TMP ${TA_UUID_STRING_TMP})
-
-    string(REGEX MATCH "(.*),(.*),(.*),(.*,.*),(.*,.*,.*,.*,.*,.*)"
-           TA_UUID_STRING_TMP
-           ${TA_UUID_STRING_TMP})
-
+    set(UUID_TMP ${UUID})
+    string(REGEX MATCH "(.*)-(.*)-(.*)-(.*)-(.*)" UUID_TMP ${UUID_TMP})
     if(NOT DEFINED CMAKE_MATCH_1 OR
        NOT DEFINED CMAKE_MATCH_2 OR
        NOT DEFINED CMAKE_MATCH_3 OR
        NOT DEFINED CMAKE_MATCH_4 OR
        NOT DEFINED CMAKE_MATCH_5)
 
-        message(FATAL_ERROR "TA_UUID has a wrong format: ${TA_UUID}")
+        message(FATAL_ERROR "UUID has a wrong format: ${UUID}")
     endif()
 
-    string(REPLACE "," "" PART1 ${CMAKE_MATCH_1})
-    string(REPLACE "," "" PART2 ${CMAKE_MATCH_2})
-    string(REPLACE "," "" PART3 ${CMAKE_MATCH_3})
-    string(REPLACE "," "" PART4 ${CMAKE_MATCH_4})
-    string(REPLACE "," "" PART5 ${CMAKE_MATCH_5})
+    string(CONCAT UUID_TIME_LOW "0x" ${CMAKE_MATCH_1})
+    string(CONCAT UUID_TIME_MID "0x" ${CMAKE_MATCH_2})
+    string(CONCAT UUID_TIME_HIGH_AND_VERSION "0x" ${CMAKE_MATCH_3})
+    string(CONCAT UUID_CLOCK_AND_NODE ${CMAKE_MATCH_4} ${CMAKE_MATCH_5})
+
+    string(REGEX MATCH
+           "(..)(..)(..)(..)(..)(..)(..)(..)"
+           UUID_CLOCK_AND_NODE
+           ${UUID_CLOCK_AND_NODE})
+
+    if(NOT DEFINED CMAKE_MATCH_1 OR
+       NOT DEFINED CMAKE_MATCH_2 OR
+       NOT DEFINED CMAKE_MATCH_3 OR
+       NOT DEFINED CMAKE_MATCH_4 OR
+       NOT DEFINED CMAKE_MATCH_5 OR
+       NOT DEFINED CMAKE_MATCH_6 OR
+       NOT DEFINED CMAKE_MATCH_7 OR
+       NOT DEFINED CMAKE_MATCH_8)
+
+        message(FATAL_ERROR "UUID has a wrong format: ${UUID}")
+    endif()
 
     string(CONCAT
-           TA_UUID_STRING_TMP
-           ${PART1} "-" ${PART2} "-" ${PART3} "-" ${PART4} "-" ${PART5}
+           UUID_CLOCK_AND_NODE
+           "0x" ${CMAKE_MATCH_1} ","
+           "0x" ${CMAKE_MATCH_2} ","
+           "0x" ${CMAKE_MATCH_3} ","
+           "0x" ${CMAKE_MATCH_4} ","
+           "0x" ${CMAKE_MATCH_5} ","
+           "0x" ${CMAKE_MATCH_6} ","
+           "0x" ${CMAKE_MATCH_7} ","
+           "0x" ${CMAKE_MATCH_8}
     )
 
-    set(${TA_UUID_STRING} "${TA_UUID_STRING_TMP}" PARENT_SCOPE)
+    string(CONCAT
+           UUID_TEE_STRUCTURE
+           "{" ${UUID_TIME_LOW} ","
+               ${UUID_TIME_MID} ","
+               ${UUID_TIME_HIGH_AND_VERSION} ","
+               "{" ${UUID_CLOCK_AND_NODE} "}}"
+    )
+
+    set(${RESULT_VARIABLE_NAME} ${UUID_TEE_STRUCTURE} PARENT_SCOPE)
 
 endfunction()

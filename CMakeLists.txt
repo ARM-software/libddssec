@@ -96,15 +96,15 @@ set(PROJECT_SOURCE
     src/dsec_hh_challenge.c
 )
 
-set(DSEC_TA_UUID
-    "{0x8ee919be,0x3954,0x4170,{0xb4,0xc2,0xda,0x16,0x9f,0x39,0x53,0x6e}}"
+set(DSEC_TA_UUID_STRING
+    "8ee919be-3954-4170-b4c2-da169f39536e"
     CACHE INTERNAL "")
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/util_function.cmake)
-dsec_get_string_uuid(${DSEC_TA_UUID} DSEC_TA_UUID_STRING)
+dsec_get_uuid_structure(${DSEC_TA_UUID_STRING} DSEC_TA_UUID_STRUCTURE)
 
 list(APPEND COMPILE_DEFINITIONS
-    -DDSEC_TA_UUID=${DSEC_TA_UUID}
+    -DDSEC_TA_UUID=${DSEC_TA_UUID_STRUCTURE}
     -DDSEC_TA_UUID_STRING="${DSEC_TA_UUID_STRING}"
 )
 

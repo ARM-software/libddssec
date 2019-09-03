@@ -223,8 +223,8 @@ dsec_embed_asset_test_files(
 dsec_build_ta(
     TARGET_NAME
         test-ta
-    TA_UUID
-        ${DSEC_TA_UUID}
+    TA_UUID_STRING
+        ${DSEC_TA_UUID_STRING}
     FILE_PATH
         assets/cacert.pem
         assets/p1cert.pem
