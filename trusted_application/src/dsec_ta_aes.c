@@ -397,3 +397,81 @@ TEE_Result dsec_ta_aes_decrypt(uint32_t parameters_type,
 
     return result;
 }
+
+TEE_Result dsec_ta_aes_get_mac(uint32_t parameters_type,
+                               TEE_Param parameters[4])
+{
+    TEE_Result result = TEE_SUCCESS;
+
+    uint8_t* tag = NULL;
+    uint32_t tag_size = 0;
+
+    const uint8_t* key_data = NULL;
+    uint32_t key_data_size = 0;
+
+    const uint8_t* data_in = NULL;
+    uint32_t data_in_size = 0;
+
+    const uint8_t* iv = NULL;
+    uint32_t iv_size = 0;
+
+    const uint32_t expected_types = TEE_PARAM_TYPES(
+        TEE_PARAM_TYPE_MEMREF_OUTPUT,
+        TEE_PARAM_TYPE_MEMREF_INPUT,
+        TEE_PARAM_TYPE_MEMREF_INPUT,
+        TEE_PARAM_TYPE_MEMREF_INPUT);
+
+    if (parameters_type == expected_types) {
+        tag = parameters[0].memref.buffer;
+        tag_size = parameters[0].memref.size;
+
+        key_data = parameters[1].memref.buffer;
+        key_data_size = parameters[1].memref.size;
+
+        data_in = parameters[2].memref.buffer;
+        data_in_size = parameters[2].memref.size;
+
+        iv = parameters[3].memref.buffer;
+        iv_size = parameters[3].memref.size;
+        uint32_t static_output_size = DSEC_TA_AES_STATIC_OUTPUT_SIZE;
+
+        if ((tag != NULL) &&
+            (tag_size > 0) &&
+            (key_data != NULL) &&
+            (key_data_size > 0) &&
+            (data_in != NULL) &&
+            (data_in_size > 0) &&
+            (static_output_size >= data_in_size) &&
+            (iv != NULL) &&
+            (iv_size > 0)) {
+            result = aes_encrypt(static_output_data,
+                                 &static_output_size,
+                                 tag,
+                                 &tag_size,
+                                 key_data,
+                                 key_data_size,
+                                 data_in,
+                                 data_in_size,
+                                 iv,
+                                 iv_size);
+
+            if (result == TEE_SUCCESS) {
+                parameters[0].memref.size = tag_size;
+                parameters[0].memref.buffer = tag;
+            } else {
+                parameters[0].memref.size = 0;
+            }
+        } else {
+            EMSG("Given buffer is too big.\n");
+            parameters[0].memref.size = 0;
+            result = TEE_ERROR_OUT_OF_MEMORY;
+        }
+
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+

@@ -142,4 +142,7 @@ TEE_Result dsec_ta_aes_encrypt(uint32_t parameters_type,
 TEE_Result dsec_ta_aes_decrypt(uint32_t parameters_type,
                                TEE_Param parameters[4]);
 
+TEE_Result dsec_ta_aes_get_mac(uint32_t parameters_type,
+                               TEE_Param parameters[4]);
+
 #endif /* DSEC_TA_AES_H */

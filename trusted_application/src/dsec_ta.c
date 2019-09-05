@@ -206,6 +206,9 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
     case DSEC_TA_CMD_AES_DECRYPT:
         result = dsec_ta_aes_decrypt(parameters_type, parameters);
         break;
+    case DSEC_TA_CMD_AES_GET_MAC:
+        result = dsec_ta_aes_get_mac(parameters_type, parameters);
+        break;
 #if DSEC_TEST
     case DSEC_TA_CMD_SHA256:
         result = dsec_ta_test_sha256(parameters_type, parameters);

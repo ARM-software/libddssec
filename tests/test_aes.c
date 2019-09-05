@@ -58,8 +58,12 @@ static void test_case_aes_256(void)
 
     uint32_t iv_size = sizeof(iv);
 
+    /* Maximum size for a AES-GCM MAC */
     uint8_t tag[16] = {1};
     uint32_t tag_size = sizeof(tag);
+
+    uint8_t tag_get_mac[16] = {1};
+    uint32_t tag_get_mac_size = sizeof(tag_get_mac);
 
     uint8_t expected_data_out[] = {
         0xf3, 0xce, 0x09, 0x4c, 0xb6, 0xab, 0xf4, 0x3a, 0x1b, 0x10, 0xb2, 0x9c,
@@ -133,6 +137,19 @@ static void test_case_aes_256(void)
                             data_decrypt_out,
                             data_decrypt_out_size) == 0);
 
+    result = dsec_aes_get_mac(tag_get_mac,
+                              &tag_get_mac_size,
+                              &instance,
+                              key_data,
+                              key_data_size,
+                              data_in,
+                              data_in_size,
+                              iv,
+                              iv_size);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(tag_get_mac_size == expected_tag_size);
+    DSEC_TEST_ASSERT(memcmp(expected_tag, tag_get_mac, tag_get_mac_size) == 0);
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 
@@ -247,6 +264,9 @@ static void test_case_aes_128(void)
     uint8_t tag[16] = {1};
     uint32_t tag_size = sizeof(tag);
 
+    uint8_t tag_get_mac[16] = {1};
+    uint32_t tag_get_mac_size = sizeof(tag_get_mac);
+
     uint8_t expected_data_out[] = {
         0x7d, 0x6e, 0x13, 0xc7, 0xd6, 0xac, 0x85, 0x26, 0x76, 0xc2, 0x4c, 0xdf,
         0x6d, 0x13, 0x49, 0xc9, 0x04, 0x69, 0x26, 0x55, 0xe2, 0x1b, 0x91, 0xae,
@@ -303,6 +323,18 @@ static void test_case_aes_128(void)
                             data_decrypt_out,
                             data_decrypt_out_size) == 0);
 
+    result = dsec_aes_get_mac(tag_get_mac,
+                              &tag_get_mac_size,
+                              &instance,
+                              key_data,
+                              key_data_size,
+                              data_in,
+                              data_in_size,
+                              iv,
+                              iv_size);
+
+    DSEC_TEST_ASSERT(tag_get_mac_size == expected_tag_size);
+    DSEC_TEST_ASSERT(memcmp(expected_tag, tag_get_mac, tag_get_mac_size) == 0);
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&instance) == DSEC_SUCCESS);
 }
 

@@ -111,6 +111,8 @@ enum {
     DSEC_TA_CMD_AES_ENCRYPT,
     /*! Function ID of dsec_ta_aes_decrypt */
     DSEC_TA_CMD_AES_DECRYPT,
+    /*! Function ID of dsec_ta_aes_get_mac */
+    DSEC_TA_CMD_AES_GET_MAC,
 #if DSEC_TEST
     /*! Function ID of dsec_ta_test_sha256 */
     DSEC_TA_CMD_SHA256,
