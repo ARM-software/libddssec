@@ -117,6 +117,7 @@ add_subdirectory(trusted_application)
 # Test support subdirectory
 #
 if(BUILD_TEST)
+    enable_testing()
     add_subdirectory(tests)
 endif()
 

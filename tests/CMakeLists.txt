@@ -87,7 +87,6 @@ endfunction()
 add_subdirectory(builtins)
 
 # Enable the tests
-enable_testing()
 add_custom_target(build_and_test
     ${CMAKE_CTEST_COMMAND}
         --verbose
