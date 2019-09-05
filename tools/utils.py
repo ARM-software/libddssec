@@ -139,19 +139,27 @@ class Walk:
 
 
 @contextlib.contextmanager
-def build_directory():
+def build_directory(persist=False):
     """
-    Create a temporary build directory under the current working directory
-    using an unique name. The directory is automatically removed when the
-    context is destroyed. Example of usage:
+    Create and move to a temporary build directory under the current working
+    directory using an unique name. If the parameter 'persist' is False
+    (default) the directory is automatically removed when the context is
+    destroyed.
+    Example of usage:
 
-    with build_directory():
+    with build_directory() as dir_name:
         do_something_that_generate_files()
     """
-    temp_dir = tempfile.TemporaryDirectory(prefix='build-', dir=os.getcwd())
+    if persist:
+        temp_dir_name = tempfile.mkdtemp(prefix='build-', dir=os.getcwd())
+    else:
+        temp_dir = tempfile.TemporaryDirectory(prefix='build-',
+                                               dir=os.getcwd())
+        temp_dir_name = temp_dir.name
     previous_path = os.getcwd()
-    os.chdir(temp_dir.name)
+    os.chdir(temp_dir_name)
+
     try:
-        yield
+        yield temp_dir_name
     finally:
         os.chdir(previous_path)
