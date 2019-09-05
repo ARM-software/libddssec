@@ -108,7 +108,7 @@ set(TEST_COMPILE_DEFINITIONS ${COMPILE_DEFINITIONS})
 
 # Tests needs the location of the TA and its destination as the framework will
 # do the copy on the device running the tests.
-set(DSEC_TA_LOCATION_DIR ${CMAKE_BINARY_DIR}/trusted_application/test/)
+set(DSEC_TA_LOCATION_DIR build)
 set(DSEC_TA_LOCATION "${DSEC_TA_LOCATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
 set(DSEC_TA_DESTINATION_DIR "/lib/optee_armtz")
 set(DSEC_TA_DESTINATION "${DSEC_TA_DESTINATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
@@ -223,8 +223,6 @@ dsec_embed_asset_test_files(
 dsec_build_ta(
     TARGET_NAME
         test-ta
-    OUTPUT_DIR
-        ${DSEC_TA_LOCATION_DIR}
     TA_UUID
         ${DSEC_TA_UUID}
     FILE_PATH
