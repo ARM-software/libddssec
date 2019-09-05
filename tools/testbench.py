@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+import math
 import os
 import pexpect
 import re
@@ -426,10 +427,21 @@ class AssetsImage():
         print('Creating libddssec image')
 
         try:
-            subprocess.check_call('dd of={} count=8192 if=/dev/zero'
-                                  .format(self.path), shell=True)
+            # Calculate the size of disk as being twice the size of the input
+            # assets.
+            # This ratio may need to be tweaked in the future if the
+            # output assets increase beyond this capacity.
+            disk_size = os.path.getsize(assets_tar.name) * 2
+            block_size = 1024
+            block_count = int(math.ceil(disk_size / block_size))
 
-            subprocess.check_call('mkfs.ext4 {}'.format(self.path), shell=True)
+            subprocess.check_call('dd of={} bs={} count={} if=/dev/zero'
+                                  .format(self.path, block_size, block_count),
+                                  shell=True)
+
+            subprocess.check_call('mkfs.ext4 -b {} {}'.format(block_size,
+                                                              self.path),
+                                  shell=True)
 
             # debugfs is a e2fsprogs utility filesystem here used to populate
             # an image with an unprivileged user
