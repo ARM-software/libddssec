@@ -124,7 +124,9 @@ class TestBenchBase:
             do('cd {}/build'.format(self.test_directory))
 
             if self.prebuild_path:
-                do('ctest', ['100% tests passed, 0 tests failed'])
+                do('ctest',
+                   expect=['100% tests passed, 0 tests failed'],
+                   unexpect=['Errors while running CTest'])
 
             else:
                 do('export OPTEECLIENT_DIR={}'.format(self.optee_client_dir))
