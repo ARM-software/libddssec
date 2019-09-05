@@ -14,6 +14,7 @@ import os
 import platform
 import subprocess
 import sys
+import shutil
 from testbench import TestBenchBase
 from testbench import TestBenchFVP
 from testbench import TestBenchSSH
@@ -60,7 +61,7 @@ def process_results(results):
         return 0
 
 
-def run_unit_tests(args):
+def run_unit_tests(args, prebuild_path):
 
     results = []
     banner('Unit tests')
@@ -73,7 +74,7 @@ def run_unit_tests(args):
 
             try:
                 with TestBenchSSH(ssh_host,
-                                  args.prebuild_path,
+                                  prebuild_path,
                                   ssh_port=ssh_port) as t:
                     result = t.run()
 
@@ -86,7 +87,7 @@ def run_unit_tests(args):
         with build_directory():
             binary_path = os.path.expanduser(args.test_fvp[0])
             try:
-                with TestBenchFVP(binary_path, args.prebuild_path) as t:
+                with TestBenchFVP(binary_path, prebuild_path) as t:
                     result = t.run()
 
             except TestBenchBase.Error as e:
@@ -101,6 +102,7 @@ def main():
     machine = platform.machine()
     results = []
     threads = len(os.sched_getaffinity(0))
+    prebuild_path = None
 
     parser = argparse.ArgumentParser()
     target = parser.add_argument_group(
@@ -129,21 +131,16 @@ def main():
                               the tests. Tests are not excecuted.',
                         action='store_true')
 
-    target.add_argument('--prebuild-path', '-p',
-                        help='Location of an existing build folder to use for \
-                              the remote unit tests instead of building \
-                              inside the remote machine. This argument \
-                              requires the following parameters:\n\
-                              <path/to/build/folder>',
+    target.add_argument('--build-on-target', '-p',
+                        help='Build tests natively on the target (e.g. \
+                              FastModels). This option is much slower than \
+                              using cross-compilation but has the benefit of \
+                              testing a native build.',
                         required=False,
-                        metavar="<path>",
-                        default=None,
-                        nargs=1)
+                        default=False,
+                        action='store_true')
 
     args = parser.parse_args(sys.argv[1:])
-    if args.prebuild_path:
-        args.prebuild_path =\
-            os.path.abspath(os.path.expanduser(args.prebuild_path[0]))
 
     if not args.test_ssh and not args.test_fvp and not args.skip_tests:
         print("No unit test target or --skip-tests supplied\n",
@@ -183,7 +180,8 @@ def main():
         cmake_params += '-DCMAKE_TOOLCHAIN_FILE=../tools/toolchain.cmake'
         build_info += ' (cross-compiled)'
 
-    with build_directory():
+    persist_test_build = not args.build_on_target
+    with build_directory(persist=persist_test_build) as build_dir_name:
         subprocess.call('cmake {} {}'.format(cmake_params, basedir),
                         shell=True)
 
@@ -191,11 +189,17 @@ def main():
         results.append(('Build libddssec{}'.format(build_info), result))
         library_build_result = result
 
+        result = subprocess.call('make test-ta'.format(threads), shell=True)
+        results.append(('Build test-ta{}'.format(build_info), result))
+        ta_build_result = result
+
+        if persist_test_build:
+            prebuild_path = build_dir_name
+
     with build_directory():
         subprocess.call('cmake {}'.format(basedir), shell=True)
         result = subprocess.call('make ta', shell=True)
         results.append(('Build trusted application', result))
-        ta_build_result = result
 
     # Skip the unit tests if either build fails or if args.skip_tests is set
     if library_build_result != 0 or ta_build_result != 0 or args.skip_tests:
@@ -203,9 +207,12 @@ def main():
         results.append(('Unit tests on remote machine', None))
         results.append(('Unit tests on FVP', None))
     else:
-        result = run_unit_tests(args)
+        result = run_unit_tests(args, prebuild_path)
         for r in result:
             results.append(r)
+
+    if persist_test_build:
+        shutil.rmtree(prebuild_path)
 
     return process_results(results)
 
