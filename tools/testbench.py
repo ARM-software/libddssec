@@ -424,23 +424,19 @@ class AssetsImage():
         self.path = os.path.abspath(self.name)
 
         print('Creating libddssec image')
-        result = subprocess.call('dd of={} count=8192 if=/dev/zero'.format(
-            self.path), shell=True)
-
-        if result != 0:
-            exit(1)
-
-        result = subprocess.call('mkfs.ext4 {}'.format(self.path), shell=True)
-        if result != 0:
-            exit(1)
-
-        # debugfs is a e2fsprogs utility filesystem here used to populate an
-        # image with an unprivileged user
-        debugfs_write = 'debugfs -wR \"write {} {}\" {}'.format(
-                assets_tar.path, assets_tar.name, self.path)
 
         try:
+            subprocess.check_call('dd of={} count=8192 if=/dev/zero'
+                                  .format(self.path), shell=True)
+
+            subprocess.check_call('mkfs.ext4 {}'.format(self.path), shell=True)
+
+            # debugfs is a e2fsprogs utility filesystem here used to populate
+            # an image with an unprivileged user
+            debugfs_write = 'debugfs -wR \"write {} {}\" {}'.format(
+                    assets_tar.path, assets_tar.name, self.path)
+
             subprocess.check_call(debugfs_write, shell=True)
-        except CalledProcessError as e:
-            print('Couldn\'t write to the assets image, error: {}'.format(
-                  e.code))
+
+        except subprocess.CalledProcessError as e:
+            raise TestBenchBase.Error(code=e.returncode, command=e.cmd)
