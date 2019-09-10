@@ -43,17 +43,15 @@ macro(dsec_build_ta)
     endif()
 
     if(NOT DEFINED ARGS_TARGET_NAME OR
-       NOT DEFINED ARGS_OUTPUT_DIR OR
        NOT DEFINED ARGS_TA_UUID)
 
-        message(FATAL_ERROR "TARGET_NAME or OUTPUT_DIR or TA_UUID undefined")
+        message(FATAL_ERROR "TARGET_NAME or TA_UUID undefined")
     endif()
 
     dsec_get_string_uuid(${ARGS_TA_UUID} TA_UUID_STRING)
 
     add_custom_target(
         ${ARGS_TARGET_NAME}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${ARGS_OUTPUT_DIR}
 
         COMMAND make O=${CMAKE_CURRENT_BINARY_DIR}/build
             PROJECT_VERSION=${PROJECT_VERSION}
@@ -61,14 +59,28 @@ macro(dsec_build_ta)
             DSEC_TEST=${BUILD_TEST}
             DSEC_TA_UUID=${ARGS_TA_UUID}
             DSEC_TA_UUID_STRING=${TA_UUID_STRING}
-            WORKING_DIRECTORY ${LIBDDSSEC_TA_SOURCE_DIR}/src
-            COMMENT "Building trusted application target: ${ARGS_TARGET_NAME}"
 
-        COMMAND
-           ${CMAKE_COMMAND} -E copy
-              ${CMAKE_CURRENT_BINARY_DIR}/build/${TA_UUID_STRING}.ta
-              ${ARGS_OUTPUT_DIR}
+        WORKING_DIRECTORY ${LIBDDSSEC_TA_SOURCE_DIR}/src
+        COMMENT "Building trusted application target: ${ARGS_TARGET_NAME}"
         VERBATIM)
+
+
+    # Optionally copy the trusted application binary to an output directory
+    if(ARGS_OUTPUT_DIR)
+        add_custom_command(
+            TARGET
+                ${ARGS_TARGET_NAME}
+            POST_BUILD
+            COMMENT
+                "Copying trusted application to ${ARGS_OUTPUT_DIR}"
+            COMMAND
+                ${CMAKE_COMMAND} -E make_directory ${ARGS_OUTPUT_DIR}
+            COMMAND
+                ${CMAKE_COMMAND} -E copy
+                  ${CMAKE_CURRENT_BINARY_DIR}/build/${TA_UUID_STRING}.ta
+                  ${ARGS_OUTPUT_DIR}
+        )
+    endif()
 
     dsec_embed_asset_ta_files(
         ${ARGS_TARGET_NAME}
