@@ -22,7 +22,7 @@ set(LIBDDSSEC_TA_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
 
 macro(dsec_build_ta)
 
-    set(OPTIONS DEFAULT_DIRECTORY BUILD_TEST_TA)
+    set(OPTIONS BUILD_TEST_TA)
     set(ONE_VALUE_KEYWORDS TARGET_NAME OUTPUT_DIR TA_UUID)
     set(MULTI_VALUE_KEYWORDS FILE_PATH)
     cmake_parse_arguments(ARGS
@@ -34,10 +34,6 @@ macro(dsec_build_ta)
 
     if(DEFINED ARGS_UNPARSED_ARGUMENTS)
         message(FATAL_ERROR "Unknown arguments: ${ARGS_UNPARSED_ARGUMENTS}")
-    endif()
-
-    if(ARGS_DEFAULT_DIRECTORY)
-        set(ARGS_OUTPUT_DIR ${LIBDDSSEC_TA_BINARY_DIR})
     endif()
 
     if(ARGS_BUILD_TEST_TA)
@@ -86,8 +82,10 @@ endmacro()
 dsec_build_ta(
     TARGET_NAME
         ta
+    OUTPUT_DIR
+        ${LIBDDSSEC_TA_BINARY_DIR}
     TA_UUID
         ${DSEC_TA_UUID}
     FILE_PATH
         ""
-    DEFAULT_DIRECTORY)
+)
