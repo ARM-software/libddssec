@@ -32,7 +32,9 @@ RUN apt-get update && \
     bc \
     cpio \
     wget \
-    python3-apt && \
+    python3-apt \
+    python3-pip && \
+    pip3 install pyelftools && \
     rm -rf /var/lib/apt/lists/*
 
 RUN git config --global user.name "no-email" && \
@@ -80,12 +82,12 @@ RUN bash -c 'echo -e "2\n2\n1\n1\n1\n1\n2\n2\n2\n1\n" | \
 # Update OP-TEE OS and OP-TEE Client.
 RUN cd optee/optee_os && \
     git fetch --all && \
-    git checkout tags/3.3.0 && \
+    git checkout tags/3.6.0 && \
     cd ..
 
 RUN cd optee/optee_client && \
     git fetch --all && \
-    git checkout tags/3.3.0 && \
+    git checkout tags/3.6.0 && \
     cd ..
 
 RUN cd arm-tf && \

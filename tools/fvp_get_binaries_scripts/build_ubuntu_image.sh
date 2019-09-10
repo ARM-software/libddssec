@@ -80,10 +80,10 @@ docker cp $OPTEE_OS_DIR/out/arm-plat-vexpress/export-ta_arm64/. \
 docker cp $OPTEE_CLIENT_DIR $CONTAINER_ID:/root/
 
 # Copy libraries and binaries for execution dependencies
-docker cp $OPTEE_CLIENT_DIR/out/export/bin/tee-supplicant \
+docker cp $OPTEE_CLIENT_DIR/out/export/usr/sbin/. \
           $CONTAINER_ID:/bin/
 
-docker cp $OPTEE_CLIENT_DIR/out/export/lib/. $CONTAINER_ID:/lib/
+docker cp $OPTEE_CLIENT_DIR/out/export/usr/lib/. $CONTAINER_ID:/lib/
 
 # Export sysroot image
 docker container export --output="$SYSROOT_OUTPUT_NAME" $CONTAINER_NAME
