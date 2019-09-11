@@ -1,6 +1,6 @@
 #
 # DDS Security library
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -60,7 +60,11 @@ function(dsec_add_test)
     endif()
 
     add_executable(${ARG_TEST_NAME} ${TEST_SOURCES} ${ARG_TEST_SOURCE})
-    target_link_libraries(${ARG_TEST_NAME} OPTEECLIENT::OPTEECLIENT)
+    target_link_libraries(
+        ${ARG_TEST_NAME}
+        OPTEECLIENT::OPTEECLIENT
+        ${TEST_LINK_OPTIONS}
+    )
     target_compile_options(${ARG_TEST_NAME} PRIVATE ${TEST_COMPILE_OPTIONS})
     target_compile_definitions(
         ${ARG_TEST_NAME}
@@ -103,7 +107,8 @@ set(TEST_INCLUDES
 )
 
 # Specific compile option and definition for the tests.
-set(TEST_COMPILE_OPTIONS ${COMPILE_OPTIONS})
+set(TEST_LINK_OPTIONS --coverage)
+set(TEST_COMPILE_OPTIONS ${COMPILE_OPTIONS} -g --coverage)
 set(TEST_COMPILE_DEFINITIONS ${COMPILE_DEFINITIONS})
 
 # Tests needs the location of the TA and its destination as the framework will
