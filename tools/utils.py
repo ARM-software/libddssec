@@ -10,6 +10,7 @@ import collections
 import contextlib
 import fnmatch
 import os
+import shutil
 import tempfile
 
 
@@ -139,23 +140,23 @@ class Walk:
 
 
 @contextlib.contextmanager
-def build_directory(persist=False):
+def build_directory(persist=False, name=None):
     """
     Create and move to a temporary build directory under the current working
-    directory using an unique name. If the parameter 'persist' is False
-    (default) the directory is automatically removed when the context is
-    destroyed.
+    directory. If the parameter 'persist' is False (default) the directory
+    is automatically removed when the context is destroyed. If the parameter
+    name is not given (default), the directory will have an unique name.
     Example of usage:
 
     with build_directory() as dir_name:
         do_something_that_generate_files()
     """
-    if persist:
-        temp_dir_name = tempfile.mkdtemp(prefix='build-', dir=os.getcwd())
+    if name:
+        temp_dir_name = os.path.abspath(name)
+        os.mkdir(temp_dir_name)
     else:
-        temp_dir = tempfile.TemporaryDirectory(prefix='build-',
-                                               dir=os.getcwd())
-        temp_dir_name = temp_dir.name
+        temp_dir_name = tempfile.mkdtemp(prefix='build-', dir=os.getcwd())
+
     previous_path = os.getcwd()
     os.chdir(temp_dir_name)
 
@@ -163,3 +164,5 @@ def build_directory(persist=False):
         yield temp_dir_name
     finally:
         os.chdir(previous_path)
+        if not persist:
+            shutil.rmtree(temp_dir_name)
