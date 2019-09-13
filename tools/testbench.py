@@ -121,14 +121,68 @@ class TestBenchBase:
             do('tar xf {}/{} -C {}'.format(
                 self.assets_directory, self.test_archive, self.test_directory))
 
-            do('cd {}/build'.format(self.test_directory))
-
             if self.prebuild_path:
-                do('ctest -VV',
+                do('cd {}'.format(self.test_directory))
+
+                # Calculate how many directory branches to strip (from left to
+                # right). 1 is added to account for /tests, where the tests are
+                # run from.
+                prebuild_path_depth = len(self.prebuild_path.strip('/').split(
+                    '/')) + 1
+
+                # Generate configuration to adjust paths
+                # Jenkins uses an @ symbol for directory names when running
+                # build concurrently. To accommodate this, @ is escaped in the
+                # path string.
+                path = os.path.dirname(self.prebuild_path)
+                path = path.replace('@', '\\@')
+
+                # Using > ensures that lcovrc gets replaced each run
+                do('echo "geninfo_adjust_src_path='
+                   '{}=>." > lcovrc'.format(path))
+
+                # Create baseline
+                do('lcov --capture --initial --directory . '
+                   '--output-file baseline.info '
+                   '--config-file ./lcovrc')
+
+                do('cd {}/build'.format(self.test_directory))
+
+                # Run tests
+                do('GCOV_PREFIX_STRIP={} ctest -VV'
+                   .format(prebuild_path_depth),
                    expect=['100% tests passed, 0 tests failed'],
                    unexpect=['Errors while running CTest'])
 
+                do('cd {}'.format(self.test_directory))
+
+                # Capture test coverage
+                do('lcov '
+                   '-capture '
+                   '--directory . '
+                   '--output-file coverage_from_tests.info '
+                   '--config-file ./lcovrc')
+
+                # Combine coverage from tests and baseline
+                do('lcov --directory . --output-file '
+                   'coverage_all.info '
+                   '--config-file ./lcovrc '
+                   '--add-tracefile baseline.info '
+                   '--add-tracefile coverage_from_tests.info')
+
+                # Remove the test suites from the results
+                do('lcov --remove coverage_all.info '
+                   '"tests/*" '
+                   '--output-file coverage.info '
+                   '--config-file ./lcovrc')
+
+                # Generate HTML report
+                do('genhtml coverage.info --output-directory {}/coverage '
+                    .format(self.output_assets_directory))
+
             else:
+                do('cd {}/build'.format(self.test_directory))
+
                 do('export OPTEECLIENT_DIR={}'.format(self.optee_client_dir))
                 do('cmake -DBUILD_TEST=ON ..',
                     expect=['Build files have been written to'],
