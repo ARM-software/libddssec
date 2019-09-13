@@ -10,6 +10,10 @@ if(${PROJECT_NAME} STREQUAL "Project")
                         "Use the top-level CMakeLists.txt instead.")
 endif()
 
+if(NOT DEFINED DSEC_TA_UUID_STRING)
+    message(FATAL_ERROR "DSEC_TA_UUID_STRING was not defined.")
+endif()
+
 #
 # Function to declare a test suite:
 #
@@ -37,6 +41,27 @@ function(dsec_add_test)
         "${one_value_keywords}"
         "${multi_value_keywords}"
         ${ARGN}
+    )
+
+    # Tests needs the location of the TA and its destination as the framework
+    # will do the copy on the device running the tests.
+    set(DSEC_TA_LOCATION_DIR build)
+    set(DSEC_TA_LOCATION "${DSEC_TA_LOCATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
+    set(DSEC_TA_DESTINATION_DIR "/lib/optee_armtz")
+    set(DSEC_TA_DESTINATION
+        "${DSEC_TA_DESTINATION_DIR}/${DSEC_TA_UUID_STRING}.ta"
+    )
+
+    # Compiler and linker options
+    set(TEST_LINK_OPTIONS --coverage)
+    set(TEST_COMPILE_OPTIONS ${COMPILE_OPTIONS} -g --coverage)
+
+    # Build definitions
+    set(TEST_COMPILE_DEFINITIONS ${COMPILE_DEFINITIONS}
+        -DDSEC_TA_LOCATION="${DSEC_TA_LOCATION}"
+        -DDSEC_TA_DESTINATION_DIR="${DSEC_TA_DESTINATION_DIR}"
+        -DDSEC_TA_DESTINATION="${DSEC_TA_DESTINATION}"
+        -DDSEC_TEST=1
     )
 
     # Test must have a NAME
@@ -87,7 +112,6 @@ function(dsec_add_test)
     add_dependencies(build_and_test ${ARG_TEST_NAME})
 endfunction()
 
-
 add_subdirectory(builtins)
 
 # Enable the tests
@@ -96,6 +120,29 @@ add_custom_target(build_and_test
         --verbose
         --timeout 360
 )
+
+dsec_build_ta(
+    TARGET_NAME
+        test-ta
+    TA_UUID_STRING
+        ${DSEC_TA_UUID_STRING}
+    FILE_PATH
+        assets/cacert.pem
+        assets/p1cert.pem
+        assets/p1privkey.pem
+        assets/invalid_cacert_empty.pem
+        assets/invalid_cacert_missing_byte.pem
+        assets/invalid_cacert_mismatch1.pem
+        assets/invalid_cacert_mismatch2.pem
+        assets/invalid_p1_cert_shortterm_signed.pem
+        assets/invalid_shortterm_ca.pem
+        assets/invalid_nosignature_cert.pem
+        assets/invalid_signature_cert.pem
+    BUILD_TEST_TA
+)
+
+# Add the test ta as a dependency for the tests.
+add_dependencies(build_and_test test-ta)
 
 # Test source used for the base framework
 set(TEST_SOURCES dsec_test.c dsec_test_ta.c dsec_test_canary.c)
@@ -106,25 +153,19 @@ set(TEST_INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# Specific compile option and definition for the tests.
-set(TEST_LINK_OPTIONS --coverage)
-set(TEST_COMPILE_OPTIONS ${COMPILE_OPTIONS} -g --coverage)
-set(TEST_COMPILE_DEFINITIONS ${COMPILE_DEFINITIONS})
-
-# Tests needs the location of the TA and its destination as the framework will
-# do the copy on the device running the tests.
-set(DSEC_TA_LOCATION_DIR build)
-set(DSEC_TA_LOCATION "${DSEC_TA_LOCATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
-set(DSEC_TA_DESTINATION_DIR "/lib/optee_armtz")
-set(DSEC_TA_DESTINATION "${DSEC_TA_DESTINATION_DIR}/${DSEC_TA_UUID_STRING}.ta")
-list(APPEND TEST_COMPILE_DEFINITIONS
-    -DDSEC_TA_LOCATION="${DSEC_TA_LOCATION}"
-    -DDSEC_TA_DESTINATION_DIR="${DSEC_TA_DESTINATION_DIR}"
-    -DDSEC_TA_DESTINATION="${DSEC_TA_DESTINATION}"
-    -DDSEC_TEST=1
+dsec_embed_asset_test_files(
+    FILE_PATH
+        assets/p1cert.pem
+        assets/invalid_p1_cert_shortterm_signed.pem
+        assets/invalid_shortterm_ca.pem
+        assets/invalid_nosignature_cert.pem
+        assets/invalid_signature_cert.pem
+        assets/p1privkey.pem
 )
 
+#
 # Definition of the tests
+#
 
 dsec_add_test(NAME canary SOURCE test_canary.c)
 dsec_add_test(NAME version SOURCE test_version.c)
@@ -254,36 +295,3 @@ dsec_add_test(
         ${CMAKE_SOURCE_DIR}/src/dsec_aes.c
         test_aes.c
 )
-
-dsec_embed_asset_test_files(
-    FILE_PATH
-        assets/p1cert.pem
-        assets/invalid_p1_cert_shortterm_signed.pem
-        assets/invalid_shortterm_ca.pem
-        assets/invalid_nosignature_cert.pem
-        assets/invalid_signature_cert.pem
-        assets/p1privkey.pem
-)
-
-dsec_build_ta(
-    TARGET_NAME
-        test-ta
-    TA_UUID_STRING
-        ${DSEC_TA_UUID_STRING}
-    FILE_PATH
-        assets/cacert.pem
-        assets/p1cert.pem
-        assets/p1privkey.pem
-        assets/invalid_cacert_empty.pem
-        assets/invalid_cacert_missing_byte.pem
-        assets/invalid_cacert_mismatch1.pem
-        assets/invalid_cacert_mismatch2.pem
-        assets/invalid_p1_cert_shortterm_signed.pem
-        assets/invalid_shortterm_ca.pem
-        assets/invalid_nosignature_cert.pem
-        assets/invalid_signature_cert.pem
-    BUILD_TEST_TA
-)
-
-# Add the test ta as a dependency for the tests.
-add_dependencies(build_and_test test-ta)
