@@ -123,7 +123,7 @@ static TEE_Result ss_derive(const struct dh_pair_handle_t* dh_local_handle,
                     /* Return the result from TEE_GetObjectBufferAttribute */
                 }
 
-            TEE_FreeTransientObject(shared_key_object);
+                TEE_FreeTransientObject(shared_key_object);
 
             } else {
                 EMSG("Could not allocate object for shared secret.\n");
@@ -223,6 +223,7 @@ TEE_Result dsec_ta_ssh_free(
         shared_secret_handle->challenge1_handle.initialized = false;
         shared_secret_handle->challenge2_handle.initialized = false;
 
+        allocated_handle--;
         result = TEE_SUCCESS;
     } else {
         EMSG("Shared Secret Handle is not set.\n");
