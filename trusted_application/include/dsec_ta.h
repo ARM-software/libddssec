@@ -113,6 +113,14 @@ enum {
     DSEC_TA_CMD_AES_DECRYPT,
     /*! Function ID of dsec_ta_aes_get_mac */
     DSEC_TA_CMD_AES_GET_MAC,
+    /*! Function ID of dsec_ta_session_key_create */
+    DSEC_TA_CMD_SESSION_KEY_CREATE,
+    /*! Function ID of dsec_ta_session_key_encrypt */
+    DSEC_TA_CMD_SESSION_KEY_ENCRYPT,
+    /*! Function ID of dsec_ta_session_key_decrypt */
+    DSEC_TA_CMD_SESSION_KEY_DECRYPT,
+    /*! Function ID of dsec_ta_session_key_delete */
+    DSEC_TA_CMD_SESSION_KEY_DELETE,
 #if DSEC_TEST
     /*! Function ID of dsec_ta_test_sha256 */
     DSEC_TA_CMD_SHA256,

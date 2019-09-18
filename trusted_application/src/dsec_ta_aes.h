@@ -16,7 +16,8 @@
 /*! Size of the tag for the authentication function. */
 #define DSEC_TA_AES_MAX_TAG_SIZE (16U)
 /*! Size the temporary buffer used for moving data back to the Normal World. */
-#define DSEC_TA_AES_STATIC_OUTPUT_SIZE (2<<16)
+#define DSEC_TA_AES_SHARED_OUTPUT_SIZE (2<<16)
+extern uint8_t shared_output_data[DSEC_TA_AES_SHARED_OUTPUT_SIZE];
 
 /*! Initialize the operation handles necessary for the AES operations. */
 TEE_Result dsec_ta_aes_init(void);

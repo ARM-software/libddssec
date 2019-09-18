@@ -17,7 +17,7 @@ TEE_OperationHandle aes_encrypt_op = TEE_HANDLE_NULL;
 TEE_OperationHandle aes_decrypt_op = TEE_HANDLE_NULL;
 
 /* Temporary buffer used for decrypting data */
-static uint8_t static_output_data[DSEC_TA_AES_STATIC_OUTPUT_SIZE] = {0};
+uint8_t shared_output_data[DSEC_TA_AES_SHARED_OUTPUT_SIZE] = {0};
 
 TEE_Result dsec_ta_aes_init(void)
 {
@@ -211,7 +211,7 @@ TEE_Result aes_decrypt(uint8_t* output_data,
                         result = TEE_AEDecryptFinal(aes_decrypt_op,
                                                     data_in,
                                                     data_in_size,
-                                                    static_output_data,
+                                                    shared_output_data,
                                                     output_data_size,
                                                     tag,
                                                     *tag_size);
@@ -221,12 +221,12 @@ TEE_Result aes_decrypt(uint8_t* output_data,
                          * causes TEE_ERROR_MAC_INVALID, so it is memmove-d
                          * from here. */
                         TEE_MemMove(output_data,
-                                    static_output_data,
+                                    shared_output_data,
                                     *output_data_size);
 
-                        memset(static_output_data,
+                        memset(shared_output_data,
                                0,
-                               DSEC_TA_AES_STATIC_OUTPUT_SIZE);
+                               DSEC_TA_AES_SHARED_OUTPUT_SIZE);
 
                         if (result != TEE_SUCCESS) {
                             EMSG("Cannot perform decryption. Error 0x%x\n",
@@ -433,7 +433,7 @@ TEE_Result dsec_ta_aes_get_mac(uint32_t parameters_type,
 
         iv = parameters[3].memref.buffer;
         iv_size = parameters[3].memref.size;
-        uint32_t static_output_size = DSEC_TA_AES_STATIC_OUTPUT_SIZE;
+        uint32_t shared_output_size = DSEC_TA_AES_SHARED_OUTPUT_SIZE;
 
         if ((tag != NULL) &&
             (tag_size > 0) &&
@@ -441,11 +441,11 @@ TEE_Result dsec_ta_aes_get_mac(uint32_t parameters_type,
             (key_data_size > 0) &&
             (data_in != NULL) &&
             (data_in_size > 0) &&
-            (static_output_size >= data_in_size) &&
+            (shared_output_size >= data_in_size) &&
             (iv != NULL) &&
             (iv_size > 0)) {
-            result = aes_encrypt(static_output_data,
-                                 &static_output_size,
+            result = aes_encrypt(shared_output_data,
+                                 &shared_output_size,
                                  tag,
                                  &tag_size,
                                  key_data,
