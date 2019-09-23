@@ -124,7 +124,7 @@ class TestBenchBase:
             do('cd {}/build'.format(self.test_directory))
 
             if self.prebuild_path:
-                do('ctest',
+                do('ctest -VV',
                    expect=['100% tests passed, 0 tests failed'],
                    unexpect=['Errors while running CTest'])
 
