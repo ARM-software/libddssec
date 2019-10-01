@@ -384,9 +384,11 @@ class AssetsTar():
         project_base_dir = proc.stdout.read().strip().decode('utf-8')
         working_dir = os.getcwd()
 
+        prebuild_tar = os.path.abspath('build.tar')
+
         os.chdir(project_base_dir)
 
-        # List all the files that should be tar-ed for the target:
+        # List all the source files that should be tar-ed for the target:
         #   - files that are untracked and not in .gitignore
         #   - files that are tracked in the project
         # All files that were deleted and previously tracked are discarded.
@@ -403,17 +405,17 @@ class AssetsTar():
 
         subprocess.check_call(archive_cmd, shell=True)
 
-        os.chdir(working_dir)
-
+        # When using pre-build mode, include also the 'build' directory into
+        # the assets being sent to the target.
         if prebuild_path:
-            self.prebuild = os.path.abspath('build.tar')
-            subprocess.check_call('mkdir build', shell=True)
-            subprocess.check_call('cp -r {}/* build/'.format(prebuild_path),
+            # Create a tar-file (build.tar) of the 'build' directory
+            subprocess.check_call('tar cf {} build'.format(prebuild_tar),
                                   shell=True)
-            subprocess.check_call('tar cf {} build'.format(self.prebuild),
-                                  shell=True)
+            # Concatenate build.tar into test.tar
             subprocess.check_call('tar --concatenate --file={} {}'.format(
-                        self.path, self.prebuild), shell=True)
+                        self.path, prebuild_tar), shell=True)
+
+        os.chdir(working_dir)
 
 
 class AssetsImage():

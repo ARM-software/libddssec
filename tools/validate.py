@@ -181,7 +181,10 @@ def main():
         build_info += ' (cross-compiled)'
 
     persist_test_build = not args.build_on_target
-    with build_directory(persist=persist_test_build) as build_dir_name:
+    build_dir = 'build'
+
+    with build_directory(persist=persist_test_build, name=build_dir) as \
+            build_dir_name:
         subprocess.call('cmake {} {}'.format(cmake_params, basedir),
                         shell=True)
 
