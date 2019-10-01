@@ -67,7 +67,7 @@ def run_unit_tests(args, prebuild_path):
     banner('Unit tests')
 
     if args.test_ssh:
-        with build_directory():
+        with build_directory(persist=True, name='build-assets-ssh'):
             ssh_param = args.test_ssh.split(":")
             ssh_host = ssh_param[0]
             ssh_port = ssh_param[1] if len(ssh_param) > 1 else None
@@ -84,7 +84,7 @@ def run_unit_tests(args, prebuild_path):
         results.append(('Unit tests on remote machine', result))
 
     if args.test_fvp:
-        with build_directory():
+        with build_directory(persist=True, name='build-assets-fvp'):
             binary_path = os.path.expanduser(args.test_fvp[0])
             try:
                 with TestBenchFVP(binary_path, prebuild_path) as t:
