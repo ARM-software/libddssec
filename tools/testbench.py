@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-import math
 import os
 import pexpect
 import re
@@ -427,13 +426,34 @@ class AssetsImage():
         print('Creating libddssec image')
 
         try:
-            # Calculate the size of disk as being twice the size of the input
-            # assets.
-            # This ratio may need to be tweaked in the future if the
-            # output assets increase beyond this capacity.
-            disk_size = os.path.getsize(assets_tar.name) * 2
+            # Disk geometry
+            disk_size_alignment = 512 * 1024
             block_size = 1024
-            block_count = int(math.ceil(disk_size / block_size))
+            assert (disk_size_alignment % block_size == 0), \
+                "Block size is not a multiple of {}".format(
+                    disk_size_alignment)
+
+            # Calculate the minimum disk size as being 16MiB + the size of
+            # the input assets.
+            # The minimum size may need to be tweaked in the future if the
+            # output assets increase beyond this capacity.
+            size_min = (16 * 1024 * 1024) + os.path.getsize(assets_tar.path)
+
+            # Align disk size
+            disk_size = int((size_min + disk_size_alignment - 1) /
+                            disk_size_alignment) * disk_size_alignment
+
+            block_count = int(disk_size / block_size)
+
+            print("Disk details:\n"
+                  "\tMinimum size required: {} bytes\n"
+                  "\tBlock size: {} bytes\n"
+                  "\tTotal blocks: {}\n"
+                  "\tDisk size alignment: {} bytes\n"
+                  "\tFinal disk size: {} bytes".format(size_min, block_size,
+                                                       block_count,
+                                                       disk_size_alignment,
+                                                       disk_size))
 
             subprocess.check_call('dd of={} bs={} count={} if=/dev/zero'
                                   .format(self.path, block_size, block_count),
