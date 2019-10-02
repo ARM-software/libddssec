@@ -143,9 +143,16 @@ class Walk:
 def build_directory(persist=False, name=None):
     """
     Create and move to a temporary build directory under the current working
-    directory. If the parameter 'persist' is False (default) the directory
-    is automatically removed when the context is destroyed. If the parameter
-    name is not given (default), the directory will have an unique name.
+    directory.
+    * If the parameter 'persist' is False (default) the directory is
+    automatically removed when the context is destroyed.
+    * If the parameter name is not given (default), the directory will have
+    an unique name.
+    * If the parameter name is given and the directory already exists,
+    it will be removed.
+    * If the parameter name is given and a directory with the same name
+    already exists, the existing directory will be removed.
+
     Example of usage:
 
     with build_directory() as dir_name:
@@ -153,6 +160,10 @@ def build_directory(persist=False, name=None):
     """
     if name:
         temp_dir_name = os.path.abspath(name)
+
+        if os.path.exists(temp_dir_name):
+            shutil.rmtree(temp_dir_name)
+
         os.mkdir(temp_dir_name)
     else:
         temp_dir_name = tempfile.mkdtemp(prefix='build-', dir=os.getcwd())
