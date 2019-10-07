@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -229,21 +229,22 @@ TEEC_Result dsec_ca_invoke(const struct dsec_instance* instance,
                            uint32_t* origin)
 {
 
-    int32_t result = check_instance(instance, true /* is open */);
-    if (result == DSEC_SUCCESS) {
+    TEEC_Result teec_result = 0;
+    if (check_instance(instance, true /* is open */) == DSEC_SUCCESS) {
         /* Passing invalid memory as a parameter will crash the program */
-        TEEC_Result teec_result = check_parameters(operation);
+        teec_result = check_parameters(operation);
         if (teec_result == TEEC_SUCCESS) {
-            result = TEEC_InvokeCommand(instance->session,
-                                        (uint32_t)command_id,
-                                        operation,
-                                        origin);
+            teec_result = TEEC_InvokeCommand(instance->session,
+                                             (uint32_t)command_id,
+                                             operation,
+                                             origin);
         } else {
             dsec_print("Invalid parameters\n");
         }
     } else {
+        teec_result = TEEC_ERROR_ACCESS_DENIED;
         dsec_print("Invalid instance\n");
     }
 
-    return result;
+    return teec_result;
 }
