@@ -19,7 +19,7 @@
 #define CHALLENGE_SIZE (32U)
 
 /*! Structure to store all allocated crypto transform key so far. */
-struct key_material_handle_t store[DSEC_TA_MAX_KEY_MATERIAL_HANDLE];
+static struct key_material_handle_t store[DSEC_TA_MAX_KEY_MATERIAL_HANDLE];
 
 /*
  * Returns a valid index to an element from the array of handle.
