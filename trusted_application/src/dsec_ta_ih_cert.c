@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -128,6 +128,9 @@ static TEE_Result cert_signature_verify(const mbedtls_pk_context* public_key,
             result = TEE_ERROR_SECURITY;
         }
         mbedtls_ecdsa_free(&ecdsa_public_context);
+    } else {
+        EMSG("Could not create an ECDSA context.\n");
+        result = TEE_ERROR_SECURITY;
     }
 
     return result;
