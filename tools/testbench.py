@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # DDS Security library
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -253,7 +253,7 @@ class TestBenchFVP(TestBenchBase):
     def __enter__(self):
         self.terminal = pexpect.spawn(
             'telnet localhost {}'.format(self.telnet_port),
-            timeout=3200,  # Set default timemout for expect()
+            timeout=3200,  # Set default timeout for expect()
             logfile=sys.stdout.buffer,
             maxread=self.maxread_buffer_size,
             searchwindowsize=self.searchwindow_size,
