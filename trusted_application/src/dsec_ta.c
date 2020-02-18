@@ -232,6 +232,9 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
     case DSEC_TA_CMD_LOAD_OBJECT_BUILTIN:
         result = dsec_ta_test_load_object_builtin(parameters_type, parameters);
         break;
+    case DSEC_TA_CMD_LOAD_OBJECT_STORAGE:
+        result = dsec_ta_test_load_object_storage(parameters_type, parameters);
+        break;
     case DSEC_TA_CMD_UNLOAD_OBJECT:
         result = dsec_ta_test_unload_object();
         break;

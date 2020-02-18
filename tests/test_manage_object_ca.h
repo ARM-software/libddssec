@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,10 @@ extern "C" {
 #include <dsec_ca.h>
 #include <stdint.h>
 #include <tee_client_api.h>
+
+/* Invoke dsec_ta_load_storage in the TA */
+TEEC_Result load_object_storage(const char* name,
+                                struct dsec_instance* instance);
 
 /* Invoke dsec_ta_load_builtin in the TA */
 TEEC_Result load_object_builtin(const char* name,

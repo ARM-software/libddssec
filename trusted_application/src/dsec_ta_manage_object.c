@@ -102,6 +102,74 @@ TEE_Result dsec_ta_load_builtin(void** buffer,
     return result;
 }
 
+TEE_Result dsec_ta_load_storage(void** buffer,
+                                size_t* size,
+                                const char name[DSEC_MAX_NAME_LENGTH])
+{
+    TEE_Result result = 0;
+    if (name != NULL) {
+        /* 1 is used because it's the size of an empty string with a newline */
+        size_t name_size = strnlen(name, DSEC_MAX_NAME_LENGTH);
+        if (name_size > 1 && name_size <= DSEC_MAX_NAME_LENGTH) {
+            char local_name[DSEC_MAX_NAME_LENGTH] = {0};
+            TEE_ObjectHandle object = 0;
+            uint32_t object_data_flags = TEE_DATA_FLAG_ACCESS_READ |
+                                         TEE_DATA_FLAG_SHARE_READ;
+
+            TEE_MemMove(local_name, name, name_size);
+            result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE,
+                                              local_name,
+                                              name_size,
+                                              object_data_flags,
+                                              &object);
+
+            if (result == TEE_SUCCESS) {
+                TEE_ObjectInfo object_info;
+                result = TEE_GetObjectInfo1(object, &object_info);
+                if (result == (TEE_Result)TEE_SUCCESS) {
+                    uint32_t read = 0;
+                    result = TEE_ReadObjectData(object,
+                                                object_memory.data,
+                                                object_info.dataSize,
+                                                &read);
+
+                    TEE_CloseObject(object);
+                    if ((result == TEE_SUCCESS) &&
+                        (read == object_info.dataSize)) {
+
+                        DMSG("Stored object loaded");
+                        *buffer = (void*)&object_memory.data;
+                        *size = object_info.dataSize;
+                    } else {
+                        EMSG("Could not read from the object."
+                             "Read %d bytes and result is %d",
+                             read,
+                             result);
+                    }
+                } else {
+                    TEE_CloseObject(object);
+                    EMSG("Could not get information for the object. "
+                         "Result is %d",
+                         result);
+
+                    result = TEE_ERROR_ACCESS_DENIED;
+                }
+            } else {
+                EMSG("Could not open the object. Result is %x", result);
+                result = TEE_ERROR_ITEM_NOT_FOUND;
+            }
+        } else {
+            EMSG("Bad object name length: %zd.", name_size);
+            result = TEE_ERROR_BAD_PARAMETERS;
+        }
+    } else {
+        EMSG("Invalid parameters for loading the object from secure storage");
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
 #if DSEC_TEST
 TEE_Result dsec_ta_test_load_object_builtin(uint32_t parameters_type,
                                             const TEE_Param parameters[1])
@@ -120,6 +188,43 @@ TEE_Result dsec_ta_test_load_object_builtin(uint32_t parameters_type,
         size_t object_size = 0;
 
         result = dsec_ta_load_builtin(&object_buffer,
+                                      &object_size,
+                                      parameters[0].memref.buffer);
+
+        if (result != TEE_SUCCESS) {
+            /* Failing result is returned */
+            EMSG("Could not load the object");
+        } else {
+            DMSG("Object size: %zd", object_size);
+        }
+    } else {
+        EMSG("Invalid parameters for loading an object");
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_test_load_object_storage(uint32_t parameters_type,
+                                            const TEE_Param parameters[1])
+{
+    TEE_Result result = 0;
+
+    uint32_t expected_types = TEE_PARAM_TYPES(
+        TEE_PARAM_TYPE_MEMREF_INPUT, /* Name */
+        TEE_PARAM_TYPE_NONE,
+        TEE_PARAM_TYPE_NONE,
+        TEE_PARAM_TYPE_NONE);
+
+    if ((parameters_type == expected_types) &&
+        (parameters != NULL) &&
+        ((int32_t)parameters[0].memref.size > 0) &&
+        (parameters[0].memref.buffer != NULL)) {
+
+        void* object_buffer = NULL;
+        size_t object_size = 0;
+
+        result = dsec_ta_load_storage(&object_buffer,
                                       &object_size,
                                       parameters[0].memref.buffer);
 

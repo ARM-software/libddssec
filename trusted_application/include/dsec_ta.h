@@ -128,6 +128,8 @@ enum {
     DSEC_TA_CMD_SHA256,
     /*! Function ID for dsec_ta_test_load_object_builtin */
     DSEC_TA_CMD_LOAD_OBJECT_BUILTIN,
+    /*! Function ID for dsec_ta_test_load_object_storage */
+    DSEC_TA_CMD_LOAD_OBJECT_STORAGE,
     /*! Function ID for dsec_ta_test_unload_object */
     DSEC_TA_CMD_UNLOAD_OBJECT,
     /*! Function ID for dsec_ta_hmac_256_test */
