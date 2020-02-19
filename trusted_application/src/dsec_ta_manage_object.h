@@ -1,7 +1,7 @@
 
 /*
  * DDS Security library
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #ifndef DSEC_TA_MANAGE_OBJECT_H
 #define DSEC_TA_MANAGE_OBJECT_H
 
+#include <tee_api_defines.h>
 #include <tee_internal_api.h>
 #include <stdint.h>
 
@@ -22,7 +23,7 @@
 /*! Maximum number of bytes for temporary internal storage */
 #define DSEC_OBJECT_DATA_MAX_SIZE ((size_t)(2<<16))
 /*! Maximum length of a builtin object's name, including \0 */
-#define DSEC_MAX_NAME_LENGTH (256U)
+#define DSEC_MAX_NAME_LENGTH (TEE_OBJECT_ID_MAX_LEN)
 
 /*!
  * \brief Unload the object memory.
