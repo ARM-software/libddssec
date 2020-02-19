@@ -127,7 +127,7 @@ TEE_Result dsec_ta_load_storage(void** buffer,
                 TEE_ObjectInfo object_info;
                 result = TEE_GetObjectInfo1(object, &object_info);
                 if (result == (TEE_Result)TEE_SUCCESS) {
-                    uint32_t read = 0;
+                    uint32_t read = 0; /* The number of bytes read */
                     result = TEE_ReadObjectData(object,
                                                 object_memory.data,
                                                 object_info.dataSize,
@@ -164,6 +164,106 @@ TEE_Result dsec_ta_load_storage(void** buffer,
         }
     } else {
         EMSG("Invalid parameters for loading the object from secure storage");
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result create_persistent_object(const char name[DSEC_MAX_NAME_LENGTH],
+                                    void* buffer,
+                                    size_t size)
+{
+    TEE_Result result = 0;
+
+    if ((name != NULL) &&
+        (size > 0) &&
+        (buffer != NULL)) {
+
+        size_t name_size = strnlen(name, DSEC_MAX_NAME_LENGTH);
+        /* 1 is used because it's the size of an empty string with a newline */
+        if (name_size > 1 && name_size <= DSEC_MAX_NAME_LENGTH) {
+            TEE_ObjectHandle object;
+
+            uint32_t object_data_flags = TEE_DATA_FLAG_ACCESS_READ |
+                                         TEE_DATA_FLAG_ACCESS_WRITE |
+                                         TEE_DATA_FLAG_ACCESS_WRITE_META |
+                                         TEE_DATA_FLAG_SHARE_READ |
+                                         TEE_DATA_FLAG_SHARE_WRITE;
+
+            result =
+                TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE,
+                                           name,
+                                           name_size,
+                                           object_data_flags,
+                                           /* Attributes, not set */
+                                           TEE_HANDLE_NULL,
+                                           buffer,
+                                           size,
+                                           &object);
+
+            if (result == TEE_SUCCESS) {
+                TEE_CloseObject(object);
+            } else {
+                EMSG("Could not create a persistent object, error: %x",
+                     result);
+                result = TEE_ERROR_STORAGE_NOT_AVAILABLE;
+            }
+        } else {
+            EMSG("Bad object name length: %zd.", name_size);
+            result = TEE_ERROR_BAD_PARAMETERS;
+        }
+    } else {
+        EMSG("Invalid parameters for writing an object to secure storage");
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result delete_persistent_object(const char name[DSEC_MAX_NAME_LENGTH])
+{
+    TEE_Result result = 0;
+    size_t name_size = strnlen(name, DSEC_MAX_NAME_LENGTH);
+    /* 1 is used because it's the size of an empty string with a newline */
+    if ((name != NULL) &&
+        (name_size > 1)) {
+
+        TEE_ObjectHandle object;
+        uint32_t object_data_flags = TEE_DATA_FLAG_ACCESS_READ |
+                                     TEE_DATA_FLAG_ACCESS_WRITE |
+                                     TEE_DATA_FLAG_ACCESS_WRITE_META |
+                                     TEE_DATA_FLAG_SHARE_READ |
+                                     TEE_DATA_FLAG_SHARE_WRITE;
+
+        result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE,
+                                          name,
+                                          name_size,
+                                          object_data_flags,
+                                          &object);
+
+        if (result == TEE_SUCCESS) {
+            result = TEE_CloseAndDeletePersistentObject1(object);
+
+            if (result != TEE_SUCCESS) {
+                if (result == TEE_ERROR_STORAGE_NOT_AVAILABLE) {
+                    EMSG("Could not delete the object as it doesn't exist");
+                } else {
+                    EMSG("Could not delete the object. Result is %d",
+                         result);
+
+                    result = TEE_ERROR_BAD_STATE;
+                }
+            }
+        } else if (result == TEE_ERROR_ITEM_NOT_FOUND) {
+            EMSG("Could not open the object as it doesn't exist");
+            /* Let the result bubble-up */
+        } else {
+            EMSG("Could not access the object. Result is %d", result);
+            result = TEE_ERROR_ACCESS_DENIED;
+        }
+    } else {
+        EMSG("Invalid parameters for writing an object to secure storage");
         result = TEE_ERROR_BAD_PARAMETERS;
     }
 
@@ -252,6 +352,94 @@ TEE_Result dsec_ta_test_unload_object(void)
         if (object_memory.data[i] != 0x0) {
             result = TEE_ERROR_BAD_STATE;
         }
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_test_create_persistent_object(
+    uint32_t parameters_type,
+    const TEE_Param parameters[2])
+{
+    TEE_Result result = 0;
+    uint32_t expected_types = TEE_PARAM_TYPES(
+        TEE_PARAM_TYPE_MEMREF_INPUT, /* Data */
+        TEE_PARAM_TYPE_MEMREF_INPUT, /* Name */
+        TEE_PARAM_TYPE_NONE,
+        TEE_PARAM_TYPE_NONE);
+
+    if ((parameters_type == expected_types) &&
+        (parameters != NULL) &&
+        ((int32_t)parameters[0].memref.size > 0) &&
+        (parameters[0].memref.buffer != NULL) &&
+        (parameters[1].memref.buffer != NULL) &&
+        (parameters[1].memref.size > 1) &&
+        (parameters[1].memref.size <= (uint32_t)DSEC_MAX_NAME_LENGTH)) {
+
+        size_t name_size = (size_t)parameters[1].memref.size;
+        char name[DSEC_MAX_NAME_LENGTH] = {0};
+
+        const char* move_result = TEE_MemMove(name,
+                                              parameters[1].memref.buffer,
+                                              (uint32_t)name_size);
+
+        if (move_result == name) {
+            result = create_persistent_object(
+                         name,
+                         parameters[0].memref.buffer,
+                         (size_t)parameters[0].memref.size);
+
+            if (result != TEE_SUCCESS) {
+                EMSG("Could not create the object in secure storage");
+            }
+        } else {
+            EMSG("Name was not moved");
+            result = TEE_ERROR_OUT_OF_MEMORY;
+        }
+    } else {
+        EMSG("Invalid parameters for creating an object in secure storage");
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_test_delete_persistent_object(
+    uint32_t parameters_type,
+    const TEE_Param parameters[1])
+{
+    TEE_Result result = 0;
+    uint32_t expected_types = TEE_PARAM_TYPES(
+        TEE_PARAM_TYPE_MEMREF_INPUT, /* Name */
+        TEE_PARAM_TYPE_NONE,
+        TEE_PARAM_TYPE_NONE,
+        TEE_PARAM_TYPE_NONE);
+
+    if ((parameters_type == expected_types) &&
+        (parameters != NULL) &&
+        (parameters[0].memref.buffer != NULL) &&
+        (parameters[0].memref.size > 1) &&
+        (parameters[0].memref.size <= (uint32_t)DSEC_MAX_NAME_LENGTH)) {
+
+        size_t name_size = (size_t)parameters[1].memref.size;
+        char name[DSEC_MAX_NAME_LENGTH] = {0};
+
+        const char* move_result = TEE_MemMove(name,
+                                              parameters[0].memref.buffer,
+                                              (uint32_t)name_size);
+
+        if (move_result == name) {
+            result = delete_persistent_object(name);
+            if (result != TEE_SUCCESS) {
+                EMSG("Could not delete the object from secure storage");
+            }
+        } else {
+            EMSG("Name was not moved");
+            result = TEE_ERROR_OUT_OF_MEMORY;
+        }
+    } else {
+        EMSG("Invalid parameters for deleting an object in secure storage");
+        result = TEE_ERROR_BAD_PARAMETERS;
     }
 
     return result;

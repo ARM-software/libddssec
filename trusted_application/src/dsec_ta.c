@@ -238,6 +238,14 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
     case DSEC_TA_CMD_UNLOAD_OBJECT:
         result = dsec_ta_test_unload_object();
         break;
+    case DSEC_TA_CMD_CREATE_PERSISTENT_OBJECT:
+        result =
+            dsec_ta_test_create_persistent_object(parameters_type, parameters);
+        break;
+    case DSEC_TA_CMD_DELETE_PERSISTENT_OBJECT:
+        result =
+            dsec_ta_test_delete_persistent_object(parameters_type, parameters);
+        break;
     case DSEC_TA_CMD_HMAC_TESTS:
         result = dsec_ta_hmac_256_test(parameters_type, parameters);
         break;

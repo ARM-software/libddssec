@@ -28,6 +28,22 @@ TEEC_Result load_object_builtin(const char* name,
 /* Invoke dsec_ta_unload_object_memory in the TA */
 TEEC_Result unload_object(struct dsec_instance* instance);
 
+/* Takes data from the Normal World and stores it in the TA's secure storage at
+ * a given object ID name.
+ */
+TEEC_Result create_persistent_object(const uint8_t* buffer,
+                                     size_t size,
+                                     const char* name,
+                                     size_t name_length,
+                                     struct dsec_instance* instance);
+
+/* Takes an object ID name and deletes the corresponding file in the
+ * TA's secure storage.
+ */
+TEEC_Result delete_persistent_object(const char* name,
+                                     size_t name_length,
+                                     struct dsec_instance* instance);
+
 #ifdef __cplusplus
 }
 #endif /*__cplusplus */

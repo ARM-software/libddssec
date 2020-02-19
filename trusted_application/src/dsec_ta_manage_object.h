@@ -81,6 +81,46 @@ TEE_Result dsec_ta_load_storage(void** buffer,
                                 size_t* size,
                                 const char name[DSEC_MAX_NAME_LENGTH]);
 
+/*!
+ * \brief Create an object in the secure, persistent storage.
+ *
+ * \details Creates an object in the secure storage using a given name and
+ *     buffer. This file will persist in other instances of the program.
+ *
+ * \param[in] name Array of the name of the object in secure storage.
+ *
+ * \param[in] name_size Size of the name.
+ *
+ * \param[in] buffer Array of the data of the object in secure storage.
+ *
+ * \param[in] size Size of the object in secure storage.
+ *
+ * \retval ::TEE_SUCCESS Success.
+ * \retval ::TEE_ERROR_STORAGE_NOT_AVAILABLE The file can't be created and
+ *     written to.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Bad parameters for creating an object.
+ */
+TEE_Result create_persistent_object(const char name[DSEC_MAX_NAME_LENGTH],
+                                    void* buffer,
+                                    size_t size);
+
+/*!
+ * \brief Delete an object from the secure, persistent storage.
+ *
+ * \details Deletes an object in the secure storage with a given name.
+ *
+ * \param[in] name Array of the name of the object in secure storage.
+ *
+ * \retval ::TEE_SUCCESS Success.
+ * \retval ::TEE_ERROR_BAD_STATE The file can be opened but it can't be deleted.
+ * \retval ::TEE_ERROR_ACCESS_DENIED The file can be opened but can't be
+ *     written to.
+ *
+ * \retval ::TEE_ERROR_ITEM_NOT_FOUND The file can't be found.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Bad parameters for deleting an object.
+ */
+TEE_Result delete_persistent_object(const char name[DSEC_MAX_NAME_LENGTH]);
+
 #if DSEC_TEST
 /*!
  * \brief Invoke dsec_ta_load_builtin from the tests.
@@ -92,9 +132,6 @@ TEE_Result dsec_ta_load_storage(void** buffer,
  *
  * \param[in] parameters[0].memref.buffer Pointer to a buffer containing the
  *     object ID name of the object.
- *
- * \param[in] parameters[0].memref.size The length of the object ID name of the
- *     object.
  *
  * \retval ::TEE_SUCCESS Success.
  * \retval ::TEE_ERROR_ITEM_NOT_FOUND Failed to find a matching object by name.
@@ -145,6 +182,62 @@ TEE_Result dsec_ta_test_load_object_storage(uint32_t parameters_type,
  *     reset.
  */
 TEE_Result dsec_ta_test_unload_object(void);
+
+/*!
+ * \brief Invoke dsec_ta_test_create_persistent_object from the tests.
+ *
+ * \details Used for testing secure storage creation from the normal world.
+ *
+ * \param parameters_type The types of each of the parameters in parameters[1]
+ *     as specified by the Global Platform TEE internal core API specification.
+ *
+ * \param[in] parameters[0].memref.buffer Pointer to a buffer containing the
+ *     data of the object.
+ *
+ * \param[in] parameters[0].memref.size The size of the object.
+ *
+ * \param[in] parameters[1].memref.buffer Pointer to a buffer containing the
+ *     name of the object.
+ *
+ * \param[in] parameters[1].memref.size The length of the name of the
+ *     object.
+ *
+ * \retval ::TEE_SUCCESS Success.
+ * \retval ::TEE_ERROR_OUT_OF_MEMORY Couldn't copy over the name from the
+ *     Normal World.
+ * \retval ::TEE_ERROR_ACCESS_DENIED The file can be opened but can't be
+ *     written to.
+ * \retval ::TEE_ERROR_STORAGE_NOT_AVAILABLE The file can't be opened.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Bad parameters for creating an object.
+ */
+TEE_Result dsec_ta_test_create_persistent_object(
+    uint32_t parameters_type,
+    const TEE_Param parameters[2]);
+
+/*!
+ * \brief Invoke dsec_ta_test_delete_persistent_object from the tests.
+ *
+ * \details Used for testing secure storage deletion from the normal world.
+ *
+ * \param parameters_type The types of each of the parameters in parameters[1]
+ *     as specified by the Global Platform TEE internal core API specification.
+ *
+ * \param[in] parameters[0].memref.buffer Pointer to a buffer containing the
+ *     name of the object.
+ *
+ * \retval ::TEE_SUCCESS Success.
+ * \retval ::TEE_ERROR_OUT_OF_MEMORY Couldn't copy over the name from the
+ *     Normal World.
+ * \retval ::TEE_ERROR_BAD_STATE The file can be opened but it can't be deleted.
+ * \retval ::TEE_ERROR_ACCESS_DENIED The file can be opened but can't be
+ *     written to.
+ *
+ * \retval ::TEE_ERROR_ITEM_NOT_FOUND The file can't be found.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Bad parameters for deleting an object.
+ */
+TEE_Result dsec_ta_test_delete_persistent_object(
+    uint32_t parameters_type,
+    const TEE_Param parameters[1]);
 #endif /* DSEC_TEST */
 /*!
  * \}

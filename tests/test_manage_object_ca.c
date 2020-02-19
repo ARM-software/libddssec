@@ -75,3 +75,56 @@ TEEC_Result unload_object(struct dsec_instance* instance)
 
     return result;
 }
+
+TEEC_Result create_persistent_object(const uint8_t* buffer,
+                                     size_t size,
+                                     const char* name,
+                                     size_t name_length,
+                                     struct dsec_instance* instance)
+{
+    uint32_t origin = 0;
+    TEEC_Operation operation = {0};
+    TEEC_Result result = 0;
+
+    operation.params[0].tmpref.buffer = (void*)buffer;
+    operation.params[0].tmpref.size = size;
+
+    operation.params[1].tmpref.buffer = (void*)name;
+    operation.params[1].tmpref.size = name_length;
+
+    operation.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT,
+                                            TEEC_MEMREF_TEMP_INPUT,
+                                            TEEC_NONE,
+                                            TEEC_NONE);
+
+    result = dsec_ca_invoke(instance,
+                            DSEC_TA_CMD_CREATE_PERSISTENT_OBJECT,
+                            &operation,
+                            &origin);
+
+    return result;
+}
+
+TEEC_Result delete_persistent_object(const char* name,
+                                     size_t name_length,
+                                     struct dsec_instance* instance)
+{
+    uint32_t origin = 0;
+    TEEC_Operation operation = {0};
+    TEEC_Result result = 0;
+
+    operation.params[0].tmpref.buffer = (void*)name;
+    operation.params[0].tmpref.size = name_length;
+
+    operation.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT,
+                                            TEEC_NONE,
+                                            TEEC_NONE,
+                                            TEEC_NONE);
+
+    result = dsec_ca_invoke(instance,
+                            DSEC_TA_CMD_DELETE_PERSISTENT_OBJECT,
+                            &operation,
+                            &origin);
+
+    return result;
+}

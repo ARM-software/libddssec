@@ -132,6 +132,10 @@ enum {
     DSEC_TA_CMD_LOAD_OBJECT_STORAGE,
     /*! Function ID for dsec_ta_test_unload_object */
     DSEC_TA_CMD_UNLOAD_OBJECT,
+    /*! Function ID for dsec_ta_test_create_persistent_object */
+    DSEC_TA_CMD_CREATE_PERSISTENT_OBJECT,
+    /*! Function ID for dsec_ta_test_delete_persistent_object */
+    DSEC_TA_CMD_DELETE_PERSISTENT_OBJECT,
     /*! Function ID for dsec_ta_hmac_256_test */
     DSEC_TA_CMD_HMAC_TESTS,
 #endif /* DSEC_TEST */
