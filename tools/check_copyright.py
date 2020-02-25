@@ -128,7 +128,11 @@ def check_copyright(pattern, filename):
 
             # Read the output and format to get the year
             # Index 0 is a speech mark
-            year_last_touched = int(proc.stdout.read().decode('utf-8')[1:5])
+            try:
+                year_last_touched = int(
+                    proc.stdout.read().decode('utf-8')[1:5])
+            except ValueError:
+                year_last_touched = datetime.datetime.now().year
 
         years = match.group('years').split('-')
         if len(years) > 1:
