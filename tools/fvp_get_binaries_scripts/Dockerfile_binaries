@@ -1,6 +1,6 @@
 #
 # DDS Security library
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -94,6 +94,14 @@ RUN cd arm-tf && \
     git fetch --all && \
     git checkout tags/v1.5 && \
     cd ..
+
+# Patch U-boot so that it mounts /root as read-only. This is useful for
+# avoiding filesystem corruption or side-effects when multiple instances of the
+# fast-model run in parallel. Commas are used as the delimiter character
+# instead of forward-slashes so that the forward-slashes in the strings don't
+# need to be escaped.
+RUN sed -i 's,root=/dev/vda2 rw,root=/dev/vda2 ro,' \
+    ./u-boot/include/configs/vexpress_aemv8a.h
 
 RUN chmod a+x ./build-scripts/build-all.sh
 RUN ARM_TF_BUILD_FLAGS=FVP_USE_GIC_DRIVER=FVP_GICV3_LEGACY \
