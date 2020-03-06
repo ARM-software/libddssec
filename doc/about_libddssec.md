@@ -4,9 +4,10 @@
 
 There are two main components of the libddssec project:
 
- - A library which interfaces that the user's DDS implementation links to.
- - A trusted application that executes under a TEE and is used to handle the
-   trusted assets, transformations and operations.
+ - A library with interfaces that the user's DDS implementation links to.
+ - A trusted application that executes under a Trusted Execution Environment
+   (TEE) and is used to handle the trusted assets, transformations and
+   operations.
 
 Understanding how libddssec works requires understanding a number of concepts
 which this document will cover:
@@ -101,7 +102,7 @@ Communication is done:
 
 ## Security
 
-Object Management Group (OMG ) is the organization which writes the
+Object Management Group (OMG) is the organization which writes the
 [DDS protocol
 specification](https://www.omg.org/spec/DDS-SECURITY/About-DDS-SECURITY/)
 
@@ -220,11 +221,11 @@ The remote handle public key is then used to verify signed data (previously
 certified using a remote private key). The local handle private key is used to
 certify a message.
 
-In addition, this handle stores the Subject Name and the RFC2253 Subject Name of
+In addition, this handle stores the Subject Name and the RFC 2253 Subject Name of
 its certificate:
 
- - Subject Name is used to deduce the participant key guid
- - The RFC2253 version is used in the permission plugin
+ - Subject Name is used to deduce the participant key GUID
+ - The RFC 2253 version is used in the permission plugin
 
 ###### Handshake Handle
 
@@ -286,7 +287,7 @@ session key created by CryptoKeyFactory. The messages sent from the DataWriter
 to the DataReader will be encrypted and decrypted only with this key.
 
 # TrustZone
-## [tee-supplicant/OPTEE-Client](https://github.com/OP-TEE/optee_client)
+## [tee-supplicant/OP-TEE Client](https://github.com/OP-TEE/optee_client)
 
 tee-supplicant is a **daemon** that must be executed at the startup of an
 application using the TEE in order to listen to possible requests that the TEE
@@ -295,17 +296,17 @@ was requested by the TEE.
 
 `tee-supplicant` is responsible for:
 
- - Loading TA buy reading the filesystem and putting the TA data in the shared
-   memory that will be read and verified by OPTEE-OS.
+ - Loading TA by reading the filesystem and putting the TA data in the shared
+   memory that will be read and verified by OP-TEE OS.
  - Loading data from the filesystem. Data is encrypted and can only be decrypted
-   by the key in OPTEE-OS.
+   by the key in OP-TEE OS.
 
 See `optee_msg_supplicant.h` for more details about the RPC calls that
 tee-supplicant daemon processes.
 
 ![tee-supplicant can be launched as a daemon or as an infinite loop. It repeatedly calls process_one_request which gets a request from the TA by reading the list in the OP-TEE kernel driver. This starts by calling read_request(), which calls ioctl with TEE_IO_SUPPL_RECV and waits until a request arises. When one does, it calls find_param() to get the returned parameters, spawning a new tee-supplicant thread in case the current thread is blocked. If the corresponding function is found (depending on the parameters), then write_answer() calls ioctl to return the answer with TEE_IOC_SUPPL_END](./media/Tee_supplicant.svg)
 
-OPTEE-Client is a user library that must be included at compile time to have
+OP-TEE Client is a user library that must be included at compile time to have
 access to functions that will call `IOCTL` syscalls to setup and access the TA.
 All those calls will be processed by the TEE Kernel Driver.
 

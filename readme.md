@@ -1,6 +1,6 @@
 # Readme
 
-Copyright (c) 2018-2019, Arm Limited. All rights reserved.
+Copyright (c) 2018-2020, Arm Limited. All rights reserved.
 
 
 
@@ -23,13 +23,13 @@ implementation of the security operations using Arm's [TrustZone IP][2]. This
 implementation uses [OP-TEE][3] to isolate secure operations and assets under a
 Trusted Execution Environment.
 
-![The DDS implementation, starting in the Non-Trusted Environment, uses security plugins to call the libddssec API, existing in a domain called the libddssec CA.  libddssec's TEEC_API functions backend sends these requests to the OP-TEE Client Library (TEEC), which passes it on the the TEE Kernel Driver over ioctl. The TEE Kernel Driver uses ioctl to communicate with the tee-supplicant, used to load information from the filesystem including the encrypted data in /data/tee and the TA binary in /lib/optee_armtz. The TEE Kernel Driver also communicates with TF-A over Secure Monitor Call (SMC), entering the Trusted Environment. TF-A uses another SMC to communicate with OP-TEE OS (running in the Trusted Environment) which contains mbedTLS, libtomcrypt, and Secure Storage libraries. OP-TEE OS communicates with libddssec's dsec TA to access the assets needed for the DDS security plugins safely and without exposing them to the Non-Trusted Environment. Both environments can use shared memory, but this is not used in libddssec](doc/media/Big_picture.svg)
+![The DDS implementation, starting in the Non-Trusted Environment, uses security plugins to call the libddssec API, existing in a domain called the libddssec CA. libddssec's TEEC_API functions back-end sends these requests to the OP-TEE Client Library (TEEC), which passes it on the TEE Kernel Driver over ioctl. The TEE Kernel Driver uses ioctl to communicate with the tee-supplicant, used to load information from the file-system including the encrypted data in /data/tee and the TA binary in /lib/optee_armtz. The TEE Kernel Driver also communicates with TF-A over Secure Monitor Call (SMC), entering the Trusted Environment. TF-A uses another SMC to communicate with OP-TEE OS (running in the Trusted Environment) which contains mbedTLS, libtomcrypt, and Secure Storage libraries. OP-TEE OS communicates with libddssec's dsec TA to access the assets needed for the DDS security plugins safely and without exposing them to the Non-Trusted Environment. Both environments can use shared memory, but this is not used in libddssec](doc/media/Big_picture.svg)
 
 ## Libddssec project goals
 
 The goal of libddssec is to improve security implementations of DDS plugins for
 Arm-based systems using the TrustZone IP. libddssec is a reference
-implementation of the DSS specification's security plugins that uses the Trusted
+implementation of the DDS specification's security plugins that uses the Trusted
 Execution Environment (TEE) to store secure assets, aiming to keep them secure
 even in a system where the normal world is compromised. This library is intended
 to be used by DDS implementations as a way to integrate TEE based security into
@@ -171,7 +171,7 @@ tools offers two possibilities to solve this:
 
 Whichever is chosen, the tool will tear-down any created files. For use in
 systematic testing, however, a filesystem that is read-only or that is reset
-between tests is advisable to avoid interference from unforseen side-effects.
+between tests is advisable to avoid interference from unforeseen side-effects.
 
 Using the fast-model option requires supplying a path to the binaries (the
 filesystem, RAMdisks, et al.) and that the fast-model 'FVP_Base_RevC-2xAEMv8A'
@@ -225,9 +225,9 @@ is compiled into a bundle in HTML format and placed in the *_build_/doc*
 directory.
 
 Note: To enable the documentation generation, the flag `BUILD_DOC` must be
-defined to `ON` (`-DBUILD_DOC=ON`) when cmake is invoked.
+defined to `ON` (`-DBUILD_DOC=ON`) when CMake is invoked.
 
-After you create a build directory and run cmake, from within your _build_
+After you create a build directory and run CMake, from within your _build_
 directory Doxygen can be invoked using the __doc__ target:
 
     $> make doc

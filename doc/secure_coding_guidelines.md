@@ -24,9 +24,9 @@ project. See [Deviated Rules](../tools/misra.config).
 - Check the versions of the third-party libraries and tools used by libddssec as
   they could contain depreciated functions, security flaws. Keep in mind that:
   - The release tags of OP-TEE OS and OP-TEE Client should match.
-  - mbedTLS is included by OPTEE-OS and might not be mainline.
+  - mbedTLS is included by OP-TEE OS and might not be mainline.
   - The underlying layer of the Global Platform API used in OP-TEE OS is
-  tomcrypt.
+  libtomcrypt.
 
 ## libddssec specifics
 
@@ -53,11 +53,11 @@ When coding or reviewing a patch, take care of the following:
   Do not use `strncmp` as it stops at '\0' (prefer `memcmp`), take care with
   `strlen` as the size is given without `\0`,..
 - Static arrays should be used where possible.
-- Secure Storage of OPTEE-OS must never modify a stored file. The filesystem
+- Secure Storage of OP-TEE OS must never modify a stored file. The filesystem
   created should be read only from the Client Application point of view.
   - Certificates, Private key, CRL should not be modified during run-time.
-- Make sure to unload un-needed handle/assets or allocated structures. Some
-  functions in OPTEE-OS allocate space that must be released
+- Make sure to unload unneeded handle/assets or allocated structures. Some
+  functions in OP-TEE OS allocate space that must be released
   (`TEE_Allocate_*`,..)
 - Make sure an `InvokeCommand` is non-blocking and not time consuming as it
   could block the application running in the Non-Secure world.

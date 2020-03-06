@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +34,7 @@ extern "C" {
 
 /*
  * Extra care is taken here to make sure the maximum size of the filename
- * cannot exceed UINT32_MAX. This is because OPTEE-OS parameters are uint32_t.
+ * cannot exceed UINT32_MAX. This is because OP-TEE OS parameters are uint32_t.
  */
 #if (DSEC_IH_PRIVKEY_MAX_FILENAME > UINT32_MAX)
 #error "DSEC_IH_PRIVKEY_MAX_FILENAME cannot be more than UINT32_MAX"

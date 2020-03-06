@@ -24,7 +24,7 @@ Do not use:
 
 Public functions, macros, types and defines must have the `dsec_` prefix
 (upper case for macros and defines) used to identify the library API and avoid
-name colision with other projects.
+name collision with other projects.
 - In addition to this prefix, each module's functions should have a prefix name
   specific to the module (e.g. `dsec_ta_<module>`,..).
 

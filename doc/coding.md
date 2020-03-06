@@ -31,7 +31,7 @@ The top level `CMakeList.txt` will call the following sub directories:
 - `trusted_application/CMakelists.txt`: Building of the Trusted Application
 
 Among calling those subscripts, the top level CMakeLists.txt looks for the
-OPTEE-Client library and includes by loading the script
+OP-TEE Client library and includes by loading the script
 `cmake/modules/FindOPTEECLIENT.cmake`. It will also build the library.
 
 # Adding a new TA source file.
@@ -47,7 +47,7 @@ OPTEE-Client library and includes by loading the script
 # Adding a new CA source file.
 
 - Create a new source file in `libddssec/src` with its associated header file.
-- Add this file in the variable `PROJECT_SOURCE` located in the cmake file
+- Add this file in the variable `PROJECT_SOURCE` located in the CMake file
   `libddssec/CMakeLists.txt`.
 - Include the following file `#include <dsec_ta.h>` to have access to the
   different `DSEC_TA_CMD_` opcodes used to call the TA specific functions.
@@ -92,10 +92,10 @@ const struct dsec_test_suite_desc test_suite = {
 ```
 
 Note: Depending on what is tested, the two functions `test_suite_setup` and
-`test_suite_teardown` are not necessary. The specifics of thoses functions can
+`test_suite_teardown` are not necessary. The specifics of these functions can
 be found in the file `libddssec/tests/dsec_test_ta.c`.
 
-- Once the test is created, it can be added to the cmake file
+- Once the test is created, it can be added to the CMake file
   `libddssec/tests/CMakeLists.txt`. Dependencies can also be added for a
   specific test. See the associated CMake function.
 

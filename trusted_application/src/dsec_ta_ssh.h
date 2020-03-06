@@ -1,6 +1,6 @@
 /*
  * DDS Security library
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,7 +31,7 @@
 
 /*
  * Extra care is taken here to make sure the maximum size of the array storing
- * the handles cannot exceed INT32_MAX. This is because OPTEE-OS parameters are
+ * the handles cannot exceed INT32_MAX. This is because OP-TEE OS parameters are
  * uint32_t and the index of a handle is an int32_t. When the cast occurres, if
  * the index overflows, it will make the handle ID invalid.
  */

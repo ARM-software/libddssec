@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
 # DDS Security library
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 # Create a Docker that will build the Arm Platform stack.
-# Extract the OPTEE-OS and OPTEE-Client binaries and libraries.
+# Extract the OP-TEE OS and OP-TEE Client binaries and libraries.
 # Extract the output binaries for booting Linux on FVP.
 
 set -e

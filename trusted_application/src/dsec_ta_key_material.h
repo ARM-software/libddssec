@@ -20,7 +20,7 @@
 
 /*
  * Extra care is taken here to make sure the maximum size of the array storing
- * the handles cannot exceed INT32_MAX. This is because OPTEE-OS parameters are
+ * the handles cannot exceed INT32_MAX. This is because OP-TEE OS parameters are
  * uint32_t and the index of a handle is an int32_t. When the cast occurres, if
  * the index overflows, it will make the handle ID invalid.
  */
