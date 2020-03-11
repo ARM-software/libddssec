@@ -209,6 +209,22 @@ int32_t dsec_key_material_deserialize(int32_t* km_handle_id,
                                       uint32_t input_size);
 
 /*!
+ * \brief Removes the sender's crypto transform ID from a given key material in
+ * the TA by ID
+ *
+ * \details Calls the Trusted Application
+ *
+ * \param km_handle_id Handle ID of the key material handle.
+ * \param instance Initialized instance to access the Trusted Application
+ *
+ * \retval ::DSEC_SUCCESS Crypto transform ID has been set to zero.
+ * \retval ::DSEC_E_PARAM Parameter types are not properly set.
+ */
+int32_t dsec_key_material_remove_sender_key_id(
+    const struct dsec_instance* instance,
+    int32_t km_handle_id);
+
+/*!
  * \}
  */
 

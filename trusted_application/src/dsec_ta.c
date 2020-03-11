@@ -195,6 +195,10 @@ TEE_Result TA_InvokeCommandEntryPoint(void* session_id,
     case DSEC_TA_CMD_KM_DESERIALIZE:
         result = dsec_ta_key_material_deserialize(parameters_type, parameters);
         break;
+    case DSEC_TA_CMD_KM_REMOVE_SENDER_KEY_ID:
+        result = dsec_ta_key_material_remove_sender_key_id(parameters_type,
+                                                           parameters);
+        break;
     case DSEC_TA_CMD_SESSION_KEY_CREATE_AND_GET:
         result = dsec_ta_session_key_create_and_get(parameters_type,
                                                     parameters);

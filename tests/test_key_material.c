@@ -286,11 +286,79 @@ static void test_case_key_material_register(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst) == DSEC_SUCCESS);
 }
 
+static void test_case_key_material_remove_sender_key_id(void)
+{
+    int32_t result = 0;
+    int32_t km_handle_id = 0;
+
+    uint8_t transformation_kind[DSEC_TRANSFORMATION_KIND_SIZE];
+    uint8_t master_salt[DSEC_MASTER_SALT_SIZE];
+    uint8_t sender_key_id[DSEC_SENDER_KEY_ID_SIZE];
+    uint8_t master_sender_key[DSEC_MASTER_SENDER_KEY_SIZE];
+    uint8_t receiver_specific_key_id[DSEC_RECEIVER_SPECIFIC_KEY_ID];
+    uint8_t
+        master_receiver_specific_key[DSEC_MASTER_RECEIVER_SPECIFIC_KEY_SIZE];
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance inst = dsec_ca_instance_create(&session, &context);
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst) == DSEC_SUCCESS);
+
+    result = dsec_key_material_create(&km_handle_id,
+                                      &inst,
+                                      true,
+                                      true);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+    DSEC_TEST_ASSERT(km_handle_id == 0);
+
+    result = dsec_key_material_return(transformation_kind,
+                                      master_salt,
+                                      sender_key_id,
+                                      master_sender_key,
+                                      receiver_specific_key_id,
+                                      master_receiver_specific_key,
+                                      &inst,
+                                      km_handle_id);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_key_material_remove_sender_key_id(&inst, km_handle_id);
+
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    result = dsec_key_material_delete(&inst, 0);
+    DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst) == DSEC_SUCCESS);
+}
+
+static void test_case_key_material_remove_sender_key_id_miss(void)
+{
+    int32_t result = 0;
+    int32_t km_handle_id = 0;
+
+    TEEC_Session session;
+    TEEC_Context context;
+
+    struct dsec_instance inst = dsec_ca_instance_create(&session, &context);
+    DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst) == DSEC_SUCCESS);
+
+    result = dsec_key_material_remove_sender_key_id(&inst, km_handle_id);
+
+    DSEC_TEST_ASSERT(result != DSEC_SUCCESS);
+
+    DSEC_TEST_ASSERT(dsec_ca_instance_close(&inst) == DSEC_SUCCESS);
+}
+
 static const struct dsec_test_case_desc test_case_table[] = {
     DSEC_TEST_CASE(test_case_key_material_create),
     DSEC_TEST_CASE(test_case_key_material_create_delete),
     DSEC_TEST_CASE(test_case_key_material_generate_copy),
     DSEC_TEST_CASE(test_case_key_material_register),
+    DSEC_TEST_CASE(test_case_key_material_remove_sender_key_id),
+    DSEC_TEST_CASE(test_case_key_material_remove_sender_key_id_miss),
 };
 
 const struct dsec_test_suite_desc test_suite = {

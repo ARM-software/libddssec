@@ -391,3 +391,35 @@ int32_t dsec_key_material_deserialize(int32_t* km_handle_id,
 
     return result;
 }
+
+int32_t dsec_key_material_remove_sender_key_id(
+    const struct dsec_instance* instance,
+    int32_t km_handle_id)
+{
+    TEEC_Result teec_result = 0;
+    int32_t result = 0;
+    uint32_t return_origin = 0;
+    TEEC_Operation operation = {0};
+
+    operation.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT,
+                                            TEEC_NONE,
+                                            TEEC_NONE,
+                                            TEEC_NONE);
+
+    operation.params[0].value.a = km_handle_id;
+
+    teec_result = dsec_ca_invoke(instance,
+                                 DSEC_TA_CMD_KM_REMOVE_SENDER_KEY_ID,
+                                 &operation,
+                                 &return_origin);
+
+    result = dsec_ca_convert_teec_result(teec_result);
+    if (result != DSEC_SUCCESS) {
+        (void)dsec_print("An error occurred: TEEC_Result=0x%x, "
+                         "DSEC_E=0x%x\n",
+                         teec_result,
+                         result);
+    }
+
+    return result;
+}

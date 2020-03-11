@@ -765,6 +765,26 @@ TEE_Result dsec_ta_key_material_generate(uint32_t parameters_type,
     return result;
 }
 
+static TEE_Result key_material_remove_sender_key_id(uint32_t km_handle_id)
+{
+    TEE_Result result = TEE_SUCCESS;
+    if (km_handle_id < DSEC_TA_MAX_KEY_MATERIAL_HANDLE) {
+        if (store[km_handle_id].initialized) {
+            memset(store[km_handle_id].key_material.sender_key_id,
+                   0,
+                   SENDER_KEY_ID_SIZE);
+        } else {
+            EMSG("Key material handle not initialized");
+            result = TEE_ERROR_NO_DATA;
+        }
+    } else {
+        EMSG("Bad parameters types");
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
 TEE_Result dsec_ta_key_material_return(uint32_t parameters_type,
                                        TEE_Param parameters[4])
 {
@@ -938,6 +958,30 @@ TEE_Result dsec_ta_key_material_serialize(uint32_t parameters_type,
             parameters[0].memref.size = 0;
         }
 
+    } else {
+        EMSG("Bad parameters types: 0x%x\n", parameters_type);
+        result = TEE_ERROR_BAD_PARAMETERS;
+    }
+
+    return result;
+}
+
+TEE_Result dsec_ta_key_material_remove_sender_key_id(
+    uint32_t parameters_type,
+    TEE_Param parameters[1])
+{
+    TEE_Result result = TEE_SUCCESS;
+    int32_t km_handle_id = 0;
+
+    const uint32_t expected_types = TEE_PARAM_TYPES(
+        TEE_PARAM_TYPE_VALUE_INPUT,
+        TEE_PARAM_TYPE_NONE,
+        TEE_PARAM_TYPE_NONE,
+        TEE_PARAM_TYPE_NONE);
+
+    if (parameters_type == expected_types) {
+        km_handle_id = (int32_t)parameters[0].value.a;
+        result = key_material_remove_sender_key_id(km_handle_id);
     } else {
         EMSG("Bad parameters types: 0x%x\n", parameters_type);
         result = TEE_ERROR_BAD_PARAMETERS;

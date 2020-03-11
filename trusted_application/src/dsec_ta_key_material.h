@@ -296,6 +296,26 @@ TEE_Result dsec_ta_key_material_deserialize(uint32_t parameters_type,
                                             TEE_Param parameters[2]);
 
 /*!
+ * \brief Remove a sender's crypto transform ID from a key material.
+ *
+ * \details Sets the sender crypto transform ID of a specified key
+ * material to zero.
+ *     The expected TEE_Param value is:
+ *        - TEE_PARAM_TYPE_VALUE_INPUT
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *        - TEE_PARAM_NONE
+ *
+ * \param parameters[0].value.a Key Material handle
+ *
+ * \retval ::TEE_SUCCESS Sender ID has been set to zero.
+ * \retval ::TEE_ERROR_BAD_PARAMETERS Parameter types are not properly set.
+ */
+TEE_Result dsec_ta_key_material_remove_sender_key_id(
+    uint32_t parameters_type,
+    TEE_Param parameters[1]);
+
+/*!
  * \brief Return a key material from a given ID.
  *
  * \param km_handle_id ID of the key material handle. Must be valid
