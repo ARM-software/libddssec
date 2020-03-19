@@ -148,3 +148,4 @@ TEE_Result dsec_ta_session_key_create_and_get(uint32_t parameters_type,
 
     return result;
 }
+
