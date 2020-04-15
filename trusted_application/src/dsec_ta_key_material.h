@@ -18,16 +18,6 @@
  */
 #define DSEC_TA_MAX_KEY_MATERIAL_HANDLE (256U)
 
-/*
- * Extra care is taken here to make sure the maximum size of the array storing
- * the handles cannot exceed INT32_MAX. This is because OP-TEE OS parameters are
- * uint32_t and the index of a handle is an int32_t. When the cast occurres, if
- * the index overflows, it will make the handle ID invalid.
- */
-#if (DSEC_TA_MAX_KEY_MATERIAL_HANDLE > INT32_MAX)
-#error "DSEC_TA_MAX_KEY_MATERIAL_HANDLE cannot be more than INT32_MAX"
-#endif
-
 /*! No encryption/authentication */
 #define TRANSFORMATION_KIND_NONE         {0, 0, 0, 0}
 /*! Authentication only (AES128-GMAC) */
@@ -322,6 +312,6 @@ TEE_Result dsec_ta_key_material_remove_sender_key_id(
  * \return A pointer to the key material.
  * \return NULL if the ID leads to an invalid or un-initialized handle.
  */
-struct key_material_t* key_material_get(int32_t km_handle_id);
+struct key_material_t* key_material_get(uint32_t km_handle_id);
 
 #endif /* DSEC_TA_KEY_MATERIAL_H */

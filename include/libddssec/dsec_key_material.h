@@ -45,7 +45,7 @@ extern "C" {
  * \return TEE_Result from the function DSEC_TA_CMD_KM_CREATE invoked in the TA
  *     converted to a DSEC_E_
  */
-int32_t dsec_key_material_create(int32_t* km_handle_id,
+int32_t dsec_key_material_create(uint32_t* km_handle_id,
                                  const struct dsec_instance* instance,
                                  bool use_gcm,
                                  bool use_256_bits);
@@ -67,7 +67,7 @@ int32_t dsec_key_material_create(int32_t* km_handle_id,
  * \return TEE_Result from the function DSEC_TA_CMD_KM_GENERATE invoked in the
  *     TA converted to a DSEC_E_
  */
-int32_t dsec_key_material_generate(int32_t* out_km_handle_id,
+int32_t dsec_key_material_generate(uint32_t* out_km_handle_id,
                                    const struct dsec_instance* instance,
                                    int32_t ssh_id);
 
@@ -102,7 +102,7 @@ int32_t dsec_key_material_return(uint8_t transformation_kind[4],
                                  uint8_t receiver_specific_key_id[4],
                                  uint8_t master_receiver_specific_key[32],
                                  const struct dsec_instance* instance,
-                                 int32_t km_handle);
+                                 uint32_t km_handle);
 
 /*!
  * \brief Copy Key Material
@@ -122,9 +122,9 @@ int32_t dsec_key_material_return(uint8_t transformation_kind[4],
  * \return TEE_Result from the function DSEC_TA_CMD_KM_COPY invoked in the TA
  *     converted to a DSEC_E_
  */
-int32_t dsec_key_material_copy(int32_t* out_km_handle_id,
+int32_t dsec_key_material_copy(uint32_t* out_km_handle_id,
                                const struct dsec_instance* instance,
-                               int32_t in_km_handle_id);
+                               uint32_t in_km_handle_id);
 
 /*!
  * \brief Register key material
@@ -148,9 +148,9 @@ int32_t dsec_key_material_copy(int32_t* out_km_handle_id,
  * \return TEE_Result from the function DSEC_TA_CMD_KM_REGISTER invoked in the
  *     TA converted to a DSEC_E_
  */
-int32_t dsec_key_material_register(int32_t* out_km_handle_id,
+int32_t dsec_key_material_register(uint32_t* out_km_handle_id,
                                    const struct dsec_instance* instance,
-                                   int32_t km_handle_id,
+                                   uint32_t km_handle_id,
                                    bool is_origin_auth,
                                    bool generate_receiver_specific_key);
 
@@ -168,7 +168,7 @@ int32_t dsec_key_material_register(int32_t* out_km_handle_id,
  * \retval ::DSEC_E_DATA  Identifier specified leads to an invalid handle.
  */
 int32_t dsec_key_material_delete(const struct dsec_instance* instance,
-                                 int32_t km_handle_id);
+                                 uint32_t km_handle_id);
 
 
 /*!
@@ -188,7 +188,7 @@ int32_t dsec_key_material_delete(const struct dsec_instance* instance,
 int32_t dsec_key_material_serialize(uint8_t* output,
                                     uint32_t* output_size,
                                     const struct dsec_instance* instance,
-                                    int32_t km_handle_id);
+                                    uint32_t km_handle_id);
 
 /*!
  * \brief Deserialize a data buffer to create a key material handle
@@ -203,7 +203,7 @@ int32_t dsec_key_material_serialize(uint8_t* output,
  * \retval ::DSEC_SUCCESS Data has been returned
  * \retval ::DSEC_E_PARAM Parameter types are not properly set.
  */
-int32_t dsec_key_material_deserialize(int32_t* km_handle_id,
+int32_t dsec_key_material_deserialize(uint32_t* km_handle_id,
                                       const struct dsec_instance* instance,
                                       uint8_t* input,
                                       uint32_t input_size);
@@ -222,7 +222,7 @@ int32_t dsec_key_material_deserialize(int32_t* km_handle_id,
  */
 int32_t dsec_key_material_remove_sender_key_id(
     const struct dsec_instance* instance,
-    int32_t km_handle_id);
+    uint32_t km_handle_id);
 
 /*!
  * \}

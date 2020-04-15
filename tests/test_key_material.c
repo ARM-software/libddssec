@@ -26,9 +26,9 @@
 
 static void test_case_key_material_create(void)
 {
-    const int32_t max_allocated_handle = 4;
+    const uint32_t max_allocated_handle = 4;
     int32_t result = 0;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
     bool use_gmac;
     bool use_256_bits;
 
@@ -47,7 +47,7 @@ static void test_case_key_material_create(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst) == DSEC_SUCCESS);
 
     /* Try all possibilities for use_gmac and use_256_bits */
-    for (int32_t i = 0; i < max_allocated_handle; i++) {
+    for (uint32_t i = 0; i < max_allocated_handle; i++) {
         /* i:            0     1     2     3     4     5
          * use_gmac:     true  false true  false true  false ...
          * use_256_bits: true  true  false false true  true  ...*/
@@ -74,7 +74,7 @@ static void test_case_key_material_create(void)
         DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
     }
 
-    for (int32_t i = 0; i < max_allocated_handle; i++) {
+    for (uint32_t i = 0; i < max_allocated_handle; i++) {
         result = dsec_key_material_delete(&inst, i);
         DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
     }
@@ -86,7 +86,7 @@ static void test_case_key_material_create_delete(void)
 {
     const int32_t max_allocated_handle = 4;
     int32_t result = 0;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
     bool use_gmac = false;
     bool use_256_bits = true;
 
@@ -120,8 +120,8 @@ static void test_case_key_material_generate_copy(void)
     int32_t hh_h = -1;
     int32_t result = 0;
     int32_t ss_h = -1;
-    int32_t km_h = -1;
-    int32_t km_h_copy = -1;
+    uint32_t km_h = 1;
+    uint32_t km_h_copy = 1;
 
     uint8_t dh_public[DSEC_DH_PUBLIC_SIZE];
     uint8_t challenge2[DSEC_CHALLENGE_SIZE];
@@ -239,10 +239,10 @@ static void test_case_key_material_generate_copy(void)
 
 static void test_case_key_material_register(void)
 {
-    const int32_t max_allocated_handle = 4;
+    const uint32_t max_allocated_handle = 4;
     int32_t result = 0;
-    int32_t km_handle_id = 0;
-    int32_t km_handle_id_register = 0;
+    uint32_t km_handle_id = 0;
+    uint32_t km_handle_id_register = 0;
     bool use_gmac = false;
     bool use_256_bits = true;
     bool is_origin_auth = false;
@@ -255,7 +255,7 @@ static void test_case_key_material_register(void)
     DSEC_TEST_ASSERT(dsec_ca_instance_open(&inst) == DSEC_SUCCESS);
 
     /* Try all possibilities for use_gmac and use_256_bits */
-    for (int32_t i = 0; i < max_allocated_handle; i++) {
+    for (uint32_t i = 0; i < max_allocated_handle; i++) {
         use_gmac = ((i % 2) == 0);
         use_256_bits = ((i % 4) < 2);
 
@@ -278,7 +278,7 @@ static void test_case_key_material_register(void)
         DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
     }
 
-    for (int32_t i = 0; i < max_allocated_handle; i++) {
+    for (uint32_t i = 0; i < max_allocated_handle; i++) {
         result = dsec_key_material_delete(&inst, i);
         DSEC_TEST_ASSERT(result == DSEC_SUCCESS);
     }
@@ -289,7 +289,7 @@ static void test_case_key_material_register(void)
 static void test_case_key_material_remove_sender_key_id(void)
 {
     int32_t result = 0;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
 
     uint8_t transformation_kind[DSEC_TRANSFORMATION_KIND_SIZE];
     uint8_t master_salt[DSEC_MASTER_SALT_SIZE];
@@ -337,7 +337,7 @@ static void test_case_key_material_remove_sender_key_id(void)
 static void test_case_key_material_remove_sender_key_id_miss(void)
 {
     int32_t result = 0;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
 
     TEEC_Session session;
     TEEC_Context context;

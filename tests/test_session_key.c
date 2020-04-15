@@ -15,7 +15,7 @@
 static void test_case_session_key_create(void)
 {
     int32_t result = 0;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
     uint8_t session_key[32] = {0};
 
     TEEC_Session session;
@@ -66,7 +66,7 @@ static void test_case_session_key_create(void)
 static void test_case_session_key_create_bad_parameters(void)
 {
     int32_t result = 0;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
 
     TEEC_Session session;
     TEEC_Context context;
@@ -112,7 +112,7 @@ static void test_case_session_key_delete_miss(void)
 static void test_case_session_key_encrypt(void)
 {
     int32_t result = 0;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
 
     int32_t session_handle_id = 0;
 
@@ -244,7 +244,7 @@ static void test_case_session_key_encrypt(void)
 static void test_case_session_key_encrypt_bad_parameters(void)
 {
     int32_t result = 0;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
 
     int32_t session_handle_id = 0;
 

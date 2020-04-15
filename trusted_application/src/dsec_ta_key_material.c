@@ -22,35 +22,31 @@
 static struct key_material_handle_t store[DSEC_TA_MAX_KEY_MATERIAL_HANDLE];
 
 /*
- * Returns a valid index to an element from the array of handle.
+ * Sets *output_index to a valid element from the array of handles.
  */
-static int32_t find_free_km_element(void)
+static int32_t find_free_km_element(uint32_t* output_index)
 {
-    int32_t index = 0;
+    int32_t result = TEE_ERROR_NO_DATA;
 
-    index = TEE_ERROR_NO_DATA;
-    for (uint32_t id = 0; id < DSEC_TA_MAX_KEY_MATERIAL_HANDLE; id++) {
-        if (!store[id].initialized) {
-            /*
-             * Cast the size_t to a narrower type int32_t the array size cannot
-             * have more than INT_MAX elements.
-             */
-            index = (int32_t)id;
-            break;
+    if (output_index != NULL) {
+        for (uint32_t id = 0; id < DSEC_TA_MAX_KEY_MATERIAL_HANDLE; id++) {
+            if (!store[id].initialized) {
+                *output_index = id;
+                result = DSEC_SUCCESS;
+                break;
+            }
         }
     }
 
-    return index;
+    return result;
 }
 
 /*
- * Checks if a given index leads to an initialized Handle (i.e. not
- * out-of-bounds and has its boolean flag initialized set).
+ * Checks if a given index leads to an initialized Handle.
  */
-static bool km_is_valid(int32_t index)
+static bool km_is_valid(uint32_t index)
 {
-    return (index >= 0) &&
-           ((uint32_t)index < DSEC_TA_MAX_KEY_MATERIAL_HANDLE) &&
+    return (index < DSEC_TA_MAX_KEY_MATERIAL_HANDLE) &&
            store[index].initialized;
 }
 
@@ -123,7 +119,7 @@ static void make_unique_key_id(uint8_t key_id_out[TRANSFORMATION_KIND_SIZE])
     key_id += 1;
 }
 
-static TEE_Result key_material_create(int* km_handle_id,
+static TEE_Result key_material_create(uint32_t* km_handle_id,
                                       bool use_gcm,
                                       bool use_256_bits)
 {
@@ -144,9 +140,8 @@ static TEE_Result key_material_create(int* km_handle_id,
     const uint8_t transformation_aes256_gcm[] = TRANSFORMATION_KIND_AES256_GCM;
 
     if (km_handle_id != NULL) {
-        *km_handle_id = find_free_km_element();
-        if (*km_handle_id >= 0) {
-
+        result = find_free_km_element(km_handle_id);
+        if (result == DSEC_SUCCESS) {
             store[*km_handle_id].initialized = true;
             key_material = &(store[*km_handle_id].key_material);
 
@@ -182,12 +177,10 @@ static TEE_Result key_material_create(int* km_handle_id,
             memset(key_material->master_receiver_specific_key,
                    0,
                    MASTER_RECEIVER_SPECIFIC_KEY_SIZE);
-
         } else {
-            EMSG("Could not find a free element.\n");
+            EMSG("Can't find a free km element. Error is %d", result);
             result = TEE_ERROR_OUT_OF_MEMORY;
         }
-
     } else {
         EMSG("Given argument is NULL.\n");
         result = TEE_ERROR_BAD_PARAMETERS;
@@ -196,7 +189,7 @@ static TEE_Result key_material_create(int* km_handle_id,
     return result;
 }
 
-static TEE_Result key_material_generate(int32_t* km_handle_id,
+static TEE_Result key_material_generate(uint32_t* km_handle_id,
                                         int32_t ssh_id)
 {
     struct key_material_t* key_material = NULL;
@@ -205,17 +198,14 @@ static TEE_Result key_material_generate(int32_t* km_handle_id,
     const struct shared_secret_handle_t* ssh = NULL;
     uint32_t master_salt_size = MASTER_SALT_SIZE;
     uint32_t master_sender_key_size = MASTER_SENDER_KEY_SIZE;
-    int32_t km_handle_id_tmp = 0;
     const uint8_t transformation_aes256_gcm[] = TRANSFORMATION_KIND_AES256_GCM;
 
     if (km_handle_id != NULL) {
         ssh = dsec_ta_ssh_get(ssh_id);
         if (ssh != NULL) {
-            km_handle_id_tmp = find_free_km_element();
-
-            if (km_handle_id_tmp >= 0) {
-
-                key_material = &(store[km_handle_id_tmp].key_material);
+            result = find_free_km_element(km_handle_id);
+            if (result == DSEC_SUCCESS) {
+                key_material = &(store[*km_handle_id].key_material);
 
                 TEE_MemMove(key_material->transformation_kind,
                             transformation_aes256_gcm,
@@ -250,8 +240,7 @@ static TEE_Result key_material_generate(int32_t* km_handle_id,
                         ssh->shared_key_handle.data_size);
 
                     if (result == TEE_SUCCESS) {
-                        store[km_handle_id_tmp].initialized = true;
-                        *km_handle_id = km_handle_id_tmp;
+                        store[*km_handle_id].initialized = true;
                     } else {
                         EMSG("Could not generate master key.\n");
                     }
@@ -261,7 +250,7 @@ static TEE_Result key_material_generate(int32_t* km_handle_id,
                 }
 
             } else {
-                EMSG("Could not find a free element.\n");
+                EMSG("Could not find a free element. Error is %d", result);
                 result = TEE_ERROR_OUT_OF_MEMORY;
             }
 
@@ -278,34 +267,31 @@ static TEE_Result key_material_generate(int32_t* km_handle_id,
     return result;
 }
 
-static TEE_Result key_material_copy(int32_t* km_handle_id,
-                                    int32_t in_km_handle_id)
+static TEE_Result key_material_copy(uint32_t* km_handle_id,
+                                    uint32_t in_km_handle_id)
 {
     TEE_Result result = 0;
-    int32_t km_handle_id_tmp = 0;
     struct key_material_t* out_key_material = NULL;
     const struct key_material_t* in_key_material = NULL;
 
     if (km_handle_id != NULL) {
         if (km_is_valid(in_km_handle_id)) {
-            km_handle_id_tmp = find_free_km_element();
-
-            if (km_handle_id_tmp >= 0) {
-                out_key_material = &(store[km_handle_id_tmp].key_material);
+            result = find_free_km_element(km_handle_id);
+            if (result == DSEC_SUCCESS) {
+                out_key_material = &(store[*km_handle_id].key_material);
                 in_key_material = &(store[in_km_handle_id].key_material);
 
                 TEE_MemMove(out_key_material,
                             in_key_material,
                             sizeof(*in_key_material));
 
-                store[km_handle_id_tmp].initialized = true;
+                store[*km_handle_id].initialized = true;
                 result = TEE_SUCCESS;
             } else {
-                EMSG("Could not get a free element.\n");
+                EMSG("Could not get a free element. Error is %d", result);
                 result = TEE_ERROR_NO_DATA;
             }
 
-            *km_handle_id = km_handle_id_tmp;
 
         } else {
             EMSG("Given key material handle %u is invalid.\n", in_km_handle_id);
@@ -320,13 +306,12 @@ static TEE_Result key_material_copy(int32_t* km_handle_id,
     return result;
 }
 
-static TEE_Result key_material_register(int32_t* km_handle_id,
-                                        int32_t in_km_handle_id,
+static TEE_Result key_material_register(uint32_t* km_handle_id,
+                                        uint32_t in_km_handle_id,
                                         bool is_origin_auth,
                                         bool generate_receiver_specific_key)
 {
     TEE_Result result = 0;
-    int32_t km_handle_id_tmp = 0;
     struct key_material_t* out_key_material = NULL;
     struct key_material_t* in_key_material = NULL;
 
@@ -334,10 +319,9 @@ static TEE_Result key_material_register(int32_t* km_handle_id,
 
     if (km_handle_id != NULL) {
         if (km_is_valid(in_km_handle_id)) {
-            km_handle_id_tmp = find_free_km_element();
-
-            if (km_handle_id_tmp >= 0) {
-                out_key_material = &(store[km_handle_id_tmp].key_material);
+            result = find_free_km_element(km_handle_id);
+            if (result == DSEC_SUCCESS) {
+                out_key_material = &(store[*km_handle_id].key_material);
                 in_key_material = &(store[in_km_handle_id].key_material);
 
                 TEE_MemMove(out_key_material->transformation_kind,
@@ -386,12 +370,12 @@ static TEE_Result key_material_register(int32_t* km_handle_id,
 
                 }
 
-                store[km_handle_id_tmp].initialized = true;
-                *km_handle_id = km_handle_id_tmp;
+                store[*km_handle_id].initialized = true;
                 result = TEE_SUCCESS;
             } else {
-                EMSG("Given key material handle %u is invalid.\n",
-                     km_handle_id_tmp);
+                EMSG("Given key material handle %u is invalid. Error is %d",
+                     in_km_handle_id,
+                     result);
 
                 result = TEE_ERROR_NO_DATA;
             }
@@ -411,7 +395,7 @@ static TEE_Result key_material_register(int32_t* km_handle_id,
 
 static TEE_Result key_material_serialize(uint8_t* output,
                                          uint32_t* output_size,
-                                         int32_t in_km_handle_id)
+                                         uint32_t in_km_handle_id)
 {
     TEE_Result result = 0;
     struct key_material_t* in_key_material = NULL;
@@ -542,12 +526,11 @@ static TEE_Result key_material_serialize(uint8_t* output,
     return result;
 }
 
-static TEE_Result key_material_deserialize(int32_t* km_handle_id,
+static TEE_Result key_material_deserialize(uint32_t* km_handle_id,
                                            const uint8_t* input,
                                            uint32_t input_size)
 {
     TEE_Result result = 0;
-    int32_t km_handle_id_tmp = 0;
     struct key_material_t* out_key_material = NULL;
     uint8_t kind = 0;
     uint32_t position = 0;
@@ -555,12 +538,10 @@ static TEE_Result key_material_deserialize(int32_t* km_handle_id,
     uint8_t has_specific_key = 0;
 
     if (km_handle_id != NULL) {
-        km_handle_id_tmp = find_free_km_element();
-
-        if (km_handle_id_tmp >= 0) {
-            out_key_material = &(store[km_handle_id_tmp].key_material);
-            store[km_handle_id_tmp].initialized = true;
-            *km_handle_id = km_handle_id_tmp;
+        result = find_free_km_element(km_handle_id);
+        if (result == DSEC_SUCCESS) {
+            out_key_material = &(store[*km_handle_id].key_material);
+            store[*km_handle_id].initialized = true;
 
             result = TEE_SUCCESS;
 
@@ -650,6 +631,7 @@ static TEE_Result key_material_deserialize(int32_t* km_handle_id,
                 }
             }
         } else {
+            EMSG("Can't find a free km element. Error is %d", result);
             result = TEE_ERROR_BAD_PARAMETERS;
         }
     } else {
@@ -663,7 +645,7 @@ TEE_Result dsec_ta_key_material_create(uint32_t parameters_type,
                                        TEE_Param parameters[2])
 {
     TEE_Result result = TEE_SUCCESS;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
     bool use_gcm;
     bool use_256_bits;
 
@@ -689,8 +671,8 @@ TEE_Result dsec_ta_key_material_copy(uint32_t parameters_type,
                                      TEE_Param parameters[2])
 {
     TEE_Result result = TEE_SUCCESS;
-    int32_t in_km_handle_id = 0;
-    int32_t out_km_handle_id = 0;
+    uint32_t in_km_handle_id = 0;
+    uint32_t out_km_handle_id = 0;
 
     const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_OUTPUT,
                                                     TEE_PARAM_TYPE_VALUE_INPUT,
@@ -713,8 +695,8 @@ TEE_Result dsec_ta_key_material_register(uint32_t parameters_type,
                                          TEE_Param parameters[3])
 {
     TEE_Result result = TEE_SUCCESS;
-    int32_t in_km_handle_id = 0;
-    int32_t out_km_handle_id = 0;
+    uint32_t in_km_handle_id = 0;
+    uint32_t out_km_handle_id = 0;
     bool is_origin_auth = false;
     bool generate_receiver_specific_key = false;
 
@@ -746,7 +728,7 @@ TEE_Result dsec_ta_key_material_generate(uint32_t parameters_type,
 {
     TEE_Result result = TEE_SUCCESS;
     int32_t in_ssh_id = 0;
-    int32_t out_km_handle_id = 0;
+    uint32_t out_km_handle_id = 0;
 
     const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_OUTPUT,
                                                     TEE_PARAM_TYPE_VALUE_INPUT,
@@ -789,7 +771,7 @@ TEE_Result dsec_ta_key_material_return(uint32_t parameters_type,
                                        TEE_Param parameters[4])
 {
     TEE_Result result = TEE_SUCCESS;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
     uint32_t key_material_part = 0;
     uint32_t output_buffer1 = 0;
     uint32_t output_buffer2 = 0;
@@ -894,7 +876,7 @@ TEE_Result dsec_ta_key_material_delete(uint32_t parameters_type,
 {
     TEE_Result result = TEE_SUCCESS;
 
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
     struct key_material_handle_t* km_handle = NULL;
 
     const uint32_t expected_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
@@ -903,7 +885,7 @@ TEE_Result dsec_ta_key_material_delete(uint32_t parameters_type,
                                                     TEE_PARAM_TYPE_NONE);
 
     if (parameters_type == expected_types) {
-        km_handle_id = (int32_t)parameters[0].value.a;
+        km_handle_id = parameters[0].value.a;
 
         if (km_is_valid(km_handle_id)) {
             km_handle = &(store[km_handle_id]);
@@ -933,7 +915,7 @@ TEE_Result dsec_ta_key_material_serialize(uint32_t parameters_type,
 {
     TEE_Result result = TEE_SUCCESS;
 
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
     uint8_t* output = 0;
     uint32_t output_size = 0;
 
@@ -944,7 +926,7 @@ TEE_Result dsec_ta_key_material_serialize(uint32_t parameters_type,
         TEE_PARAM_TYPE_NONE);
 
     if (parameters_type == expected_types) {
-        km_handle_id = (int32_t)parameters[1].value.a;
+        km_handle_id = parameters[1].value.a;
         output = parameters[0].memref.buffer;
         output_size = parameters[0].memref.size;
 
@@ -971,7 +953,7 @@ TEE_Result dsec_ta_key_material_remove_sender_key_id(
     TEE_Param parameters[1])
 {
     TEE_Result result = TEE_SUCCESS;
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
 
     const uint32_t expected_types = TEE_PARAM_TYPES(
         TEE_PARAM_TYPE_VALUE_INPUT,
@@ -980,7 +962,7 @@ TEE_Result dsec_ta_key_material_remove_sender_key_id(
         TEE_PARAM_TYPE_NONE);
 
     if (parameters_type == expected_types) {
-        km_handle_id = (int32_t)parameters[0].value.a;
+        km_handle_id = parameters[0].value.a;
         result = key_material_remove_sender_key_id(km_handle_id);
     } else {
         EMSG("Bad parameters types: 0x%x\n", parameters_type);
@@ -995,7 +977,7 @@ TEE_Result dsec_ta_key_material_deserialize(uint32_t parameters_type,
 {
     TEE_Result result = TEE_SUCCESS;
 
-    int32_t km_handle_id = 0;
+    uint32_t km_handle_id = 0;
     uint8_t* input = 0;
     uint32_t input_size = 0;
 
@@ -1026,7 +1008,7 @@ TEE_Result dsec_ta_key_material_deserialize(uint32_t parameters_type,
     return result;
 }
 
-struct key_material_t* key_material_get(int32_t km_handle_id)
+struct key_material_t* key_material_get(uint32_t km_handle_id)
 {
     struct key_material_t* km = NULL;
 
