@@ -21,11 +21,11 @@ class TestBenchBase:
 
     prompt = '{}@'.format(username)
 
-    # OPTEE client development files and library
+    # OP-TEE client development files and library
     optee_client_dir = '$HOME/optee_client'
 
-    # OPTEE devkit used to build trusted applications. The devkit is generated
-    # during the OPTEE OS build and must match the target platform.
+    # OP-TEE devkit used to build trusted applications. The devkit is generated
+    # during the OP-TEE OS build and must match the target platform.
     ta_dev_kit_dir = '$HOME/ta_dev_kit'
 
     # Directory containing libddssec assets (source code and prebuild files)
@@ -34,7 +34,7 @@ class TestBenchBase:
     # Directory where the tests are built and run from
     test_directory = '/dev/shm/test'
 
-    # Directories required by OPTEE during run-time (not used by this tool)
+    # Directories required by OP-TEE during run-time (not used by this tool)
     required_dirs = ['/dev/shm/lib/optee_armtz',  # Used to deploy TAs
                      '/dev/shm/data']  # Used for secure storage
 
