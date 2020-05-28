@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # DDS Security library
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -66,9 +66,9 @@ def run_unit_tests(args, prebuild_path):
     results = []
     banner('Unit tests')
 
-    if args.test_ssh:
+    if args.target_ssh:
         with build_directory(persist=True, name='build-assets-ssh'):
-            ssh_param = args.test_ssh.split(":")
+            ssh_param = args.target_ssh.split(":")
             ssh_host = ssh_param[0]
             ssh_port = ssh_param[1] if len(ssh_param) > 1 else None
 
@@ -83,9 +83,9 @@ def run_unit_tests(args, prebuild_path):
 
         results.append(('Unit tests on remote machine', result))
 
-    if args.test_fvp:
+    if args.target_fvp:
         with build_directory(persist=True, name='build-assets-fvp'):
-            binary_path = os.path.expanduser(args.test_fvp[0])
+            binary_path = os.path.expanduser(args.target_fvp[0])
             try:
                 with TestBenchFVP(binary_path, prebuild_path) as t:
                     result = t.run()
@@ -109,7 +109,7 @@ def main():
         'Unit tests',
         'Note: At least one unit test target or --skip-tests must be selected')
 
-    target.add_argument('--test-ssh',
+    target.add_argument('--target-ssh',
                         help='Run unit tests on a target system via SSH. This \
                               argument requires the following parameters:\n\
                               <ip|hostname>[:port].\n\
@@ -118,7 +118,7 @@ def main():
                         required=False,
                         metavar="<ip|hostname>[:port]")
 
-    target.add_argument('--test-fvp',
+    target.add_argument('--target-fvp',
                         help='Run unit tests on a fast-model. This argument \
                               requires the following parameters:\n\
                               <path/to/system/binaries>',
@@ -142,7 +142,7 @@ def main():
 
     args = parser.parse_args(sys.argv[1:])
 
-    if not args.test_ssh and not args.test_fvp and not args.skip_tests:
+    if not args.target_ssh and not args.target_fvp and not args.skip_tests:
         print("No unit test target or --skip-tests supplied\n",
               file=sys.stderr)
         parser.print_help()

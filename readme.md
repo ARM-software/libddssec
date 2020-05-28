@@ -179,11 +179,11 @@ is located in the PATH.
 
 Using the tool to connect to a remote device:
 
-    ./tools/validation.py --test-ssh <ip|hostname>[:port]
+    ./tools/validation.py --target-ssh <ip|hostname>[:port]
 
 Using the tool to launch a model:
 
-    ./tools/validation.py --test-fvp <path>
+    ./tools/validation.py --target-fvp <path>
 
 This path must include:
 
